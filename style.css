@@ -1189,3 +1189,8 @@ input:checked + .slider:before {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px hsl(340 92% 62% / 0.4);
 }
+
+#custom-amount {
+  background: var(--foreground);
+  color: var(--foreground);
+}
