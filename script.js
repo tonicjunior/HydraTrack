@@ -12,7 +12,7 @@ class HydraTrack {
       notificationsEnabled: false,
       notificationVolume: 0.8,
     };
- this.sounds = [
+    this.sounds = [
       { id: 1, name: "Gato Pianista", file: "cat.mp3" },
       { id: 2, name: "Eletro Music", file: "agua.mp3" },
       { id: 3, name: "Sino Suave", file: "bell.mp3" },
@@ -155,17 +155,6 @@ class HydraTrack {
                     }" data-value="ativo"><div class="activity-title">Ativo</div><div class="activity-desc">Exercício 4+ vezes por semana</div></button>
                 </div>`;
       case 4:
-        return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
-                <h2 class="step-title">Seus horários</h2><p class="step-subtitle">Para lembretes inteligentes no momento certo.</p>
-                <div class="time-inputs">
-                    <div class="form-group"><label for="wake-time" class="form-label">Acordar</label><input type="time" id="wake-time" class="form-input" value="${
-                      this.onboardingData.wakeTime || "07:00"
-                    }"></div>
-                    <div class="form-group"><label for="sleep-time" class="form-label">Dormir</label><input type="time" id="sleep-time" class="form-input" value="${
-                      this.onboardingData.sleepTime || "23:00"
-                    }"></div>
-                </div>`;
-      case 5:
         const weight = this.onboardingData.weight || 70;
         const activityLevel = this.onboardingData.activityLevel || "moderado";
         const calculatedGoal = this.calculateDailyGoal(weight, activityLevel);
@@ -187,7 +176,7 @@ class HydraTrack {
                   this.onboardingData.customGoalValue || ""
                 }">
             </div>`;
-      case 6:
+      case 5:
         const currentVolume = this.onboardingData.notificationVolume ?? 0.8;
         const currentSound = this.onboardingData.sound || this.settings.sound;
         const soundOptions = this.sounds
@@ -199,8 +188,8 @@ class HydraTrack {
           )
           .join("");
 
-        return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
-            <h2 class="step-title">Alertas de Notificação</h2><p class="step-subtitle">Personalize o som e o volume dos lembretes.</p>
+        return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></div>
+            <h2 class="step-title">Som dos Lembretes</h2><p class="step-subtitle">Personalize o som e o volume dos alertas de hidratação.</p>
             <div class="form-group" style="margin-top: 1.5rem;">
                  <label for="onboarding-notification-sound" class="form-label">Som do Lembrete</label>
                  <select id="onboarding-notification-sound" class="form-input">${soundOptions}</select>
@@ -217,6 +206,17 @@ class HydraTrack {
                     </button>
                 </div>
             </div>`;
+      case 6:
+        return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+                <h2 class="step-title">Ativar Lembretes</h2>
+                <p class="step-subtitle">Para te lembrarmos de beber água, precisamos da sua permissão para enviar notificações.</p>
+                <p class="step-subtitle" style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">Isto é essencial para a funcionalidade do app.</p>
+                <button id="request-permission-btn" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    Ativar Notificações
+                </button>
+                <div id="permission-status" style="margin-top: 1rem; color: hsl(var(--success)); font-weight: 600;"></div>
+                `;
       default:
         return "";
     }
@@ -240,24 +240,20 @@ class HydraTrack {
         )?.dataset.value;
         break;
       case 4:
-        this.onboardingData.wakeTime =
-          document.getElementById("wake-time")?.value;
-        this.onboardingData.sleepTime =
-          document.getElementById("sleep-time")?.value;
-        break;
-      case 5:
         this.onboardingData.customGoalCheck =
           document.getElementById("custom-goal-check")?.checked;
         this.onboardingData.customGoalValue =
           document.getElementById("custom-goal-value")?.value;
         break;
-      case 6:
+      case 5:
         this.onboardingData.notificationVolume = parseFloat(
           document.getElementById("onboarding-notification-volume")?.value
         );
         this.onboardingData.sound = parseInt(
           document.getElementById("onboarding-notification-sound")?.value
         );
+        break;
+      case 6:
         break;
     }
   }
@@ -272,12 +268,11 @@ class HydraTrack {
       case 3:
         return !!data.activityLevel;
       case 4:
-        return !!data.wakeTime && !!data.sleepTime;
-      case 5:
         if (data.customGoalCheck) {
           return data.customGoalValue && parseInt(data.customGoalValue) > 0;
         }
         return true;
+      case 5:
       case 6:
         return true;
       default:
@@ -320,13 +315,11 @@ class HydraTrack {
 
     this.playSound(true);
 
-    this.requestNotificationPermission().then(() => {
-      this.settings.notificationsEnabled =
-        this.notificationPermission === "granted";
-      this.isOnboarded = true;
-      this.saveData();
-      this.showDashboard();
-    });
+    this.settings.notificationsEnabled =
+      this.notificationPermission === "granted";
+    this.isOnboarded = true;
+    this.saveData();
+    this.showDashboard();
   }
 
   showDashboard() {
@@ -776,7 +769,7 @@ class HydraTrack {
         option.classList.add("active");
       });
     });
-    if (this.currentStep === 5) {
+    if (this.currentStep === 4) {
       const customGoalCheck = document.getElementById("custom-goal-check");
       if (customGoalCheck) {
         customGoalCheck.addEventListener("change", (e) => {
@@ -787,7 +780,7 @@ class HydraTrack {
         });
       }
     }
-    if (this.currentStep === 6) {
+    if (this.currentStep === 5) {
       const volumeSlider = document.getElementById(
         "onboarding-notification-volume"
       );
@@ -817,6 +810,35 @@ class HydraTrack {
           const selectedSoundId = parseInt(soundSelector.value);
           this.playSound(false, selectedSoundId);
         });
+      }
+    }
+    if (this.currentStep === 6) {
+      const requestBtn = document.getElementById("request-permission-btn");
+      const statusDiv = document.getElementById("permission-status");
+
+      if (requestBtn) {
+        if (this.notificationPermission === "denied") {
+          requestBtn.disabled = true;
+          requestBtn.style.opacity = "0.5";
+          requestBtn.style.cursor = "not-allowed";
+          statusDiv.textContent =
+            "As notificações estão bloqueadas no seu navegador.";
+          statusDiv.style.color = "hsl(var(--destructive))";
+        } else {
+          requestBtn.addEventListener("click", async () => {
+            await this.requestNotificationPermission();
+
+            if (this.notificationPermission === "granted") {
+              statusDiv.textContent = "Permissão concedida com sucesso! 🎉";
+              statusDiv.style.color = "hsl(var(--success))";
+              requestBtn.style.display = "none";
+            } else {
+              statusDiv.textContent =
+                "Você não concedeu a permissão. Você pode ativá-la mais tarde nas configurações.";
+              statusDiv.style.color = "hsl(var(--warning))";
+            }
+          });
+        }
       }
     }
   }
