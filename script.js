@@ -646,6 +646,16 @@ class HydraTrack {
     window.location.reload();
   }
 
+  showInfoModal(title, message) {
+    document.getElementById("info-modal-title").textContent = title;
+    document.getElementById("info-modal-text").textContent = message;
+    document.getElementById("info-modal").style.display = "flex";
+  }
+
+  hideInfoModal() {
+    document.getElementById("info-modal").style.display = "none";
+  }
+
   attachEventListeners() {
     document.getElementById("back-btn").addEventListener("click", () => {
       if (this.currentStep > 1) {
@@ -663,7 +673,10 @@ class HydraTrack {
           this.completeOnboarding();
         }
       } else {
-        alert("Por favor, preencha os dados corretamente.");
+        this.showInfoModal(
+          "Campo Obrigatório",
+          "Por favor, preencha os dados corretamente para continuar."
+        );
       }
     });
     document.getElementById("dashboard").addEventListener("click", (event) => {
@@ -710,6 +723,10 @@ class HydraTrack {
     document
       .getElementById("close-delete-modal-btn")
       .addEventListener("click", cancelDeleteModal);
+
+    document
+      .getElementById("info-modal-confirm-btn")
+      .addEventListener("click", () => this.hideInfoModal());
   }
 
   attachStepEventListeners() {
@@ -908,7 +925,8 @@ class HydraTrack {
     } else if (currentPermission === "denied") {
       this.notificationPermission = "denied";
       this.settings.notificationsEnabled = false;
-      alert(
+      this.showInfoModal(
+        "Notificações Bloqueadas",
         "Você bloqueou as notificações. Para reativá-las, você precisará alterar as permissões do site nas configurações do seu navegador."
       );
     } else {
@@ -1074,8 +1092,9 @@ class HydraTrack {
     const hoursSinceLastDrink = (now - lastLogTime) / (1000 * 60 * 60);
     if (hoursSinceLastDrink > (this.notificationIntervalMinutes / 60) * 2) {
       setTimeout(() => {
-        alert(
-          `Bem-vindo de volta, ${this.user.name}!\n\nParece que faz um tempo que você não registra seu consumo de água. Vamos voltar a se hidratar! 💧`
+        this.showInfoModal(
+          `Bem-vindo de volta, ${this.user.name}!`,
+          `Parece que faz um tempo que você não registra seu consumo de água. Vamos voltar a se hidratar! 💧`
         );
       }, 1500);
     }

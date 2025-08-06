@@ -912,6 +912,7 @@ input:checked + .slider:before {
 .modal-text {
   color: hsl(var(--muted-foreground));
   margin-bottom: 1.5rem;
+  white-space: pre-line;
 }
 .modal-actions {
   display: flex;
