@@ -18,7 +18,7 @@ class HydraTrack {
     this.notificationPermission = "default";
     this.notificationTimer = null;
     this.notificationIntervalMinutes = 60;
-    this.debugNotifications = true;
+    this.debugNotifications = false;
 
     this.notificationSound = new Audio("agua.mp3");
     this.notificationSound.load();
@@ -1055,3 +1055,4 @@ class Particle {
 document.addEventListener("DOMContentLoaded", () => {
   window.hydraTrack = new HydraTrack();
 });
+
