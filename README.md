@@ -71,7 +71,7 @@ Para executar este projeto localmente, siga os passos abaixo.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/seu-usuario/hydratrack.git](https://github.com/seu-usuario/hydratrack.git)
+    git clone https://github.com/tonicjunior/HydraTrack.git
     ```
     (Substitua `seu-usuario/hydratrack.git` pelo URL do seu repositório)
 
