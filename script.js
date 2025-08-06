@@ -12,10 +12,10 @@ class HydraTrack {
       notificationsEnabled: false,
       notificationVolume: 0.8,
     };
-    this.sounds = [
-      { id: 1, name: "Eletro Music", file: "agua.mp3" },
-      { id: 2, name: "Sino Suave", file: "bell.mp3" },
-      { id: 3, name: "Gato Pianista", file: "cat.mp3" },
+ this.sounds = [
+      { id: 1, name: "Gato Pianista", file: "cat.mp3" },
+      { id: 2, name: "Eletro Music", file: "agua.mp3" },
+      { id: 3, name: "Sino Suave", file: "bell.mp3" },
       { id: 4, name: "Up level", file: "level.mp3" },
       { id: 5, name: "Mensagem", file: "mensagem.mp3" },
       { id: 6, name: "Notification", file: "notification1.mp3" },
@@ -38,6 +38,10 @@ class HydraTrack {
     this.particleCanvas = null;
     this.particleCtx = null;
     this.particles = [];
+
+    this.unlockedAchievements = [];
+    this.allAchievements = this.getAchievementsList();
+
     this.initializeApp();
   }
 
@@ -51,6 +55,7 @@ class HydraTrack {
     } else {
       this.showDashboard();
       this.checkOfflineHydrationStatus();
+      this.checkAllAchievements();
     }
     this.attachEventListeners();
   }
@@ -67,6 +72,9 @@ class HydraTrack {
       this.streak = parseInt(localStorage.getItem("hydratrack-streak")) || 0;
       this.isOnboarded =
         localStorage.getItem("hydratrack-onboarded") === "true";
+      this.unlockedAchievements =
+        JSON.parse(localStorage.getItem("hydratrack-unlocked-achievements")) ||
+        [];
       this.notificationSound.volume = this.settings.notificationVolume;
     } catch (error) {
       console.error("Error loading data:", error);
@@ -83,6 +91,10 @@ class HydraTrack {
       );
       localStorage.setItem("hydratrack-streak", this.streak.toString());
       localStorage.setItem("hydratrack-onboarded", this.isOnboarded.toString());
+      localStorage.setItem(
+        "hydratrack-unlocked-achievements",
+        JSON.stringify(this.unlockedAchievements)
+      );
     } catch (error) {
       console.error("Error saving data:", error);
     }
@@ -456,22 +468,28 @@ class HydraTrack {
     container.innerHTML = html;
   }
 
-  addWaterLog(amount) {
+  addWaterLog(amount, isCustom = false) {
     this.triggerWaterAnimation();
     const prevProgress = this.getTodayProgress();
+
     this.waterLogs.push({
       id: this.generateId(),
       amount: parseInt(amount),
       timestamp: new Date().toISOString(),
       date: this.getTodayDateString(),
+      isCustom: isCustom,
     });
-    this.saveData();
-    this.resetNotificationTimer();
+
     const newProgress = this.getTodayProgress();
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
       this.updateStreak();
     }
+
+    this.checkAllAchievements();
+    this.saveData();
+
+    this.resetNotificationTimer();
     this.updateDashboard();
     const customInput = document.getElementById("custom-amount");
     if (customInput) customInput.value = "";
@@ -531,6 +549,7 @@ class HydraTrack {
   }
 
   showSettings() {
+    this.unlockAchievement("B13");
     const modal = document.getElementById("settings-modal");
     const content = modal.querySelector(".settings-modal-content");
     const soundOptions = this.sounds
@@ -597,6 +616,9 @@ class HydraTrack {
   }
 
   saveSettings() {
+    const oldSoundId = this.settings.sound;
+    const oldIsManual = this.user.isManualGoal;
+
     this.user.name = document.getElementById("setting-name").value;
     this.user.weight = parseInt(
       document.getElementById("setting-weight").value
@@ -604,6 +626,7 @@ class HydraTrack {
     this.user.isManualGoal = document.getElementById(
       "setting-manual-goal"
     ).checked;
+
     if (this.user.isManualGoal) {
       this.user.dailyGoal = parseInt(
         document.getElementById("setting-goal").value
@@ -627,6 +650,14 @@ class HydraTrack {
       document.getElementById("setting-notification-sound").value
     );
     this.notificationSound.volume = this.settings.notificationVolume;
+
+    if (this.settings.sound !== oldSoundId) {
+      this.unlockAchievement("S20");
+    }
+    if (this.user.isManualGoal && !oldIsManual) {
+      this.unlockAchievement("G14");
+    }
+
     if (!this.settings.notificationsEnabled) {
       this.stopNotificationTimer();
     } else {
@@ -643,6 +674,7 @@ class HydraTrack {
     localStorage.removeItem("hydratrack-settings");
     localStorage.removeItem("hydratrack-streak");
     localStorage.removeItem("hydratrack-onboarded");
+    localStorage.removeItem("hydratrack-unlocked-achievements");
     window.location.reload();
   }
 
@@ -681,21 +713,21 @@ class HydraTrack {
     });
     document.getElementById("dashboard").addEventListener("click", (event) => {
       const quickBtn = event.target.closest(".quick-btn");
-      if (quickBtn) this.addWaterLog(quickBtn.dataset.amount);
+      if (quickBtn) this.addWaterLog(quickBtn.dataset.amount, false);
       const deleteBtn = event.target.closest(".timeline-delete");
       if (deleteBtn) this.deleteWaterLog(deleteBtn.dataset.logId);
     });
     const addCustomBtn = document.getElementById("add-custom-btn");
     addCustomBtn?.addEventListener("click", () => {
       const amount = document.getElementById("custom-amount").value;
-      if (amount && parseInt(amount) > 0) this.addWaterLog(amount);
+      if (amount && parseInt(amount) > 0) this.addWaterLog(amount, true);
     });
     document
       .getElementById("custom-amount")
       ?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
           const amount = document.getElementById("custom-amount").value;
-          if (amount && parseInt(amount) > 0) this.addWaterLog(amount);
+          if (amount && parseInt(amount) > 0) this.addWaterLog(amount, true);
         }
       });
     document
@@ -723,10 +755,16 @@ class HydraTrack {
     document
       .getElementById("close-delete-modal-btn")
       .addEventListener("click", cancelDeleteModal);
-
     document
       .getElementById("info-modal-confirm-btn")
       .addEventListener("click", () => this.hideInfoModal());
+
+    document
+      .getElementById("achievements-btn")
+      ?.addEventListener("click", () => this.showAchievements());
+    document
+      .getElementById("close-achievements-btn")
+      ?.addEventListener("click", () => this.hideAchievements());
   }
 
   attachStepEventListeners() {
@@ -764,6 +802,11 @@ class HydraTrack {
           const volume = parseFloat(e.target.value);
           this.notificationSound.volume = volume;
           volumePercentage.textContent = `${Math.round(volume * 100)}%`;
+        });
+      }
+      if (soundSelector) {
+        soundSelector.addEventListener("change", (e) => {
+          this.playSound(false, parseInt(e.target.value));
         });
       }
       const testVolumeBtn = document.getElementById(
@@ -818,6 +861,11 @@ class HydraTrack {
       testVolumeBtn.addEventListener("click", () =>
         this.playSound(false, parseInt(soundSelector.value))
       );
+    }
+    if (soundSelector) {
+      soundSelector.addEventListener("change", (e) => {
+        this.playSound(false, parseInt(e.target.value));
+      });
     }
     this.updatePermissionStatusText();
   }
@@ -1146,6 +1194,858 @@ class HydraTrack {
         this.particleCanvas.height
       );
     }
+  }
+
+  showAchievements() {
+    this.renderAchievements();
+    document.getElementById("achievements-modal").style.display = "flex";
+  }
+
+  hideAchievements() {
+    document.getElementById("achievements-modal").style.display = "none";
+  }
+
+  renderAchievements() {
+    const container = document.getElementById("achievements-list");
+    const unlocked = this.allAchievements.filter((ach) =>
+      this.unlockedAchievements.includes(ach.id)
+    );
+
+    if (unlocked.length === 0) {
+      container.innerHTML = `
+                <div class="empty-timeline">
+                    <svg class="empty-icon" viewBox="0 0 24 24"><path d="M16 8v-2a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2zm-4 6h-2v-2h2v2zm2-7V5h-4v2h4z"/></svg>
+                    <p>Nenhuma conquista desbloqueada ainda.</p>
+                    <p>Continue se hidratando para ganhar novas conquistas!</p>
+                </div>`;
+      return;
+    }
+
+    container.innerHTML = unlocked
+      .map((ach) => {
+        const tierClass = ach.tier.toLowerCase();
+        return `
+                <div class="achievement-item unlocked ${tierClass}">
+                    <div class="achievement-icon">${ach.icon}</div>
+                    <div class="achievement-details">
+                        <div class="achievement-title">${ach.name}</div>
+                        <div class="achievement-desc">${ach.description}</div>
+                    </div>
+                </div>
+            `;
+      })
+      .join("");
+  }
+
+  unlockAchievement(id) {
+    if (!this.unlockedAchievements.includes(id)) {
+      this.unlockedAchievements.push(id);
+      const achievement = this.allAchievements.find((a) => a.id === id);
+      if (achievement) {
+        this.showInfoModal(
+          `🏆 Conquista Desbloqueada!`,
+          `Você ganhou a conquista "${achievement.name}"!`
+        );
+      }
+      this.saveData();
+    }
+  }
+
+  checkAllAchievements() {
+    if (!this.user || this.waterLogs.length === 0) return;
+    const totalLogs = this.waterLogs.length;
+    const totalConsumed = this.waterLogs.reduce(
+      (sum, log) => sum + log.amount,
+      0
+    );
+    const todayProgress = this.getTodayProgress();
+    const uniqueDaysWithLogs = [
+      ...new Set(this.waterLogs.map((log) => log.date)),
+    ];
+    const consumptionByDay = uniqueDaysWithLogs.reduce((acc, date) => {
+      acc[date] = this.waterLogs
+        .filter((log) => log.date === date)
+        .reduce((sum, log) => sum + log.amount, 0);
+      return acc;
+    }, {});
+    const firstLogDate = new Date(this.waterLogs[0].timestamp);
+    const daysSinceFirstLog = Math.ceil(
+      Math.abs(new Date() - firstLogDate) / (1000 * 60 * 60 * 24)
+    );
+
+    this.allAchievements.forEach((ach) => {
+      if (this.unlockedAchievements.includes(ach.id)) return;
+
+      let conditionMet = false;
+
+      switch (ach.id) {
+        case "B01":
+          conditionMet = totalLogs > 0;
+          break;
+        case "B02":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total >= this.user.dailyGoal
+          );
+          break;
+        case "B03":
+          conditionMet = this.streak >= 3;
+          break;
+        case "B04":
+          conditionMet = this.streak >= 7;
+          break;
+        case "B05":
+          conditionMet = totalLogs >= 10;
+          break;
+        case "B06":
+          conditionMet = totalLogs >= 25;
+          break;
+        case "B07":
+          conditionMet = totalConsumed >= 10000;
+          break;
+        case "B08":
+          conditionMet = this.waterLogs.some(
+            (log) => new Date(log.timestamp).getHours() < 9
+          );
+          break;
+        case "B09":
+          conditionMet = this.waterLogs.some((log) => {
+            const h = new Date(log.timestamp).getHours();
+            return h >= 12 && h < 18;
+          });
+          break;
+        case "B10":
+          conditionMet = this.waterLogs.some(
+            (log) => new Date(log.timestamp).getHours() >= 20
+          );
+          break;
+        case "B11":
+          conditionMet = this.waterLogs.some((log) => {
+            const day = new Date(log.timestamp).getDay();
+            return day === 0 || day === 6;
+          });
+          break;
+        case "B12":
+          conditionMet = this.waterLogs.some((log) => log.isCustom);
+          break;
+        case "B13":
+          break;
+        case "B14":
+          conditionMet = this.waterLogs.some((log) => log.amount <= 100);
+          break;
+        case "B15":
+          conditionMet = this.waterLogs.some((log) => log.amount >= 1000);
+          break;
+        case "B16":
+          conditionMet = uniqueDaysWithLogs.length >= 5;
+          break;
+        case "B17":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total >= this.user.dailyGoal + 500
+          );
+          break;
+        case "B18":
+          conditionMet = uniqueDaysWithLogs.some(
+            (date) =>
+              new Date(date).getDay() === 1 &&
+              consumptionByDay[date] >= this.user.dailyGoal
+          );
+          break;
+        case "B19":
+          conditionMet = todayProgress.percentage >= 50;
+          break;
+        case "B20":
+          conditionMet = daysSinceFirstLog >= 7;
+          break;
+        case "S01":
+          conditionMet = this.streak >= 15;
+          break;
+        case "S02":
+          conditionMet = totalLogs >= 50;
+          break;
+        case "S03":
+          conditionMet = totalLogs >= 100;
+          break;
+        case "S04":
+          conditionMet = totalConsumed >= 25000;
+          break;
+        case "S05":
+          conditionMet = totalConsumed >= 50000;
+          break;
+        case "S06":
+          conditionMet = this.checkPerfectWeek();
+          break;
+        case "S07":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total >= this.user.dailyGoal * 2
+          );
+          break;
+        case "S08":
+          conditionMet = this.checkConsecutiveLogDays(
+            5,
+            (log) => new Date(log.timestamp).getHours() < 9
+          );
+          break;
+        case "S09":
+          conditionMet = this.checkConsecutiveLogDays(
+            5,
+            (log) => new Date(log.timestamp).getHours() >= 20
+          );
+          break;
+        case "S10":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => Math.abs(total - this.user.dailyGoal) <= 10
+          );
+          break;
+        case "S11":
+          conditionMet = Object.keys(consumptionByDay).some(
+            (date) => this.waterLogs.filter((l) => l.date === date).length >= 5
+          );
+          break;
+        case "S12":
+          conditionMet = Object.keys(consumptionByDay).some(
+            (date) => this.waterLogs.filter((l) => l.date === date).length >= 10
+          );
+          break;
+        case "S13":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total > 4000
+          );
+          break;
+        case "S14":
+          conditionMet = daysSinceFirstLog >= 14;
+          break;
+        case "S15":
+          conditionMet = uniqueDaysWithLogs.length >= 15;
+          break;
+        case "S16":
+          conditionMet =
+            this.unlockedAchievements.filter((id) => id.startsWith("B"))
+              .length >= 10;
+          break;
+        case "S17":
+          conditionMet =
+            this.unlockedAchievements.filter((id) => id.startsWith("B"))
+              .length >= 20;
+          break;
+        case "S18":
+          conditionMet = this.checkHourlyLogs(4);
+          break;
+        case "S19":
+          conditionMet = this.checkPerfectWeekend();
+          break;
+        case "S20":
+          break;
+        case "G01":
+          conditionMet = this.streak >= 30;
+          break;
+        case "G02":
+          conditionMet = totalLogs >= 250;
+          break;
+        case "G03":
+          conditionMet = totalLogs >= 500;
+          break;
+        case "G04":
+          conditionMet = totalConsumed >= 75000;
+          break;
+        case "G05":
+          conditionMet = totalConsumed >= 100000;
+          break;
+        case "G06":
+          conditionMet = this.checkPerfectStreak(14);
+          break;
+        case "G07":
+          conditionMet = this.checkPerfectStreak(21);
+          break;
+        case "G08":
+          conditionMet = this.checkPerfectStreak(30);
+          break;
+        case "G09":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total > 5000
+          );
+          break;
+        case "G10":
+          conditionMet = this.checkHourlyLogs(8);
+          break;
+        case "G11":
+          conditionMet =
+            [
+              ...new Set(
+                this.waterLogs
+                  .filter((log) => new Date(log.timestamp).getHours() < 9)
+                  .map((log) => log.date)
+              ),
+            ].length >= 15;
+          break;
+        case "G12":
+          conditionMet =
+            [
+              ...new Set(
+                this.waterLogs
+                  .filter((log) => new Date(log.timestamp).getHours() >= 20)
+                  .map((log) => log.date)
+              ),
+            ].length >= 15;
+          break;
+        case "G13":
+          conditionMet = uniqueDaysWithLogs.length >= 30;
+          break;
+        case "G14":
+          break;
+        case "G15":
+          conditionMet =
+            this.unlockedAchievements.filter((id) => id.startsWith("S"))
+              .length >= 10;
+          break;
+        case "G16":
+          conditionMet =
+            this.unlockedAchievements.filter((id) => id.startsWith("S"))
+              .length >= 20;
+          break;
+        case "G17":
+          conditionMet = Object.values(consumptionByDay).some(
+            (total) => total >= this.user.dailyGoal * 3
+          );
+          break;
+        case "G18":
+          conditionMet = this.checkConsecutiveLogDays(30);
+          break;
+        case "G19":
+          conditionMet = this.settings.notificationsEnabled && this.streak >= 7;
+          break;
+        case "G20":
+          conditionMet = this.unlockedAchievements.length >= 59;
+          break;
+      }
+
+      if (conditionMet) {
+        this.unlockAchievement(ach.id);
+      }
+    });
+  }
+
+  checkPerfectStreak(numDays) {
+    if (this.streak < numDays) return false;
+    const sortedDays = [...new Set(this.waterLogs.map((log) => log.date))]
+      .sort()
+      .slice(-numDays);
+    if (sortedDays.length < numDays) return false;
+
+    return sortedDays.every((date) => {
+      const dayTotal = this.waterLogs
+        .filter((log) => log.date === date)
+        .reduce((sum, log) => sum + log.amount, 0);
+      return dayTotal >= this.user.dailyGoal;
+    });
+  }
+
+  checkPerfectWeek() {
+    let sunday = new Date();
+    sunday.setDate(sunday.getDate() - sunday.getDay());
+    for (let i = 0; i < 7; i++) {
+      const dayToCheck = new Date(sunday);
+      dayToCheck.setDate(sunday.getDate() - i);
+      const dateString = dayToCheck.toISOString().split("T")[0];
+      const dayTotal = this.waterLogs
+        .filter((log) => log.date === dateString)
+        .reduce((sum, log) => sum + log.amount, 0);
+      if (dayTotal < this.user.dailyGoal) return false;
+    }
+    return true;
+  }
+
+  checkConsecutiveLogDays(numDays, filterFn = () => true) {
+    const relevantLogs = this.waterLogs.filter(filterFn);
+    const uniqueDays = [...new Set(relevantLogs.map((log) => log.date))].sort();
+    if (uniqueDays.length < numDays) return false;
+
+    for (let i = 0; i <= uniqueDays.length - numDays; i++) {
+      let isConsecutive = true;
+      for (let j = 0; j < numDays - 1; j++) {
+        const current = new Date(uniqueDays[i + j]);
+        const next = new Date(uniqueDays[i + j + 1]);
+        if ((next - current) / (1000 * 3600 * 24) !== 1) {
+          isConsecutive = false;
+          break;
+        }
+      }
+      if (isConsecutive) return true;
+    }
+    return false;
+  }
+
+  checkHourlyLogs(numHours) {
+    const todayLogs = this.getTodayProgress().logs;
+    if (todayLogs.length === 0) return false;
+
+    const hoursWithLogs = [
+      ...new Set(todayLogs.map((log) => new Date(log.timestamp).getHours())),
+    ].sort((a, b) => a - b);
+    if (hoursWithLogs.length < numHours) return false;
+
+    for (let i = 0; i <= hoursWithLogs.length - numHours; i++) {
+      let isConsecutive = true;
+      for (let j = 0; j < numHours - 1; j++) {
+        if (hoursWithLogs[i + j + 1] - hoursWithLogs[i + j] !== 1) {
+          isConsecutive = false;
+          break;
+        }
+      }
+      if (isConsecutive) return true;
+    }
+    return false;
+  }
+
+  checkPerfectWeekend() {
+    const today = new Date();
+    let lastSaturday = new Date(today);
+    lastSaturday.setDate(today.getDate() - today.getDay() - 1);
+    let lastSunday = new Date(today);
+    lastSunday.setDate(today.getDate() - today.getDay());
+
+    const satString = lastSaturday.toISOString().split("T")[0];
+    const sunString = lastSunday.toISOString().split("T")[0];
+
+    const satTotal = this.waterLogs
+      .filter((log) => log.date === satString)
+      .reduce((sum, log) => sum + log.amount, 0);
+    const sunTotal = this.waterLogs
+      .filter((log) => log.date === sunString)
+      .reduce((sum, log) => sum + log.amount, 0);
+
+    return satTotal >= this.user.dailyGoal && sunTotal >= this.user.dailyGoal;
+  }
+
+  getAchievementsList() {
+    return [
+      {
+        id: "B01",
+        name: "Primeira Gota",
+        description: "Faça seu primeiro registro de consumo de água.",
+        tier: "Bronze",
+        icon: "💧",
+      },
+      {
+        id: "B02",
+        name: "Meta do Dia",
+        description: "Atinja sua meta diária de hidratação pela primeira vez.",
+        tier: "Bronze",
+        icon: "🎯",
+      },
+      {
+        id: "B03",
+        name: "Trio Hidratado",
+        description: "Mantenha uma sequência de 3 dias atingindo a meta.",
+        tier: "Bronze",
+        icon: "🥉",
+      },
+      {
+        id: "B04",
+        name: "Semana Quase Perfeita",
+        description: "Mantenha uma sequência de 7 dias atingindo a meta.",
+        tier: "Bronze",
+        icon: "📅",
+      },
+      {
+        id: "B05",
+        name: "Colecionador de Gotas",
+        description: "Faça 10 registros de consumo de água.",
+        tier: "Bronze",
+        icon: "🔟",
+      },
+      {
+        id: "B06",
+        name: "Entusiasta",
+        description: "Faça 25 registros de consumo.",
+        tier: "Bronze",
+        icon: "🧑‍🔬",
+      },
+      {
+        id: "B07",
+        name: "Dez Litros!",
+        description: "Consuma um total de 10 litros de água.",
+        tier: "Bronze",
+        icon: "🌊",
+      },
+      {
+        id: "B08",
+        name: "Madrugador",
+        description: "Registre água antes das 9h da manhã.",
+        tier: "Bronze",
+        icon: "☀️",
+      },
+      {
+        id: "B09",
+        name: "Bebedor Vespertino",
+        description: "Registre água entre 12h e 18h.",
+        tier: "Bronze",
+        icon: "🏙️",
+      },
+      {
+        id: "B10",
+        name: "Coruja Hidratada",
+        description: "Registre água após as 20h.",
+        tier: "Bronze",
+        icon: "🌙",
+      },
+      {
+        id: "B11",
+        name: "Fim de Semana Saudável",
+        description: "Registre água em um sábado ou domingo.",
+        tier: "Bronze",
+        icon: "🎉",
+      },
+      {
+        id: "B12",
+        name: "Personalizado",
+        description: "Use a função de adicionar quantidade personalizada.",
+        tier: "Bronze",
+        icon: "✍️",
+      },
+      {
+        id: "B13",
+        name: "Curioso",
+        description: "Visite a tela de configurações.",
+        tier: "Bronze",
+        icon: "⚙️",
+      },
+      {
+        id: "B14",
+        name: "Pequeno Gole",
+        description: "Adicione um registro de 100ml ou menos.",
+        tier: "Bronze",
+        icon: "🤏",
+      },
+      {
+        id: "B15",
+        name: "Garrafona",
+        description: "Adicione um registro de 1000ml ou mais de uma vez.",
+        tier: "Bronze",
+        icon: "🫙",
+      },
+      {
+        id: "B16",
+        name: "Consistência é a Chave",
+        description: "Registre água por 5 dias diferentes.",
+        tier: "Bronze",
+        icon: "🗓️",
+      },
+      {
+        id: "B17",
+        name: "Superando Limites",
+        description: "Supere sua meta diária em 500ml.",
+        tier: "Bronze",
+        icon: "💪",
+      },
+      {
+        id: "B18",
+        name: "Semana Iniciada",
+        description: "Atinja sua meta em uma segunda-feira.",
+        tier: "Bronze",
+        icon: "🚀",
+      },
+      {
+        id: "B19",
+        name: "Meio Caminho Andado",
+        description: "Atinja 50% da sua meta diária.",
+        tier: "Bronze",
+        icon: "🌗",
+      },
+      {
+        id: "B20",
+        name: "Primeira Semana",
+        description: "Complete 7 dias de uso do aplicativo.",
+        tier: "Bronze",
+        icon: "1️⃣",
+      },
+      {
+        id: "S01",
+        name: "Quinze Dias de Glória",
+        description: "Mantenha uma sequência de 15 dias atingindo a meta.",
+        tier: "Silver",
+        icon: "🥈",
+      },
+      {
+        id: "S02",
+        name: "Hábito Formado",
+        description: "Faça 50 registros de consumo.",
+        tier: "Silver",
+        icon: "✅",
+      },
+      {
+        id: "S03",
+        name: "Mestre dos Registros",
+        description: "Faça 100 registros de consumo.",
+        tier: "Silver",
+        icon: "📈",
+      },
+      {
+        id: "S04",
+        name: "Piscina Olímpica",
+        description: "Consuma um total de 25 litros de água.",
+        tier: "Silver",
+        icon: "🏊",
+      },
+      {
+        id: "S05",
+        name: "Rio Amazonas",
+        description: "Consuma um total de 50 litros de água.",
+        tier: "Silver",
+        icon: "🏞️",
+      },
+      {
+        id: "S06",
+        name: "Semana Perfeita",
+        description:
+          "Atinja sua meta todos os dias por uma semana (de domingo a sábado).",
+        tier: "Silver",
+        icon: "🌟",
+      },
+      {
+        id: "S07",
+        name: "Dobradinha",
+        description: "Beba o dobro da sua meta diária em um único dia.",
+        tier: "Silver",
+        icon: "✌️",
+      },
+      {
+        id: "S08",
+        name: "Regularidade Matinal",
+        description: "Registre água antes das 9h por 5 dias seguidos.",
+        tier: "Silver",
+        icon: "🌅",
+      },
+      {
+        id: "S09",
+        name: "Vigilante Noturno",
+        description: "Registre água após as 20h por 5 dias seguidos.",
+        tier: "Silver",
+        icon: "🦉",
+      },
+      {
+        id: "S10",
+        name: "Precisão Cirúrgica",
+        description: "Atinja sua meta diária com uma margem de apenas 10ml.",
+        tier: "Silver",
+        icon: "🤏",
+      },
+      {
+        id: "S11",
+        name: "Cinco por Dia",
+        description: "Faça pelo menos 5 registros em um único dia.",
+        tier: "Silver",
+        icon: "🖐️",
+      },
+      {
+        id: "S12",
+        name: "Dez por Dia",
+        description: "Faça pelo menos 10 registros em um único dia.",
+        tier: "Silver",
+        icon: "🙌",
+      },
+      {
+        id: "S13",
+        name: "Atleta Hidratado",
+        description: "Beba mais de 4 litros em um único dia.",
+        tier: "Silver",
+        icon: "🏋️",
+      },
+      {
+        id: "S14",
+        name: "Duas Semanas de Foco",
+        description: "Use o app por 14 dias.",
+        tier: "Silver",
+        icon: "2️⃣",
+      },
+      {
+        id: "S15",
+        name: "Meio do Mês",
+        description: "Mantenha o hábito por 15 dias diferentes.",
+        tier: "Silver",
+        icon: "🗓️",
+      },
+      {
+        id: "S16",
+        name: "Colecionador de Bronze",
+        description: "Desbloqueie 10 conquistas de Bronze.",
+        tier: "Silver",
+        icon: "💼",
+      },
+      {
+        id: "S17",
+        name: "Mestre do Bronze",
+        description: "Desbloqueie todas as 20 conquistas de Bronze.",
+        tier: "Silver",
+        icon: "🏆",
+      },
+      {
+        id: "S18",
+        name: "Hidratação Pontual",
+        description: "Registre água a cada hora, por 4 horas seguidas.",
+        tier: "Silver",
+        icon: "⏰",
+      },
+      {
+        id: "S19",
+        name: "Fim de Semana Duplo",
+        description: "Atinja sua meta no sábado e no domingo da mesma semana.",
+        tier: "Silver",
+        icon: "🎊",
+      },
+      {
+        id: "S20",
+        name: "Explorador de Sons",
+        description: "Teste um som de notificação diferente nas configurações.",
+        tier: "Silver",
+        icon: "🎵",
+      },
+      {
+        id: "G01",
+        name: "Mês Dourado",
+        description: "Mantenha uma sequência de 30 dias atingindo a meta.",
+        tier: "Gold",
+        icon: "🥇",
+      },
+      {
+        id: "G02",
+        name: "Lenda da Hidratação",
+        description: "Faça 250 registros de consumo.",
+        tier: "Gold",
+        icon: "👑",
+      },
+      {
+        id: "G03",
+        name: "Divindade da Água",
+        description: "Faça 500 registros de consumo.",
+        tier: "Gold",
+        icon: "⚜️",
+      },
+      {
+        id: "G04",
+        name: "Oceano Pessoal",
+        description: "Consuma um total de 75 litros de água.",
+        tier: "Gold",
+        icon: "🐋",
+      },
+      {
+        id: "G05",
+        name: "Mar Inteiro",
+        description: "Consuma um total de 100 litros de água.",
+        tier: "Gold",
+        icon: "🌊",
+      },
+      {
+        id: "G06",
+        name: "Duas Semanas Perfeitas",
+        description: "Atinja sua meta todos os dias por 14 dias seguidos.",
+        tier: "Gold",
+        icon: "✨",
+      },
+      {
+        id: "G07",
+        name: "Três Semanas Impecáveis",
+        description: "Atinja sua meta todos os dias por 21 dias seguidos.",
+        tier: "Gold",
+        icon: "🎇",
+      },
+      {
+        id: "G08",
+        name: "Mês Perfeito",
+        description: "Atinja sua meta todos os dias durante 30 dias seguidos.",
+        tier: "Gold",
+        icon: "🗓️",
+      },
+      {
+        id: "G09",
+        name: "Maratonista da Hidratação",
+        description: "Beba mais de 5 litros em um único dia.",
+        tier: "Gold",
+        icon: "🏃",
+      },
+      {
+        id: "G10",
+        name: "Relógio Suíço",
+        description:
+          "Registre água a cada hora, por 8 horas seguidas durante o dia.",
+        tier: "Gold",
+        icon: "🕰️",
+      },
+      {
+        id: "G11",
+        name: "Mestre da Manhã",
+        description:
+          "Registre água antes das 9h por 15 dias diferentes em um mês.",
+        tier: "Gold",
+        icon: "🌄",
+      },
+      {
+        id: "G12",
+        name: "Guardião da Noite",
+        description:
+          "Registre água após as 20h por 15 dias diferentes em um mês.",
+        tier: "Gold",
+        icon: "🌌",
+      },
+      {
+        id: "G13",
+        name: "Onipresente",
+        description: "Use o app todos os dias por um mês.",
+        tier: "Gold",
+        icon: "🌍",
+      },
+      {
+        id: "G14",
+        name: "Arquiteto da Hidratação",
+        description:
+          "Altere sua meta para manual nas configurações e atinja-a.",
+        tier: "Gold",
+        icon: "🏗️",
+      },
+      {
+        id: "G15",
+        name: "Colecionador de Prata",
+        description: "Desbloqueie 10 conquistas de Prata.",
+        tier: "Gold",
+        icon: "🧐",
+      },
+      {
+        id: "G16",
+        name: "Mestre da Prata",
+        description: "Desbloqueie todas as 20 conquistas de Prata.",
+        tier: "Gold",
+        icon: "🎓",
+      },
+      {
+        id: "G17",
+        name: "Triplicado!",
+        description: "Beba o triplo da sua meta diária em um único dia.",
+        tier: "Gold",
+        icon: "🔱",
+      },
+      {
+        id: "G18",
+        name: "Consistência Absoluta",
+        description:
+          "Registre pelo menos uma vez por dia durante 30 dias seguidos.",
+        tier: "Gold",
+        icon: "♾️",
+      },
+      {
+        id: "G19",
+        name: "Mestre Zen",
+        description:
+          "Com as notificações ativas, mantenha uma sequência de 7 dias.",
+        tier: "Gold",
+        icon: "🧘",
+      },
+      {
+        id: "G20",
+        name: "Platina Pura",
+        description: "Desbloqueie todas as outras 59 conquistas.",
+        tier: "Gold",
+        icon: "💎",
+      },
+    ];
   }
 }
 

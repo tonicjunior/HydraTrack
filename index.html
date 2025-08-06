@@ -55,6 +55,9 @@
               </svg>
               <span id="streak-count">0</span> dias
             </div>
+            <button id="achievements-btn" class="btn-icon" title="Conquistas">
+              🏆
+            </button>
             <button id="theme-toggle-btn" class="btn-icon">
               <svg id="theme-icon" viewBox="0 0 24 24"></svg>
             </button>
@@ -230,6 +233,39 @@
           </div>
         </section>
       </main>
+      <footer class="site-footer">
+        <a
+          href="https://nubank.com.br/cobrar/3upen/672bafe3-8951-4aae-8e53-d86628e67a1a"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-donate"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem"
+          >
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            ></path>
+          </svg>
+          Apoie o Projeto
+        </a>
+      </footer>
+    </div>
+
+    <div
+      id="achievements-modal"
+      class="settings-modal-overlay"
+      style="display: none"
+    >
+      <div class="settings-modal-card">
+        <div class="settings-modal-header">
+          <h2>Conquistas Desbloqueadas</h2>
+          <button id="close-achievements-btn" class="btn-icon">&times;</button>
+        </div>
+        <div id="achievements-list" class="settings-modal-content"></div>
+      </div>
     </div>
 
     <div id="celebration-modal" class="celebration-modal" style="display: none">

@@ -6,9 +6,9 @@
 
 ## ✨ Visão Geral
 
-**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente e motivadora. Desenvolvido com **HTML, CSS e JavaScript puros**, o projeto é extremamente leve, responsivo e funciona perfeitamente em qualquer navegador moderno, sem a necessidade de dependências externas.
+**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente e motivadora. Desenvolvido com **HTML, CSS e JavaScript puros**, o projeto utiliza Programação Orientada a Objetos (POO) para ser extremamente leve, responsivo e funcional em qualquer navegador moderno, sem a necessidade de dependências externas.
 
-Desde um onboarding personalizado que calcula sua meta diária até um dashboard completo com notificações inteligentes, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência agradável e divertida.
+Desde um onboarding personalizado que calcula sua meta diária até um dashboard completo com gamificação e notificações inteligentes, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência agradável e divertida.
 
 ---
 
@@ -27,16 +27,18 @@ Desde um onboarding personalizado que calcula sua meta diária até um dashboard
 ## 🚀 Funcionalidades Principais
 
 - 📱 **Interface Moderna e Responsiva**: Design limpo e adaptável para desktops e dispositivos móveis.
-- 🧠 **Onboarding Inteligente**: Um passo a passo inicial que calcula sua meta de hidratação personalizada com base no seu peso e nível de atividade.
+- 🧠 **Onboarding Inteligente**: Um passo a passo que calcula sua meta de hidratação personalizada com base em peso e nível de atividade.
 - 📊 **Dashboard Completo**: Visualize seu progresso com um copo d'água animado, estatísticas de consumo, meta restante e registros do dia.
-- 🔔 **Notificações Inteligentes**:
+- 🏆 **Sistema de Gamificação**: Desbloqueie mais de 50 conquistas (Bronze, Prata e Ouro) ao atingir marcos de hidratação, formando hábitos de maneira divertida.
+- 🔔 **Notificações Inteligentes e Personalizáveis**:
   - Lembretes nativos do navegador para beber água em intervalos configuráveis.
-  - Alerta sonoro (com seu arquivo `agua.mp3`) para chamar a atenção.
-  - Modal interativa na tela para confirmar a hidratação e silenciar o alerta atual.
-- 🌗 **Tema Claro e Escuro**: Detecção automática baseada no sistema operacional ou troca manual.
+  - Alertas sonoros com **múltiplas opções de som** e controle de volume.
+  - Modal interativa para confirmar a hidratação e silenciar o alerta.
+- 🌗 **Tema Claro e Escuro**: Detecção automática baseada no sistema ou troca manual.
 - 📈 **Progresso Semanal**: Gráfico visual para acompanhar sua consistência ao longo da semana.
-- 🎉 **Animações e Feedback Visual**: Celebração animada ao atingir a meta diária e efeitos visuais ao registrar o consumo.
-- 🔧 **Configurações Flexíveis**: Ajuste facilmente seu perfil, meta de hidratação e preferências de notificação.
+- 🎉 **Animações e Feedback Visual**: Celebração ao atingir a meta diária e efeitos de partículas ao registrar o consumo.
+- 🔧 **Configurações Flexíveis**: Ajuste seu perfil, meta de hidratação, som e intervalo das notificações a qualquer momento.
+- 💰 **Apoie o Projeto**: Link de doação para quem quiser apoiar o desenvolvimento contínuo.
 
 ---
 
@@ -46,21 +48,35 @@ Desde um onboarding personalizado que calcula sua meta diária até um dashboard
 - **CSS3**: Estilização moderna e responsiva.
   - **Variáveis CSS**: Para um sistema de temas (claro/escuro) flexível.
   - **Flexbox & Grid Layout**: Para a construção de layouts complexos.
-  - **Animações e Transições**: Para uma experiência de usuário fluida e agradável.
-- **JavaScript (ES6+)**: Lógica completa da aplicação, sem frameworks ou bibliotecas.
-  - **Programação Orientada a Objetos (POO)**: Código organizado em classes para melhor manutenção.
-  - **`localStorage`**: Para salvar os dados do usuário e persistir a sessão no navegador.
+  - **Animações (`@keyframes`) e Transições**: Para uma experiência de usuário fluida.
+- **JavaScript (ES6+)**: Lógica completa da aplicação, sem frameworks.
+  - **Programação Orientada a Objetos (POO)**: Código modularizado na classe `HydraTrack` para melhor organização, manutenção e escalabilidade.
+  - **`localStorage`**: Para salvar dados do usuário, configurações e conquistas, persistindo a sessão no navegador.
   - **DOM API**: Manipulação dinâmica da interface.
   - **Web Notifications API**: Para a criação de lembretes nativos.
 
 ---
 
 ## 📂 Estrutura do Projeto
+O projeto está organizado para separar claramente a estrutura (HTML), o estilo (CSS), a lógica (JS) e os recursos (assets).
+
+
+## 📂 Estrutura do Projeto
  ```
- ├── 📄 index.html   # Estrutura principal do app <br>
- ├── 🎨 style.css    # Estilo visual com animações modernas <br>
- ├── ⚙️ script.js    # Lógica completa da aplicação <br>
- └── 🔊 agua.mp3     # Som de notificação para lembret <br>
+├── 📄 index.html         # Estrutura principal do app <br>
+├── 🎨 style.css          # Estilo visual e animações <br>
+├── ⚙️ script.js          # Lógica da aplicação (Classe HydraTrack) <br>
+├── 📁 assets/ <br>
+│   ├── 📁 sounds/ <br>
+│   │   ├── 🔊 agua.mp3 <br>
+│   │   ├── 🔊 bell.mp3 <br>
+│   │   └── ... (e outros arquivos de som) <br>
+│   └── 📁 images/ <br>
+│       ├── 🖼️ 250.png <br>
+│       ├── 🖼️ 500.png <br>
+│       └── ... (e outras imagens) <br>
+└── 📄 README.md <br>
+
  ```
 
 ---
@@ -70,21 +86,20 @@ Desde um onboarding personalizado que calcula sua meta diária até um dashboard
 Para executar este projeto localmente, siga os passos abaixo.
 
 1.  **Clone o repositório:**
-    ```bash
-    git clone https://github.com/tonicjunior/HydraTrack.git
-    ```
-    (Substitua `seu-usuario/hydratrack.git` pelo URL do seu repositório)
+   ```bash
+   git clone https://github.com/tonicjunior/HydraTrack.git
+   ```
 
 2.  **Navegue até a pasta do projeto:**
-    ```bash
-    cd hydratrack
-    ```
+   ```bash
+   cd HydraTrack
+   ```
 
 3.  **Abra o arquivo `index.html`:**
-    Basta abrir o arquivo `index.html` diretamente no seu navegador de preferência (Chrome, Firefox, Edge, etc.).
+   Basta abrir o arquivo `index.html` diretamente no seu navegador de preferência (Chrome, Firefox, Edge, etc.).
 
 4.  **Siga o Onboarding:**
-    Preencha as informações iniciais para que o aplicativo calcule sua meta e configure seu perfil.
+   Preencha as informações iniciais para que o aplicativo calcule sua meta e configure seu perfil.
 
 Pronto! Agora é só começar a registrar seu consumo e se manter hidratado 💦
 
@@ -92,10 +107,11 @@ Pronto! Agora é só começar a registrar seu consumo e se manter hidratado 💦
 
 ## ⚙️ Personalização
 
-O código foi escrito de forma clara para facilitar customizações:
+O código foi escrito de forma clara para facilitar customizações diretamente no arquivo `script.js`, dentro do `constructor` da classe `HydraTrack`:
 
--   **Valores dos Botões Rápidos**: Altere o array `quickAmounts` dentro do `constructor` da classe `HydraTrack` no arquivo `script.js`.
--   **Intervalo das Notificações**: Modifique o valor da variável `notificationIntervalMinutes` no `constructor`.
+-   **Valores dos Botões Rápidos**: Altere o array `quickAmounts` na definição do objeto `this.user` ao final do onboarding.
+-   **Sons de Notificação**: Adicione ou altere os objetos no array `this.sounds`.
+-   **Intervalo das Notificações**: Modifique o valor da variável `this.notificationIntervalMinutes`.
 -   **Aparência e Cores**: Todos os estilos, incluindo as cores dos temas claro e escuro, estão centralizados no arquivo `style.css` através de variáveis CSS.
 
 ---
@@ -105,9 +121,7 @@ O código foi escrito de forma clara para facilitar customizações:
 Para que os lembretes funcionem, o aplicativo precisa da sua permissão.
 
 -   **Permissão do Navegador**: Na primeira vez, o navegador solicitará permissão para exibir notificações. É crucial que você **aceite**.
--   **Problemas no Windows?**: Se as notificações de áudio funcionam, mas os alertas de texto não aparecem, o problema geralmente está nas configurações do Windows, e não no código. Verifique principalmente:
-    1.  **Assistente de Foco**: Certifique-se de que ele está desativado (`Configurações > Sistema > Assistente de Foco`).
-    2.  **Notificações do Navegador**: Garanta que seu navegador tem permissão para exibir notificações (`Configurações > Sistema > Notificações`).
+-   **Problemas com Notificações?**: Se os alertas de áudio funcionam, mas os de texto não aparecem, verifique as configurações do seu sistema operacional (como o "Assistente de Foco" no Windows) e as permissões de notificação do seu navegador.
 
 ---
 
