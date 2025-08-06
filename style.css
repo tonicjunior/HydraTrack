@@ -1037,6 +1037,60 @@ input:checked + .slider:before {
   margin-bottom: 0.5rem;
 }
 
+/* Volume Slider Styles */
+.volume-control-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.volume-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: hsl(var(--muted));
+  border-radius: 4px;
+  outline: none;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--card));
+  box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--card));
+  box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
+}
+
+#volume-percentage {
+  font-weight: 600;
+  color: hsl(var(--primary));
+  width: 4ch;
+  text-align: right;
+  font-size: 0.875rem;
+}
+
+#test-volume-btn {
+  flex-shrink: 0;
+}
+
 /* Ripple Effect */
 .ripple-effect {
   position: absolute;
@@ -1076,4 +1130,8 @@ input:checked + .slider:before {
   .header-actions {
     gap: 0.75rem;
   }
+}
+
+#save-settings-btn {
+  padding: 22px;
 }
