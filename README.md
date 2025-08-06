@@ -1,62 +1,60 @@
 # 💧 HydraTrack - Lembrete de Hidratação
 
-HydraTrack é um app moderno de hidratação que ajuda você a monitorar sua ingestão diária de água de forma inteligente, visual e divertida. Desenvolvido inteiramente com HTML, CSS e JavaScript puro, o projeto é leve, responsivo e sem dependências externas.
+![Licença MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-blue.svg) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-## 🚀 Funcionalidades
+<img src="https://i.imgur.com/your-app-demo.gif" alt="Demonstração do HydraTrack" width="100%">
 
-- 📱 Interface moderna e responsiva
-- 🧠 Onboarding inteligente para cálculo personalizado da meta diária
-- 📊 Dashboard completo com progresso, metas, consumo e registros
-- 🔔 Notificações nativas (com som opcional) para lembrar de beber água
-- 🌗 Tema claro/escuro com detecção automática ou escolha manual
-- 📈 Visualização semanal do progresso de hidratação
-- 🎉 Feedback visual e animações ao atingir a meta diária
-- 🔧 Configurações de perfil, meta e notificações
-- 🔊 Áudio de lembrete incluído (`agua.mp3`)
+---
 
-## 📂 Estrutura de Arquivos
-├── index.html # Estrutura principal do app
-├── style.css # Estilo visual com animações modernas
-├── script.js # Lógica completa da aplicação
-├── agua.mp3 # Som de notificação para lembrete
+## ✨ Visão Geral
+
+**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente e motivadora. Desenvolvido com **HTML, CSS e JavaScript puros**, o projeto é extremamente leve, responsivo e funciona perfeitamente em qualquer navegador moderno, sem a necessidade de dependências externas.
+
+Desde um onboarding personalizado que calcula sua meta diária até um dashboard completo com notificações inteligentes, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência agradável e divertida.
+
+---
+
+## 📚 Índice
+
+- [🚀 Funcionalidades Principais](#-funcionalidades-principais)
+- [🧠 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
+- [🎯 Começando](#-começando)
+- [⚙️ Personalização](#️-personalização)
+- [📢 Permissões e Notificações](#-permissões-e-notificações)
+- [📜 Licença](#-licença)
+
+---
+
+## 🚀 Funcionalidades Principais
+
+- 📱 **Interface Moderna e Responsiva**: Design limpo e adaptável para desktops e dispositivos móveis.
+- 🧠 **Onboarding Inteligente**: Um passo a passo inicial que calcula sua meta de hidratação personalizada com base no seu peso e nível de atividade.
+- 📊 **Dashboard Completo**: Visualize seu progresso com um copo d'água animado, estatísticas de consumo, meta restante e registros do dia.
+- 🔔 **Notificações Inteligentes**:
+  - Lembretes nativos do navegador para beber água em intervalos configuráveis.
+  - Alerta sonoro (com seu arquivo `agua.mp3`) para chamar a atenção.
+  - Modal interativa na tela para confirmar a hidratação e silenciar o alerta atual.
+- 🌗 **Tema Claro e Escuro**: Detecção automática baseada no sistema operacional ou troca manual.
+- 📈 **Progresso Semanal**: Gráfico visual para acompanhar sua consistência ao longo da semana.
+- 🎉 **Animações e Feedback Visual**: Celebração animada ao atingir a meta diária e efeitos visuais ao registrar o consumo.
+- 🔧 **Configurações Flexíveis**: Ajuste facilmente seu perfil, meta de hidratação e preferências de notificação.
+
+---
 
 ## 🧠 Tecnologias Utilizadas
 
-- HTML5
-- CSS3 (com variáveis CSS, flexbox, grid e animações)
-- JavaScript ES6 (POO, localStorage, DOM API, Web Notifications)
+- **HTML5**: Estrutura semântica e acessível.
+- **CSS3**: Estilização moderna e responsiva.
+  - **Variáveis CSS**: Para um sistema de temas (claro/escuro) flexível.
+  - **Flexbox & Grid Layout**: Para a construção de layouts complexos.
+  - **Animações e Transições**: Para uma experiência de usuário fluida e agradável.
+- **JavaScript (ES6+)**: Lógica completa da aplicação, sem frameworks ou bibliotecas.
+  - **Programação Orientada a Objetos (POO)**: Código organizado em classes para melhor manutenção.
+  - **`localStorage`**: Para salvar os dados do usuário e persistir a sessão no navegador.
+  - **DOM API**: Manipulação dinâmica da interface.
+  - **Web Notifications API**: Para a criação de lembretes nativos.
 
-## 🎯 Como Usar
+---
 
-1. Baixe ou clone este repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/hydratrack.git
-Abra o arquivo index.html em qualquer navegador moderno.
-
-Siga o onboarding e configure suas preferências.
-
-Pronto! Agora é só se manter hidratado 💦
-
-⚙️ Personalização
-Você pode alterar:
-
-Os ícones dos botões rápidos
-
-Os valores padrão de meta de hidratação
-
-Os intervalos de lembrete
-
-A aparência do tema via style.css
-
-📢 Permissões
-Para o uso de notificações no navegador:
-
-O app solicitará permissão para exibir lembretes.
-
-Certifique-se de aceitar para que o lembrete funcione corretamente.
-
-📸 Prévia
-💡 Adicione aqui um gif ou screenshot do app rodando.
-
-📜 Licença
-Este projeto é open-source e está licenciado sob a MIT License.
+## 📂 Estrutura do Projeto
