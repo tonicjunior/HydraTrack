@@ -1,40 +1,43 @@
 class HydraTrack {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 5;
+    this.totalSteps = 6;
     this.onboardingData = {};
     this.user = null;
     this.waterLogs = [];
-    this.achievements = [];
     this.settings = {
       theme: "system",
-      unit: "ml",
+      sound: 1,
       soundEnabled: true,
       notificationsEnabled: false,
       notificationVolume: 0.8,
     };
+    this.sounds = [
+      { id: 1, name: "Eletro Music", file: "agua.mp3" },
+      { id: 2, name: "Sino Suave", file: "bell.mp3" },
+      { id: 3, name: "Gato Pianista", file: "cat.mp3" },
+      { id: 4, name: "Up level", file: "level.mp3" },
+      { id: 5, name: "Mensagem", file: "mensagem.mp3" },
+      { id: 6, name: "Notification", file: "notification1.mp3" },
+      { id: 7, name: "New Notification", file: "notification2.mp3" },
+      { id: 8, name: "Chamada padrão", file: "tone.mp3" },
+    ];
     this.streak = 0;
     this.isOnboarded = false;
-
     this.notificationPermission = "default";
     this.notificationTimer = null;
+    this.soundTimeout = null;
     this.notificationIntervalMinutes = 60;
-    this.debugNotifications = false;
-
     this.reminderMessages = [
       "Já se passaram {time} desde seu último copo. Que tal mais um? 💧",
       "Lembrete amigável: faz {time} que você não se hidrata. Vamos lá!",
       "Seu corpo agradece! Beba um pouco de água, já faz {time}.",
       "Psst... Hora da hidratação! Seu último registro foi há {time}.",
     ];
-
-    this.notificationSound = new Audio("assets/sounds/agua.mp3");
-    this.notificationSound.load();
-
+    this.notificationSound = new Audio();
     this.particleCanvas = null;
     this.particleCtx = null;
     this.particles = [];
-
     this.initializeApp();
   }
 
@@ -43,16 +46,13 @@ class HydraTrack {
     this.applyTheme();
     this.initializeNotifications();
     this.initializeParticles();
-
     if (!this.isOnboarded || !this.user) {
       this.showOnboarding();
     } else {
       this.showDashboard();
       this.checkOfflineHydrationStatus();
     }
-
     this.attachEventListeners();
-    this.initializeAchievements();
   }
 
   loadData() {
@@ -60,9 +60,6 @@ class HydraTrack {
       this.user = JSON.parse(localStorage.getItem("hydratrack-user")) || null;
       this.waterLogs =
         JSON.parse(localStorage.getItem("hydratrack-logs")) || [];
-      this.achievements =
-        JSON.parse(localStorage.getItem("hydratrack-achievements")) ||
-        this.getDefaultAchievements();
       this.settings = {
         ...this.settings,
         ...JSON.parse(localStorage.getItem("hydratrack-settings")),
@@ -70,7 +67,6 @@ class HydraTrack {
       this.streak = parseInt(localStorage.getItem("hydratrack-streak")) || 0;
       this.isOnboarded =
         localStorage.getItem("hydratrack-onboarded") === "true";
-
       this.notificationSound.volume = this.settings.notificationVolume;
     } catch (error) {
       console.error("Error loading data:", error);
@@ -81,10 +77,6 @@ class HydraTrack {
     try {
       localStorage.setItem("hydratrack-user", JSON.stringify(this.user));
       localStorage.setItem("hydratrack-logs", JSON.stringify(this.waterLogs));
-      localStorage.setItem(
-        "hydratrack-achievements",
-        JSON.stringify(this.achievements)
-      );
       localStorage.setItem(
         "hydratrack-settings",
         JSON.stringify(this.settings)
@@ -109,16 +101,13 @@ class HydraTrack {
     const progressFill = document.getElementById("progress-fill");
     const backBtn = document.getElementById("back-btn");
     const nextBtn = document.getElementById("next-btn");
-
     stepInfo.textContent = `Passo ${this.currentStep} de ${this.totalSteps}`;
     const percentage = Math.round((this.currentStep / this.totalSteps) * 100);
     progressPercentage.textContent = `${percentage}%`;
     progressFill.style.width = `${percentage}%`;
-
     backBtn.style.display = this.currentStep > 1 ? "block" : "none";
     nextBtn.textContent =
       this.currentStep === this.totalSteps ? "Começar!" : "Próximo";
-
     stepContent.innerHTML = this.getStepContent(this.currentStep);
     this.attachStepEventListeners();
   }
@@ -126,24 +115,21 @@ class HydraTrack {
   getStepContent(step) {
     switch (step) {
       case 1:
-        return `
-                <div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><path d="M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z"/></svg></div>
+        return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><path d="M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z"/></svg></div>
                 <h2 class="step-title">Bem-vindo ao HydraTrack!</h2>
                 <p class="step-subtitle">Vamos configurar seu perfil para uma hidratação personalizada.</p>
                 <div class="form-group"><label for="user-name" class="form-label">Como podemos te chamar?</label><input type="text" id="user-name" class="form-input" placeholder="Seu nome" value="${
                   this.onboardingData.name || ""
                 }"></div>`;
       case 2:
-        return `
-                <div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7 7-7z"/></svg></div>
+        return `<div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7 7-7z"/></svg></div>
                 <h2 class="step-title">Seu peso atual</h2><p class="step-subtitle">Usaremos para calcular sua meta ideal.</p>
                 <div class="form-group"><label for="user-weight" class="form-label">Peso (kg)</label><input type="number" id="user-weight" class="form-input" placeholder="Ex: 70" min="30" max="200" value="${
                   this.onboardingData.weight || ""
                 }"></div>`;
       case 3:
         const activity = this.onboardingData.activityLevel || "moderado";
-        return `
-                <div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
                 <h2 class="step-title">Nível de atividade</h2><p class="step-subtitle">Isso afeta sua necessidade de hidratação.</p>
                 <div class="activity-options">
                     <button class="activity-option ${
@@ -157,8 +143,7 @@ class HydraTrack {
                     }" data-value="ativo"><div class="activity-title">Ativo</div><div class="activity-desc">Exercício 4+ vezes por semana</div></button>
                 </div>`;
       case 4:
-        return `
-                <div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+        return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
                 <h2 class="step-title">Seus horários</h2><p class="step-subtitle">Para lembretes inteligentes no momento certo.</p>
                 <div class="time-inputs">
                     <div class="form-group"><label for="wake-time" class="form-label">Acordar</label><input type="time" id="wake-time" class="form-input" value="${
@@ -172,26 +157,54 @@ class HydraTrack {
         const weight = this.onboardingData.weight || 70;
         const activityLevel = this.onboardingData.activityLevel || "moderado";
         const calculatedGoal = this.calculateDailyGoal(weight, activityLevel);
-        return `
-                    <div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
-                    <h2 class="step-title">Sua meta diária</h2><p class="step-subtitle">Baseado no seu perfil, calculamos sua meta ideal.</p>
-                    <div class="goal-card">
-                        <div class="goal-label">Meta sugerida</div><div class="goal-value">${calculatedGoal}ml</div>
-                        <div class="goal-calculation">Cálculo: ${weight}kg × 35ml × fator de atividade</div>
-                    </div>
-                    <div class="toggle-switch-container">
-                        <label for="custom-goal-check" class="toggle-switch-label">Definir meta personalizada</label>
-                        <label class="toggle-switch"><input type="checkbox" id="custom-goal-check" ${
-                          this.onboardingData.customGoalCheck ? "checked" : ""
-                        }><span class="slider"></span></label>
-                    </div>
-                    <div id="custom-goal-input" style="display: ${
-                      this.onboardingData.customGoalCheck ? "block" : "none"
-                    }; margin-top: 1rem;">
-                        <input type="number" id="custom-goal-value" class="form-input" placeholder="Meta personalizada (ml)" min="500" max="5000" value="${
-                          this.onboardingData.customGoalValue || ""
-                        }">
-                    </div>`;
+        return `<div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h2 class="step-title">Sua meta diária</h2><p class="step-subtitle">Com base no seu perfil, calculamos sua meta ideal.</p>
+            <div class="goal-card">
+                <div class="goal-label">Meta sugerida</div><div class="goal-value">${calculatedGoal}ml</div>
+            </div>
+            <div class="toggle-switch-container">
+                <label for="custom-goal-check" class="toggle-switch-label">Definir meta personalizada</label>
+                <label class="toggle-switch"><input type="checkbox" id="custom-goal-check" ${
+                  this.onboardingData.customGoalCheck ? "checked" : ""
+                }><span class="slider"></span></label>
+            </div>
+            <div id="custom-goal-input" style="display: ${
+              this.onboardingData.customGoalCheck ? "block" : "none"
+            }; margin-top: 1rem;">
+                <input type="number" id="custom-goal-value" class="form-input" placeholder="Meta personalizada (ml)" min="500" max="5000" value="${
+                  this.onboardingData.customGoalValue || ""
+                }">
+            </div>`;
+      case 6:
+        const currentVolume = this.onboardingData.notificationVolume ?? 0.8;
+        const currentSound = this.onboardingData.sound || this.settings.sound;
+        const soundOptions = this.sounds
+          .map(
+            (sound) =>
+              `<option value="${sound.id}" ${
+                currentSound === sound.id ? "selected" : ""
+              }>${sound.name}</option>`
+          )
+          .join("");
+
+        return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+            <h2 class="step-title">Alertas de Notificação</h2><p class="step-subtitle">Personalize o som e o volume dos lembretes.</p>
+            <div class="form-group" style="margin-top: 1.5rem;">
+                 <label for="onboarding-notification-sound" class="form-label">Som do Lembrete</label>
+                 <select id="onboarding-notification-sound" class="form-input">${soundOptions}</select>
+            </div>
+            <div class="form-group">
+                <label for="onboarding-notification-volume" class="form-label">Volume do Lembrete</label>
+                <div class="volume-control-container">
+                    <input type="range" id="onboarding-notification-volume" class="volume-slider" min="0" max="1" step="0.01" value="${currentVolume}">
+                    <span id="onboarding-volume-percentage">${Math.round(
+                      currentVolume * 100
+                    )}%</span>
+                    <button type="button" id="onboarding-test-volume-btn" class="btn-icon" title="Testar som">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
+                    </button>
+                </div>
+            </div>`;
       default:
         return "";
     }
@@ -226,6 +239,14 @@ class HydraTrack {
         this.onboardingData.customGoalValue =
           document.getElementById("custom-goal-value")?.value;
         break;
+      case 6:
+        this.onboardingData.notificationVolume = parseFloat(
+          document.getElementById("onboarding-notification-volume")?.value
+        );
+        this.onboardingData.sound = parseInt(
+          document.getElementById("onboarding-notification-sound")?.value
+        );
+        break;
     }
   }
 
@@ -245,6 +266,8 @@ class HydraTrack {
           return data.customGoalValue && parseInt(data.customGoalValue) > 0;
         }
         return true;
+      case 6:
+        return true;
       default:
         return false;
     }
@@ -259,6 +282,8 @@ class HydraTrack {
       sleepTime,
       customGoalCheck,
       customGoalValue,
+      notificationVolume,
+      sound,
     } = this.onboardingData;
     const calculatedGoal = this.calculateDailyGoal(weight, activityLevel);
     const finalGoal = customGoalCheck
@@ -277,13 +302,11 @@ class HydraTrack {
       quickAmounts: [250, 500, 750, 1000],
     };
 
-    this.notificationSound
-      .play()
-      .then(() => {
-        this.notificationSound.pause();
-        this.notificationSound.currentTime = 0;
-      })
-      .catch(() => {});
+    this.settings.notificationVolume = notificationVolume ?? 0.8;
+    this.settings.sound = sound || 1;
+    this.notificationSound.volume = this.settings.notificationVolume;
+
+    this.playSound(true);
 
     this.requestNotificationPermission().then(() => {
       this.settings.notificationsEnabled =
@@ -351,16 +374,15 @@ class HydraTrack {
     ];
     container.innerHTML = this.user.quickAmounts
       .map(
-        (amount, index) => `
-            <button class="quick-btn" data-amount="${amount}" style="background: var(${
-          gradients[index % gradients.length]
-        })">
+        (amount, index) =>
+          `<button class="quick-btn" data-amount="${amount}" style="background: var(${
+            gradients[index % gradients.length]
+          })">
                 <div class="quick-icon" style="font-size: 2rem;"> <img src="assets/${
                   icons[index % icons.length]
                 }.png"> </div>
                 <span class="quick-amount">${amount}ml</span>
-            </button>
-        `
+            </button>`
       )
       .join("");
   }
@@ -374,15 +396,15 @@ class HydraTrack {
       container.innerHTML = [...logs]
         .reverse()
         .map(
-          (log) => `
-                <div class="timeline-item">
+          (log) =>
+            `<div class="timeline-item">
                     <div class="timeline-content">
                         <div class="timeline-dot"></div>
                         <div><div class="timeline-amount">${
                           log.amount
                         }ml</div><div class="timeline-time">${this.formatTime(
-            log.timestamp
-          )}</div></div>
+              log.timestamp
+            )}</div></div>
                     </div>
                     <button class="timeline-delete" data-log-id="${
                       log.id
@@ -410,7 +432,6 @@ class HydraTrack {
     const dayOfWeek = today.getDay();
     const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     let html = "";
-
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() - (dayOfWeek - i));
@@ -421,10 +442,8 @@ class HydraTrack {
         consumed,
         this.user.dailyGoal
       );
-
       const isToday = i === dayOfWeek;
-      html += `
-                <div class="week-day ${isToday ? "today" : ""}">
+      html += `<div class="week-day ${isToday ? "today" : ""}">
                     <div class="week-label">${weekDays[i]}</div>
                     <div class="week-bar">
                         <div class="week-bar-fill" style="height: ${percentage}%; background: ${
@@ -432,16 +451,13 @@ class HydraTrack {
       };"></div>
                     </div>
                     <div class="week-percentage">${percentage.toFixed(0)}%</div>
-                </div>
-            `;
+                </div>`;
     }
     container.innerHTML = html;
   }
 
-  addWaterLog(amount, event) {
-    if (event) {
-      this.triggerWaterAnimation(event);
-    }
+  addWaterLog(amount) {
+    this.triggerWaterAnimation();
     const prevProgress = this.getTodayProgress();
     this.waterLogs.push({
       id: this.generateId(),
@@ -450,16 +466,12 @@ class HydraTrack {
       date: this.getTodayDateString(),
     });
     this.saveData();
-
     this.resetNotificationTimer();
-
     const newProgress = this.getTodayProgress();
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
       this.updateStreak();
     }
-
-    this.checkAchievements();
     this.updateDashboard();
     const customInput = document.getElementById("custom-amount");
     if (customInput) customInput.value = "";
@@ -521,8 +533,15 @@ class HydraTrack {
   showSettings() {
     const modal = document.getElementById("settings-modal");
     const content = modal.querySelector(".settings-modal-content");
-    content.innerHTML = `
-            <div class="settings-group">
+    const soundOptions = this.sounds
+      .map(
+        (sound) =>
+          `<option value="${sound.id}" ${
+            this.settings.sound === sound.id ? "selected" : ""
+          }>${sound.name}</option>`
+      )
+      .join("");
+    content.innerHTML = `<div class="settings-group">
                 <h3>Perfil</h3>
                 <div class="form-group"><label for="setting-name">Nome</label><input type="text" id="setting-name" class="form-input" value="${
                   this.user.name
@@ -533,35 +552,25 @@ class HydraTrack {
             </div>
             <div class="settings-group">
                 <h3>Meta de Hidratação</h3>
-                <div class="toggle-switch-container">
-                    <label for="setting-manual-goal" class="toggle-switch-label">Definir meta manual</label>
-                    <label class="toggle-switch"><input type="checkbox" id="setting-manual-goal" ${
-                      this.user.isManualGoal ? "checked" : ""
-                    }><span class="slider"></span></label>
-                </div>
+                <div class="toggle-switch-container"><label for="setting-manual-goal" class="toggle-switch-label">Definir meta manual</label><label class="toggle-switch"><input type="checkbox" id="setting-manual-goal" ${
+                  this.user.isManualGoal ? "checked" : ""
+                }><span class="slider"></span></label></div>
                 <div id="setting-goal-input-container" style="display: ${
                   this.user.isManualGoal ? "block" : "none"
-                };">
-                    <div class="form-group"><label for="setting-goal">Meta Diária (ml)</label><input type="number" id="setting-goal" class="form-input" value="${
-                      this.user.dailyGoal
-                    }"></div>
-                </div>
+                };"><div class="form-group"><label for="setting-goal">Meta Diária (ml)</label><input type="number" id="setting-goal" class="form-input" value="${
+      this.user.dailyGoal
+    }"></div></div>
             </div>
             <div class="settings-group">
                 <h3>Notificações</h3>
-                <div class="toggle-switch-container">
-                    <label for="setting-notifications" class="toggle-switch-label">Ativar lembretes</label>
-                    <label class="toggle-switch"><input type="checkbox" id="setting-notifications" ${
-                      this.settings.notificationsEnabled ? "checked" : ""
-                    }><span class="slider"></span></label>
-                </div>
+                <div class="toggle-switch-container"><label for="setting-notifications" class="toggle-switch-label">Ativar lembretes</label><label class="toggle-switch"><input type="checkbox" id="setting-notifications" ${
+                  this.settings.notificationsEnabled ? "checked" : ""
+                }><span class="slider"></span></label></div>
                 <p id="notification-permission-status" class="custom-help" style="margin-top: 0.5rem;"></p>
-                <div class="form-group">
-                    <label for="setting-notification-interval">Intervalo de lembrete (minutos)</label>
-                    <input type="number" id="setting-notification-interval" class="form-input" value="${
-                      this.notificationIntervalMinutes
-                    }" min="15" max="180">
-                </div>
+                <div class="form-group"><label for="setting-notification-interval">Intervalo (minutos)</label><input type="number" id="setting-notification-interval" class="form-input" value="${
+                  this.notificationIntervalMinutes
+                }" min="15" max="180"></div>
+                <div class="form-group"><label for="setting-notification-sound">Som do Lembrete</label><select id="setting-notification-sound" class="form-input">${soundOptions}</select></div>
                 <div class="form-group">
                     <label for="setting-notification-volume">Volume do Lembrete</label>
                     <div class="volume-control-container">
@@ -571,14 +580,14 @@ class HydraTrack {
                         <span id="volume-percentage">${Math.round(
                           this.settings.notificationVolume * 100
                         )}%</span>
-                        <button id="test-volume-btn" class="btn-icon" title="Testar som">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
-                        </button>
+                        <button id="test-volume-btn" class="btn-icon" title="Testar som"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></button>
                     </div>
                 </div>
             </div>
-            <button id="save-settings-btn" class="btn btn-primary">Salvar Alterações</button>
-        `;
+            <div class="settings-actions">
+                <button id="show-delete-modal-btn" class="btn btn-destructive">Excluir Dados</button>
+                <button id="save-settings-btn" class="btn btn-primary">Salvar Alterações</button>
+            </div>`;
     modal.style.display = "flex";
     this.attachSettingsListeners();
   }
@@ -605,7 +614,6 @@ class HydraTrack {
         this.user.activityLevel
       );
     }
-
     this.settings.notificationsEnabled = document.getElementById(
       "setting-notifications"
     ).checked;
@@ -615,17 +623,27 @@ class HydraTrack {
     this.settings.notificationVolume = parseFloat(
       document.getElementById("setting-notification-volume").value
     );
+    this.settings.sound = parseInt(
+      document.getElementById("setting-notification-sound").value
+    );
     this.notificationSound.volume = this.settings.notificationVolume;
-
     if (!this.settings.notificationsEnabled) {
       this.stopNotificationTimer();
     } else {
       this.resetNotificationTimer();
     }
-
     this.saveData();
     this.updateDashboard();
     this.hideSettings();
+  }
+
+  deleteUserData() {
+    localStorage.removeItem("hydratrack-user");
+    localStorage.removeItem("hydratrack-logs");
+    localStorage.removeItem("hydratrack-settings");
+    localStorage.removeItem("hydratrack-streak");
+    localStorage.removeItem("hydratrack-onboarded");
+    window.location.reload();
   }
 
   attachEventListeners() {
@@ -648,37 +666,25 @@ class HydraTrack {
         alert("Por favor, preencha os dados corretamente.");
       }
     });
-
     document.getElementById("dashboard").addEventListener("click", (event) => {
       const quickBtn = event.target.closest(".quick-btn");
-      if (quickBtn) this.addWaterLog(quickBtn.dataset.amount, event);
-
+      if (quickBtn) this.addWaterLog(quickBtn.dataset.amount);
       const deleteBtn = event.target.closest(".timeline-delete");
       if (deleteBtn) this.deleteWaterLog(deleteBtn.dataset.logId);
     });
-
     const addCustomBtn = document.getElementById("add-custom-btn");
-    addCustomBtn?.addEventListener("click", (event) => {
+    addCustomBtn?.addEventListener("click", () => {
       const amount = document.getElementById("custom-amount").value;
-      if (amount && parseInt(amount) > 0) this.addWaterLog(amount, event);
+      if (amount && parseInt(amount) > 0) this.addWaterLog(amount);
     });
     document
       .getElementById("custom-amount")
       ?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-          // We need to pass a fake event to the animation trigger
-          const btn = document.getElementById("add-custom-btn");
-          const rect = btn.getBoundingClientRect();
-          const fakeEvent = {
-            clientX: rect.left + rect.width / 2,
-            clientY: rect.top + rect.height / 2,
-          };
           const amount = document.getElementById("custom-amount").value;
-          if (amount && parseInt(amount) > 0)
-            this.addWaterLog(amount, fakeEvent);
+          if (amount && parseInt(amount) > 0) this.addWaterLog(amount);
         }
       });
-
     document
       .getElementById("theme-toggle-btn")
       ?.addEventListener("click", () => this.toggleTheme());
@@ -688,10 +694,22 @@ class HydraTrack {
     document
       .getElementById("close-settings-btn")
       ?.addEventListener("click", () => this.hideSettings());
-
     document
       .getElementById("confirm-hydration-btn")
       ?.addEventListener("click", () => this.handleHydrationConfirmation());
+    document
+      .getElementById("confirm-delete-btn")
+      .addEventListener("click", () => {
+        this.deleteUserData();
+      });
+    const cancelDeleteModal = () =>
+      (document.getElementById("delete-confirm-modal").style.display = "none");
+    document
+      .getElementById("cancel-delete-btn")
+      .addEventListener("click", cancelDeleteModal);
+    document
+      .getElementById("close-delete-modal-btn")
+      .addEventListener("click", cancelDeleteModal);
   }
 
   attachStepEventListeners() {
@@ -703,14 +721,43 @@ class HydraTrack {
         option.classList.add("active");
       });
     });
-    const customGoalCheck = document.getElementById("custom-goal-check");
-    if (customGoalCheck) {
-      customGoalCheck.addEventListener("change", (e) => {
-        document.getElementById("custom-goal-input").style.display = e.target
-          .checked
-          ? "block"
-          : "none";
-      });
+    if (this.currentStep === 5) {
+      const customGoalCheck = document.getElementById("custom-goal-check");
+      if (customGoalCheck) {
+        customGoalCheck.addEventListener("change", (e) => {
+          document.getElementById("custom-goal-input").style.display = e.target
+            .checked
+            ? "block"
+            : "none";
+        });
+      }
+    }
+    if (this.currentStep === 6) {
+      const volumeSlider = document.getElementById(
+        "onboarding-notification-volume"
+      );
+      const volumePercentage = document.getElementById(
+        "onboarding-volume-percentage"
+      );
+      const soundSelector = document.getElementById(
+        "onboarding-notification-sound"
+      );
+      if (volumeSlider && volumePercentage) {
+        volumeSlider.addEventListener("input", (e) => {
+          const volume = parseFloat(e.target.value);
+          this.notificationSound.volume = volume;
+          volumePercentage.textContent = `${Math.round(volume * 100)}%`;
+        });
+      }
+      const testVolumeBtn = document.getElementById(
+        "onboarding-test-volume-btn"
+      );
+      if (testVolumeBtn) {
+        testVolumeBtn.addEventListener("click", () => {
+          const selectedSoundId = parseInt(soundSelector.value);
+          this.playSound(false, selectedSoundId);
+        });
+      }
     }
   }
 
@@ -718,6 +765,11 @@ class HydraTrack {
     document
       .getElementById("save-settings-btn")
       .addEventListener("click", () => this.saveSettings());
+    document
+      .getElementById("show-delete-modal-btn")
+      .addEventListener("click", () => {
+        document.getElementById("delete-confirm-modal").style.display = "flex";
+      });
     const manualGoalCheck = document.getElementById("setting-manual-goal");
     manualGoalCheck.addEventListener("change", (e) => {
       document.getElementById("setting-goal-input-container").style.display = e
@@ -734,7 +786,6 @@ class HydraTrack {
         this.stopNotificationTimer();
       }
     });
-
     const volumeSlider = document.getElementById("setting-notification-volume");
     const volumePercentage = document.getElementById("volume-percentage");
     if (volumeSlider && volumePercentage) {
@@ -744,26 +795,30 @@ class HydraTrack {
         volumePercentage.textContent = `${Math.round(volume * 100)}%`;
       });
     }
-
     const testVolumeBtn = document.getElementById("test-volume-btn");
+    const soundSelector = document.getElementById("setting-notification-sound");
     if (testVolumeBtn) {
-      testVolumeBtn.addEventListener("click", () => this.playSound());
+      testVolumeBtn.addEventListener("click", () =>
+        this.playSound(false, parseInt(soundSelector.value))
+      );
     }
-
     this.updatePermissionStatusText();
   }
 
   getTodayDateString() {
     return new Date().toISOString().split("T")[0];
   }
+
   calculateDailyGoal(weight, activityLevel) {
     const activityFactors = { sedentario: 1.0, moderado: 1.2, ativo: 1.5 };
     return Math.round(weight * 35 * (activityFactors[activityLevel] || 1.0));
   }
+
   getProgressPercentage(consumed, goal) {
     if (goal === 0) return 0;
     return Math.min(100, Math.round((consumed / goal) * 100) || 0);
   }
+
   getTodayProgress() {
     const todayLogs = this.waterLogs.filter(
       (log) => log.date === this.getTodayDateString()
@@ -777,12 +832,14 @@ class HydraTrack {
       logs: todayLogs,
     };
   }
+
   getTimeOfDay() {
     const hour = new Date().getHours();
     if (hour < 12) return "Bom dia";
     if (hour < 18) return "Boa tarde";
     return "Boa noite";
   }
+
   getMotivationalMessage() {
     const { percentage } = this.getTodayProgress();
     if (percentage >= 100) return "Meta alcançada! Parabéns! 🎉";
@@ -790,12 +847,14 @@ class HydraTrack {
     if (percentage >= 50) return "Você está na metade! Continue assim! 💪";
     return "Um gole de cada vez. Você consegue! ✨";
   }
+
   formatTime(date) {
     return new Date(date).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
+
   generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
@@ -817,18 +876,8 @@ class HydraTrack {
     }
   }
 
-  initializeAchievements() {
-    if (this.achievements.length === 0)
-      this.achievements = this.getDefaultAchievements();
-  }
-  getDefaultAchievements() {
-    return [];
-  }
-  checkAchievements() {}
-
   initializeNotifications() {
     if (!("Notification" in window)) {
-      console.log("Este navegador não suporta notificações.");
       this.notificationPermission = "denied";
       return;
     }
@@ -847,9 +896,7 @@ class HydraTrack {
       this.updatePermissionStatusText();
       return;
     }
-
     const currentPermission = Notification.permission;
-
     if (currentPermission === "granted") {
       this.notificationPermission = "granted";
       this.settings.notificationsEnabled = true;
@@ -867,7 +914,6 @@ class HydraTrack {
     } else {
       const permission = await Notification.requestPermission();
       this.notificationPermission = permission;
-
       if (permission === "granted") {
         this.settings.notificationsEnabled = true;
         this.startNotificationTimer();
@@ -880,19 +926,16 @@ class HydraTrack {
         this.stopNotificationTimer();
       }
     }
-
     this.updatePermissionStatusText();
     const notificationsCheck = document.getElementById("setting-notifications");
     if (notificationsCheck)
       notificationsCheck.checked = this.settings.notificationsEnabled;
-
     this.saveData();
   }
 
   updatePermissionStatusText() {
     const statusEl = document.getElementById("notification-permission-status");
     if (!statusEl) return;
-
     switch (this.notificationPermission) {
       case "granted":
         statusEl.textContent = "Permissão concedida. Lembretes ativados!";
@@ -917,22 +960,16 @@ class HydraTrack {
       this.notificationPermission !== "granted"
     )
       return;
-
-    const intervalMs = this.debugNotifications
-      ? 15000
-      : this.notificationIntervalMinutes * 60000;
-
+    const intervalMs = this.notificationIntervalMinutes * 60000;
     this.notificationTimer = setInterval(() => {
       const { consumed, goal } = this.getTodayProgress();
       if (consumed >= goal) {
         this.stopNotificationTimer();
         return;
       }
-
       const todayLogs = this.getTodayProgress().logs;
       const lastLog =
         todayLogs.length > 0 ? todayLogs[todayLogs.length - 1] : null;
-
       if (!lastLog) {
         this.sendNotification(
           "Hora de se hidratar!",
@@ -940,16 +977,10 @@ class HydraTrack {
         );
         return;
       }
-
       const now = new Date();
       const lastLogTime = new Date(lastLog.timestamp);
       const minutesSinceLastDrink = (now - lastLogTime) / (1000 * 60);
-
-      const intervalToCheck = this.debugNotifications
-        ? 0.25
-        : this.notificationIntervalMinutes;
-
-      if (minutesSinceLastDrink >= intervalToCheck) {
+      if (minutesSinceLastDrink >= this.notificationIntervalMinutes) {
         const randomMessageTemplate =
           this.reminderMessages[
             Math.floor(Math.random() * this.reminderMessages.length)
@@ -959,7 +990,6 @@ class HydraTrack {
           "{time}",
           timeString
         );
-
         this.sendNotification("Lembrete de Hidratação 💧", finalMessage);
       }
     }, intervalMs);
@@ -977,34 +1007,46 @@ class HydraTrack {
   }
 
   sendNotification(title, body) {
-    if (this.notificationPermission !== "granted") {
-      console.log(
-        "Tentativa de enviar notificação, mas a permissão não foi concedida."
-      );
-      return;
-    }
-
+    if (this.notificationPermission !== "granted") return;
     const options = {
       body: body,
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bcd4'><path d='M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z'/></svg>",
       tag: "hydratrack-reminder-" + Date.now(),
       silent: true,
     };
-
     new Notification(title, options);
-
     if (this.settings.soundEnabled) {
       this.playSound();
       this.showReminderModal();
     }
   }
 
-  playSound() {
+  playSound(isSilent = false, soundId = null) {
+    if (this.soundTimeout) clearTimeout(this.soundTimeout);
+    const soundToPlayId = soundId || this.settings.sound;
+    const soundObj = this.sounds.find((s) => s.id === soundToPlayId);
+    if (!soundObj) {
+      console.error(`Sound with id "${soundToPlayId}" not found.`);
+      return;
+    }
+    this.notificationSound.src = `assets/sounds/${soundObj.file}`;
+    this.notificationSound.load();
     this.notificationSound.volume = this.settings.notificationVolume;
     this.notificationSound.currentTime = 0;
+    if (isSilent) {
+      this.notificationSound
+        .play()
+        .then(() => this.notificationSound.pause())
+        .catch(() => {});
+      return;
+    }
     this.notificationSound
       .play()
-      .catch((e) => console.error("Erro ao tocar som na notificação:", e));
+      .catch((e) => console.error("Erro ao tocar som:", e));
+    this.soundTimeout = setTimeout(() => {
+      this.notificationSound.pause();
+      this.notificationSound.currentTime = 0;
+    }, 5000);
   }
 
   showReminderModal() {
@@ -1018,33 +1060,18 @@ class HydraTrack {
   }
 
   handleHydrationConfirmation() {
+    if (this.soundTimeout) clearTimeout(this.soundTimeout);
     this.notificationSound.pause();
     this.notificationSound.currentTime = 0;
     this.hideReminderModal();
   }
 
-  testNotification() {
-    if (this.notificationPermission !== "granted") {
-      alert(
-        `Não é possível enviar notificação. O navegador está com a permissão definida como: "${this.notificationPermission}".\nTente redefinir as permissões do site.`
-      );
-      return;
-    }
-
-    this.sendNotification(
-      "🔔 Teste de Notificação 🔔",
-      "Se você vê e ouve isto, está tudo funcionando!"
-    );
-  }
-
   checkOfflineHydrationStatus() {
     if (this.waterLogs.length === 0) return;
-
     const lastLog = this.waterLogs[this.waterLogs.length - 1];
     const now = new Date();
     const lastLogTime = new Date(lastLog.timestamp);
     const hoursSinceLastDrink = (now - lastLogTime) / (1000 * 60 * 60);
-
     if (hoursSinceLastDrink > (this.notificationIntervalMinutes / 60) * 2) {
       setTimeout(() => {
         alert(
@@ -1065,16 +1092,11 @@ class HydraTrack {
     });
   }
 
-  triggerWaterAnimation(event) {
-    const rect = this.particleCanvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const particleCount = 50;
+  triggerWaterAnimation() {
+    const particleCount = 40;
     const isFirstAnimation = this.particles.length === 0;
-
     for (let i = 0; i < particleCount; i++) {
-      this.particles.push(new Particle(this.particleCtx, x, y));
+      this.particles.push(new Particle(this.particleCtx));
     }
     if (isFirstAnimation) {
       this.animateParticles();
@@ -1109,27 +1131,20 @@ class HydraTrack {
 }
 
 class Particle {
-  constructor(ctx, x, y) {
+  constructor(ctx) {
     this.ctx = ctx;
-    this.x = x;
-    this.y = y;
-    this.size = Math.random() * 4 + 2;
-    this.speedX = (Math.random() - 0.5) * (Math.random() * 8);
-    this.speedY = -Math.random() * 12 - 4; // Initial upward velocity
-    this.gravity = 0.3;
-    this.opacity = 1;
-    this.life = 100; // Lifespan in frames
+    this.x = Math.random() * this.ctx.canvas.width;
+    this.y = Math.random() * -this.ctx.canvas.height;
+    this.size = Math.random() * 3 + 2;
+    this.speedX = 0;
+    this.speedY = Math.random() * 3 + 2;
+    this.gravity = 0.05;
+    this.opacity = Math.random() * 0.5 + 0.3;
   }
 
   update() {
     this.speedY += this.gravity;
-    this.x += this.speedX;
     this.y += this.speedY;
-
-    this.life--;
-    if (this.life < 20) {
-      this.opacity = Math.max(0, this.life / 20);
-    }
   }
 
   draw() {
@@ -1140,7 +1155,7 @@ class Particle {
   }
 
   isDead() {
-    return this.life <= 0;
+    return this.y > this.ctx.canvas.height + this.size;
   }
 }
 
