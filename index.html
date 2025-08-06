@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HydraTrack - Lembrete de Hidratação</title>
+    <meta
+      name="description"
+      content="Monitore sua hidratação de forma inteligente e colorida"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bcd4'><path d='M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z'/></svg>"
+      type="image/svg+xml"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="onboarding" class="onboarding-container">
+      <div class="onboarding-card">
+        <div class="progress-section">
+          <div class="progress-info">
+            <span id="step-info">Passo 1 de 5</span>
+            <span id="progress-percentage">20%</span>
+          </div>
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="step-content" class="step-content"></div>
+
+        <div class="navigation">
+          <button id="back-btn" class="btn btn-outline" style="display: none">
+            Voltar
+          </button>
+          <button id="next-btn" class="btn btn-primary">Próximo</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard" class="dashboard-container" style="display: none">
+      <header class="header">
+        <div class="header-content">
+          <div class="greeting">
+            <h1 id="greeting-text" class="greeting-title"></h1>
+            <p id="motivational-message" class="greeting-subtitle"></p>
+          </div>
+          <div class="header-actions">
+            <div class="streak-badge">
+              <svg class="streak-icon" viewBox="0 0 24 24">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+              <span id="streak-count">0</span> dias
+            </div>
+            <button id="theme-toggle-btn" class="btn-icon">
+              <svg id="theme-icon" viewBox="0 0 24 24"></svg>
+            </button>
+            <button id="settings-btn" class="btn-icon">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.69-1.62-0.92L14.4,2.23C14.34,2.01,14.13,1.86,13.89,1.86 h-3.78c-0.24,0-0.45,0.15-0.51,0.37L9.07,4.42c-0.59,0.23-1.12,0.54-1.62,0.92L5.06,4.38C4.84,4.31,4.59,4.37,4.47,4.58L2.55,7.9 c-0.1,0.2-0.06,0.47,0.12,0.61l2.03,1.58C4.68,10.42,4.66,10.72,4.66,11s0.02,0.58,0.07,0.86l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.69,1.62,0.92l0.54,2.19 c0.06,0.22,0.27,0.37,0.51,0.37h3.78c0.24,0,0.45-0.15,0.51-0.37l0.54-2.19c0.59-0.23,1.12-0.54,1.62-0.92l2.39,0.96 c0.22,0.08,0.47,0.01,0.59-0.22l1.92-3.32c0.12-0.2,0.07-0.47-0.12-0.61L19.14,12.94z M12,15c-1.66,0-3-1.34-3-3s1.34-3,3-3 s3,1.34,3,3S13.66,15,12,15z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="glass-section">
+          <div class="water-glass-container">
+            <div id="water-glass" class="water-glass">
+              <svg viewBox="0 0 120 160" class="glass-svg">
+                <defs>
+                  <clipPath id="glass-clip">
+                    <path d="M22 22 L98 22 L93 138 L27 138 Z" />
+                  </clipPath>
+                  <linearGradient
+                    id="water-gradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      stop-color="hsl(var(--primary-glow))"
+                      stop-opacity="0.9"
+                    />
+                    <stop
+                      offset="50%"
+                      stop-color="hsl(var(--primary))"
+                      stop-opacity="0.8"
+                    />
+                    <stop
+                      offset="100%"
+                      stop-color="hsl(var(--primary))"
+                      stop-opacity="1"
+                    />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M20 20 L100 20 L95 140 L25 140 Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  class="glass-outline"
+                />
+                <rect
+                  id="water-fill"
+                  x="22"
+                  y="138"
+                  width="76"
+                  height="0"
+                  fill="url(#water-gradient)"
+                  clip-path="url(#glass-clip)"
+                />
+                <path
+                  id="wave-1"
+                  d="M22 138 Q40 136 60 138 T98 138"
+                  stroke="hsl(var(--primary-glow))"
+                  stroke-width="1.5"
+                  fill="none"
+                  class="wave"
+                  style="opacity: 0"
+                />
+                <path
+                  id="wave-2"
+                  d="M22 138 Q50 139 80 138 T98 138"
+                  stroke="hsl(var(--primary))"
+                  stroke-width="1"
+                  fill="none"
+                  class="wave-delay"
+                  style="opacity: 0"
+                />
+                <path
+                  d="M25 25 L35 25 L33 130 L27 130 Z"
+                  fill="white"
+                  opacity="0.3"
+                />
+              </svg>
+              <div class="bubbles-container">
+                <div class="bubble bubble-1"></div>
+                <div class="bubble bubble-2"></div>
+                <div class="bubble bubble-3"></div>
+              </div>
+            </div>
+            <div class="progress-text">
+              <div id="percentage-text" class="percentage">0%</div>
+              <div id="amount-text" class="amount-text">0ml de 2000ml</div>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div id="consumed-stat" class="stat-value">0</div>
+              <div class="stat-label">Consumido</div>
+            </div>
+            <div class="stat-card">
+              <div id="remaining-stat" class="stat-value">2000</div>
+              <div class="stat-label">Restante</div>
+            </div>
+            <div class="stat-card">
+              <div id="logs-stat" class="stat-value">0</div>
+              <div class="stat-label">Registros</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="quick-add-section">
+          <h2 class="section-title">
+            <svg class="section-icon" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 12.17l7.59-7.59L19 6l-9 9z"
+              />
+            </svg>
+            Registrar Consumo
+          </h2>
+          <div id="quick-buttons-container" class="quick-buttons"></div>
+          <div class="custom-amount-card">
+            <h3 class="custom-title">Quantidade Personalizada</h3>
+            <div class="custom-input-group">
+              <input
+                type="number"
+                id="custom-amount"
+                placeholder="Ex: 350"
+                min="1"
+                max="2000"
+              />
+              <button id="add-custom-btn" class="btn">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+                Adicionar
+              </button>
+            </div>
+            <p class="custom-help">Digite a quantidade em ml (1-2000)</p>
+          </div>
+        </section>
+
+        <section class="timeline-section">
+          <h2 class="section-title">
+            <svg class="section-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12,6 12,12 16,14" />
+            </svg>
+            Timeline de Hoje
+          </h2>
+          <div id="timeline-container" class="timeline-container"></div>
+        </section>
+
+        <section class="progress-overview-section">
+          <h2 class="section-title">
+            <svg class="section-icon" viewBox="0 0 24 24">
+              <path
+                d="M21 6.5c-1.3 0-2.5.6-3.4 1.5H6.9c-.9-.9-2.1-1.5-3.4-1.5-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5c1.3 0 2.5-.6 3.4-1.5h10.2c.9.9 2.1 1.5 3.4 1.5 1.9 0 3.5-1.6 3.5-3.5S22.9 6.5 21 6.5z"
+              />
+            </svg>
+            Progresso da Semana
+          </h2>
+          <div class="progress-card">
+            <div class="progress-header">
+              <span>Meta Diária</span>
+              <span id="daily-percentage">0%</span>
+            </div>
+            <div class="progress-bar-large">
+              <div id="daily-progress-fill" class="progress-bar-fill"></div>
+            </div>
+            <div id="week-grid-container" class="week-grid"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="celebration-modal" class="celebration-modal" style="display: none">
+      <div class="celebration-content">
+        <div class="celebration-emoji">🎉</div>
+        <h3 class="celebration-title">Parabéns!</h3>
+        <p class="celebration-text">Você atingiu sua meta diária!</p>
+      </div>
+    </div>
+
+    <div
+      id="settings-modal"
+      class="settings-modal-overlay"
+      style="display: none"
+    >
+      <div class="settings-modal-card">
+        <div class="settings-modal-header">
+          <h2>Configurações</h2>
+          <button id="close-settings-btn" class="btn-icon">&times;</button>
+        </div>
+        <div class="settings-modal-content"></div>
+      </div>
+    </div>
+
+    <div id="reminder-modal" class="modal-overlay" style="display: none">
+      <div class="modal-card">
+        <div class="modal-icon">💧</div>
+        <h3 class="modal-title">Hora de se Hidratar!</h3>
+        <p class="modal-text">
+          Clique no botão para confirmar e parar o som do lembrete.
+        </p>
+        <div class="modal-actions">
+          <button id="confirm-hydration-btn" class="btn btn-primary">
+            Ok, vou beber!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="ripple" class="ripple-effect" style="display: none"></div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <script src="script.js"></script>
+  </body>
+</html>
