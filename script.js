@@ -27,7 +27,7 @@ class HydraTrack {
     this.notificationPermission = "default";
     this.notificationTimer = null;
     this.soundTimeout = null;
-    this.notificationIntervalMinutes = 60;
+    this.notificationIntervalMinutes = 120;
     this.reminderMessages = [
       "Já se passaram {time} desde seu último copo. Que tal mais um? 💧",
       "Lembrete amigável: faz {time} que você não se hidrata. Vamos lá!",
