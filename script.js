@@ -32,7 +32,7 @@ class HydraTrack {
     this.notificationPermission = "default";
     this.notificationTimer = null;
     this.soundTimeout = null;
-    this.notificationIntervalMinutes = 120;
+    this.notificationIntervalMinutes = 90;
     this.reminderMessages = [
       "Já se passaram {time} desde seu último copo. Que tal mais um? 💧",
       "Lembrete amigável: faz {time} que você não se hidrata. Vamos lá!",
@@ -2541,3 +2541,4 @@ class Particle {
 document.addEventListener("DOMContentLoaded", () => {
   window.hydraTrack = new HydraTrack();
 });
+

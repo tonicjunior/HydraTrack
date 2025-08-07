@@ -66,19 +66,19 @@ O projeto está organizado para separar claramente a estrutura (HTML), o estilo 
 
 ## 📂 Estrutura do Projeto
  ```
-├── 📄 index.html         # Estrutura principal do app <br>
-├── 🎨 style.css          # Estilo visual e animações <br>
-├── ⚙️ script.js          # Lógica da aplicação (Classe HydraTrack) <br>
-├── 📁 assets/ <br>
-│   ├── 📁 sounds/ <br>
-│   │   ├── 🔊 agua.mp3 <br>
-│   │   ├── 🔊 bell.mp3 <br>
-│   │   └── ... (e outros arquivos de som) <br>
-│   └── 📁 images/ <br>
-│       ├── 🖼️ 250.png <br>
-│       ├── 🖼️ 500.png <br>
-│       └── ... (e outras imagens) <br>
-└── 📄 README.md <br>
+├── 📄 index.html         # Estrutura principal do app
+├── 🎨 style.css          # Estilo visual e animações 
+├── ⚙️ script.js          # Lógica da aplicação (Classe HydraTrack) 
+├── 📁 assets/
+│   ├── 📁 sounds/ 
+│   │   ├── 🔊 agua.mp3 
+│   │   ├── 🔊 bell.mp3 
+│   │   └── ... (e outros arquivos de som) 
+│   └── 📁 images/ 
+│       ├── 🖼️ 250.png 
+│       ├── 🖼️ 500.png 
+│       └── ... (e outras imagens) 
+└── 📄 README.md 
 
  ```
 
