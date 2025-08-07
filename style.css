@@ -1209,6 +1209,11 @@ input:checked + .slider:before {
   color: var(--foreground);
 }
 
+#friend-peer-id {
+  background: var(--foreground);
+  color: var(--foreground);
+}
+
 .peer-id-container {
   display: flex;
   align-items: center;
