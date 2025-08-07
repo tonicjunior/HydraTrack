@@ -30,9 +30,7 @@
             <div id="progress-fill" class="progress-fill"></div>
           </div>
         </div>
-
         <div id="step-content" class="step-content"></div>
-
         <div class="navigation">
           <button id="back-btn" class="btn btn-outline" style="display: none">
             Voltar
@@ -82,87 +80,93 @@
 
       <main class="main-content">
         <section class="glass-section">
-          <div class="water-glass-container">
-            <div id="water-glass" class="water-glass">
-              <svg viewBox="0 0 120 160" class="glass-svg">
-                <defs>
-                  <clipPath id="glass-clip">
-                    <path d="M22 22 L98 22 L93 138 L27 138 Z" />
-                  </clipPath>
-                  <linearGradient
-                    id="water-gradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      stop-color="hsl(var(--primary-glow))"
-                      stop-opacity="0.9"
-                    />
-                    <stop
-                      offset="50%"
-                      stop-color="hsl(var(--primary))"
-                      stop-opacity="0.8"
-                    />
-                    <stop
-                      offset="100%"
-                      stop-color="hsl(var(--primary))"
-                      stop-opacity="1"
-                    />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M20 20 L100 20 L95 140 L25 140 Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                  class="glass-outline"
-                />
-                <rect
-                  id="water-fill"
-                  x="22"
-                  y="138"
-                  width="76"
-                  height="0"
-                  fill="url(#water-gradient)"
-                  clip-path="url(#glass-clip)"
-                />
-                <path
-                  id="wave-1"
-                  d="M22 138 Q40 136 60 138 T98 138"
-                  stroke="hsl(var(--primary-glow))"
-                  stroke-width="1.5"
-                  fill="none"
-                  class="wave"
-                  style="opacity: 0"
-                />
-                <path
-                  id="wave-2"
-                  d="M22 138 Q50 139 80 138 T98 138"
-                  stroke="hsl(var(--primary))"
-                  stroke-width="1"
-                  fill="none"
-                  class="wave-delay"
-                  style="opacity: 0"
-                />
-                <path
-                  d="M25 25 L35 25 L33 130 L27 130 Z"
-                  fill="white"
-                  opacity="0.3"
-                />
-              </svg>
-              <div class="bubbles-container">
-                <div class="bubble bubble-1"></div>
-                <div class="bubble bubble-2"></div>
-                <div class="bubble bubble-3"></div>
+          <div class="all-glasses-container">
+            <div class="water-glass-container">
+              <div id="water-glass" class="water-glass">
+                <svg viewBox="0 0 120 160" class="glass-svg">
+                  <defs>
+                    <clipPath id="glass-clip">
+                      <path d="M22 22 L98 22 L93 138 L27 138 Z" />
+                    </clipPath>
+                    <linearGradient
+                      id="water-gradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
+                      <stop
+                        offset="0%"
+                        stop-color="hsl(var(--primary-glow))"
+                        stop-opacity="0.9"
+                      />
+                      <stop
+                        offset="50%"
+                        stop-color="hsl(var(--primary))"
+                        stop-opacity="0.8"
+                      />
+                      <stop
+                        offset="100%"
+                        stop-color="hsl(var(--primary))"
+                        stop-opacity="1"
+                      />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M20 20 L100 20 L95 140 L25 140 Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    class="glass-outline"
+                  />
+                  <rect
+                    id="water-fill"
+                    x="22"
+                    y="138"
+                    width="76"
+                    height="0"
+                    fill="url(#water-gradient)"
+                    clip-path="url(#glass-clip)"
+                  />
+                  <path
+                    id="wave-1"
+                    d="M22 138 Q40 136 60 138 T98 138"
+                    stroke="hsl(var(--primary-glow))"
+                    stroke-width="1.5"
+                    fill="none"
+                    class="wave"
+                    style="opacity: 0"
+                  />
+                  <path
+                    id="wave-2"
+                    d="M22 138 Q50 139 80 138 T98 138"
+                    stroke="hsl(var(--primary))"
+                    stroke-width="1"
+                    fill="none"
+                    class="wave-delay"
+                    style="opacity: 0"
+                  />
+                  <path
+                    d="M25 25 L35 25 L33 130 L27 130 Z"
+                    fill="white"
+                    opacity="0.3"
+                  />
+                </svg>
+                <div class="bubbles-container">
+                  <div class="bubble bubble-1"></div>
+                  <div class="bubble bubble-2"></div>
+                  <div class="bubble bubble-3"></div>
+                </div>
+              </div>
+              <div class="progress-text">
+                <div id="percentage-text" class="percentage">0%</div>
+                <div id="amount-text" class="amount-text">0ml de 2000ml</div>
               </div>
             </div>
-            <div class="progress-text">
-              <div id="percentage-text" class="percentage">0%</div>
-              <div id="amount-text" class="amount-text">0ml de 2000ml</div>
-            </div>
+            <div
+              id="friends-glasses-container"
+              class="friends-glasses-container"
+            ></div>
           </div>
           <div class="stats-grid">
             <div class="stat-card">
@@ -276,14 +280,6 @@
       </div>
     </div>
 
-    <div id="celebration-modal" class="celebration-modal" style="display: none">
-      <div class="celebration-content">
-        <div class="celebration-emoji">🎉</div>
-        <h3 class="celebration-title">Parabéns!</h3>
-        <p class="celebration-text">Você atingiu sua meta diária!</p>
-      </div>
-    </div>
-
     <div
       id="settings-modal"
       class="settings-modal-overlay"
@@ -335,7 +331,6 @@
               Status: Desconectado
             </p>
           </div>
-
           <div class="settings-group">
             <h3>Conectar a um Amigo</h3>
             <div class="custom-input-group">
@@ -347,12 +342,10 @@
               <button id="connect-friend-btn" class="btn">Conectar</button>
             </div>
           </div>
-
           <div class="settings-group">
             <h3>Notificações de Amigos</h3>
             <div id="friend-notification-settings"></div>
           </div>
-
           <div class="settings-group">
             <h3>Amigos Conectados</h3>
             <div id="friends-list" class="friends-list-container">
@@ -361,7 +354,6 @@
               </p>
             </div>
           </div>
-
           <div class="settings-actions">
             <button id="disconnect-all-btn" class="btn btn-destructive">
               Desconectar de Todos
@@ -411,20 +403,7 @@
       </div>
     </div>
 
-    <div id="info-modal" class="modal-overlay" style="display: none">
-      <div class="modal-card">
-        <div class="modal-icon">⚠️</div>
-        <h3 id="info-modal-title" class="modal-title">Atenção</h3>
-        <p id="info-modal-text" class="modal-text">
-          Este é um texto de exemplo.
-        </p>
-        <div class="modal-actions">
-          <button id="info-modal-confirm-btn" class="btn btn-primary">
-            Entendi
-          </button>
-        </div>
-      </div>
-    </div>
+    <div id="toast-container"></div>
 
     <script src="script.js"></script>
   </body>

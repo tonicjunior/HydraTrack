@@ -44,15 +44,12 @@ class HydraTrack {
     this.particleCanvas = null;
     this.particleCtx = null;
     this.particles = [];
-
     this.unlockedAchievements = [];
     this.allAchievements = this.getAchievementsList();
-
     this.peer = null;
     this.myPeerId = null;
     this.friendConnections = {};
     this.friendsData = {};
-
     this.initializeApp();
   }
 
@@ -79,7 +76,6 @@ class HydraTrack {
       const savedSettings =
         JSON.parse(localStorage.getItem("hydratrack-settings")) || {};
       this.settings = { ...this.settings, ...savedSettings };
-
       if (
         !this.settings.friendNotifications ||
         typeof this.settings.friendNotifications.enabled === "undefined"
@@ -90,7 +86,6 @@ class HydraTrack {
           volume: 0.8,
         };
       }
-
       this.streak = parseInt(localStorage.getItem("hydratrack-streak")) || 0;
       this.isOnboarded =
         localStorage.getItem("hydratrack-onboarded") === "true";
@@ -209,7 +204,6 @@ class HydraTrack {
               }>${sound.name}</option>`
           )
           .join("");
-
         return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></div>
             <h2 class="step-title">Som dos Lembretes</h2><p class="step-subtitle">Personalize o som e o volume dos alertas de hidratação.</p>
             <div class="form-group" style="margin-top: 1.5rem;">
@@ -318,7 +312,6 @@ class HydraTrack {
     const finalGoal = customGoalCheck
       ? parseInt(customGoalValue)
       : calculatedGoal;
-
     this.user = {
       id: this.generateId(),
       name,
@@ -330,13 +323,10 @@ class HydraTrack {
       isManualGoal: customGoalCheck,
       quickAmounts: [250, 500, 750, 1000],
     };
-
     this.settings.notificationVolume = notificationVolume ?? 0.8;
     this.settings.sound = sound || 1;
     this.notificationSound.volume = this.settings.notificationVolume;
-
     this.playSound(true);
-
     this.settings.notificationsEnabled =
       this.notificationPermission === "granted";
     this.isOnboarded = true;
@@ -358,6 +348,7 @@ class HydraTrack {
     this.updateQuickButtons();
     this.updateTimeline();
     this.updateProgressSection();
+    this.renderFriendsDashboard();
   }
 
   updateHeader() {
@@ -380,7 +371,12 @@ class HydraTrack {
     this.animateWaterFill(percentage);
     this.sendDataToAllFriends({
       type: "profile_update",
-      payload: { percentage: percentage },
+      payload: {
+        name: this.user.name,
+        consumed: consumed,
+        dailyGoal: goal,
+        percentage: percentage,
+      },
     });
   }
 
@@ -424,7 +420,6 @@ class HydraTrack {
       ...log,
       userName: this.user.name,
     }));
-
     if (isConnected) {
       Object.values(this.friendsData).forEach((friend) => {
         if (friend.logs) {
@@ -432,10 +427,7 @@ class HydraTrack {
         }
       });
     }
-    
-      timelineLogs.sort(
-        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-      );
+    timelineLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     this.renderTimeline(timelineLogs, isConnected);
   }
 
@@ -455,7 +447,6 @@ class HydraTrack {
             log.userName === this.user.name
               ? `<button class="timeline-delete" data-log-id="${log.id}">×</button>`
               : "";
-
           return `
                 <div class="timeline-item">
                     <div class="timeline-content">
@@ -520,7 +511,6 @@ class HydraTrack {
   addWaterLog(amount, isCustom = false) {
     this.triggerWaterAnimation();
     const prevProgress = this.getTodayProgress();
-
     const newLog = {
       id: this.generateId(),
       amount: parseInt(amount),
@@ -530,20 +520,15 @@ class HydraTrack {
       userName: this.user.name,
     };
     this.waterLogs.push(newLog);
-
     const newProgress = this.getTodayProgress();
-
     this.broadcastHydration(newLog);
-
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
       this.updateStreak();
       this.broadcastGoalReached();
     }
-
     this.checkAllAchievements();
     this.saveData();
-
     this.resetNotificationTimer();
     this.updateDashboard();
     const customInput = document.getElementById("custom-amount");
@@ -587,11 +572,13 @@ class HydraTrack {
   }
 
   showCelebration() {
-    const modal = document.getElementById("celebration-modal");
-    modal.style.display = "flex";
-    setTimeout(() => {
-      modal.style.display = "none";
-    }, 3000);
+    this.showToast({
+      title: "Parabéns!",
+      body: "Você atingiu sua meta diária!",
+      icon: "🎉",
+      type: "success",
+      duration: 4000,
+    });
   }
 
   animateWaterFill(percentage) {
@@ -673,7 +660,6 @@ class HydraTrack {
   saveSettings() {
     const oldSoundId = this.settings.sound;
     const oldIsManual = this.user.isManualGoal;
-
     this.user.name = document.getElementById("setting-name").value;
     this.user.weight = parseInt(
       document.getElementById("setting-weight").value
@@ -681,7 +667,6 @@ class HydraTrack {
     this.user.isManualGoal = document.getElementById(
       "setting-manual-goal"
     ).checked;
-
     if (this.user.isManualGoal) {
       this.user.dailyGoal = parseInt(
         document.getElementById("setting-goal").value
@@ -705,14 +690,12 @@ class HydraTrack {
       document.getElementById("setting-notification-sound").value
     );
     this.notificationSound.volume = this.settings.notificationVolume;
-
     if (this.settings.sound !== oldSoundId) {
       this.unlockAchievement("S20");
     }
     if (this.user.isManualGoal && !oldIsManual) {
       this.unlockAchievement("G14");
     }
-
     if (!this.settings.notificationsEnabled) {
       this.stopNotificationTimer();
     } else {
@@ -733,14 +716,50 @@ class HydraTrack {
     window.location.reload();
   }
 
-  showInfoModal(title, message) {
-    document.getElementById("info-modal-title").textContent = title;
-    document.getElementById("info-modal-text").textContent = message;
-    document.getElementById("info-modal").style.display = "flex";
-  }
+  showToast({ title, body, icon = null, type = "info", duration = 5000 }) {
+    const container = document.getElementById("toast-container");
 
-  hideInfoModal() {
-    document.getElementById("info-modal").style.display = "none";
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+
+    const toastHeader = document.createElement("div");
+    toastHeader.className = "toast-header";
+
+    let headerContent = "";
+    if (icon) {
+      headerContent += `<span class="toast-icon">${icon}</span>`;
+    }
+    headerContent += `<strong class="me-auto">${title}</strong>`;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn-close";
+    closeBtn.setAttribute("aria-label", "Close");
+
+    toastHeader.innerHTML = headerContent;
+    toastHeader.appendChild(closeBtn);
+
+    const toastBody = document.createElement("div");
+    toastBody.className = "toast-body";
+    toastBody.textContent = body;
+
+    toast.appendChild(toastHeader);
+    toast.appendChild(toastBody);
+
+    const closeToast = () => {
+      toast.classList.remove("show");
+      toast.addEventListener("animationend", () => toast.remove());
+    };
+
+    closeBtn.addEventListener("click", closeToast);
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add("show");
+    }, 10);
+
+    if (duration > 0) {
+      setTimeout(closeToast, duration);
+    }
   }
 
   attachEventListeners() {
@@ -760,10 +779,11 @@ class HydraTrack {
           this.completeOnboarding();
         }
       } else {
-        this.showInfoModal(
-          "Campo Obrigatório",
-          "Por favor, preencha os dados corretamente para continuar."
-        );
+        this.showToast({
+          title: "Campo Obrigatório",
+          body: "Por favor, preencha os dados para continuar.",
+          type: "warning",
+        });
       }
     });
     document.getElementById("dashboard").addEventListener("click", (event) => {
@@ -810,10 +830,6 @@ class HydraTrack {
     document
       .getElementById("close-delete-modal-btn")
       .addEventListener("click", cancelDeleteModal);
-    document
-      .getElementById("info-modal-confirm-btn")
-      .addEventListener("click", () => this.hideInfoModal());
-
     document
       .getElementById("achievements-btn")
       ?.addEventListener("click", () => this.showAchievements());
@@ -896,7 +912,6 @@ class HydraTrack {
     if (this.currentStep === 6) {
       const requestBtn = document.getElementById("request-permission-btn");
       const statusDiv = document.getElementById("permission-status");
-
       if (requestBtn) {
         if (this.notificationPermission === "denied") {
           requestBtn.disabled = true;
@@ -908,7 +923,6 @@ class HydraTrack {
         } else {
           requestBtn.addEventListener("click", async () => {
             await this.requestNotificationPermission();
-
             if (this.notificationPermission === "granted") {
               statusDiv.textContent = "Permissão concedida com sucesso! 🎉";
               statusDiv.style.color = "hsl(var(--success))";
@@ -1010,8 +1024,27 @@ class HydraTrack {
   }
 
   calculateDailyGoal(weight, activityLevel) {
-    const activityFactors = { sedentario: 1.0, moderado: 1.2, ativo: 1.5 };
-    return Math.round(weight * 35 * (activityFactors[activityLevel] || 1.0));
+    const baseMultiplier = 38;
+    let activityMultiplier;
+
+    switch (activityLevel) {
+      case "sedentario":
+        activityMultiplier = 1.0;
+        break;
+      case "moderado":
+        activityMultiplier = 1.2;
+        break;
+      case "ativo":
+        activityMultiplier = 1.5;
+        break;
+      default:
+        activityMultiplier = 1.0;
+    }
+
+    const rawGoal = weight * baseMultiplier * activityMultiplier;
+    const balancedGoal = Math.round(rawGoal / 1.5);
+    const roundedGoal = Math.round(balancedGoal / 50) * 50;
+    return roundedGoal;
   }
 
   getProgressPercentage(consumed, goal) {
@@ -1059,6 +1092,16 @@ class HydraTrack {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
+  generateRandomColor() {
+    const startColor = { r: 48, g: 202, b: 252 };
+    const endColor = { r: 194, g: 95, b: 255 };
+    const t = Math.random();
+    const r = Math.round(startColor.r * (1 - t) + endColor.r * t);
+    const g = Math.round(startColor.g * (1 - t) + endColor.g * t);
+    const b = Math.round(startColor.b * (1 - t) + endColor.b * t);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   formatElapsedTime(minutes) {
     const totalMinutes = Math.round(minutes);
     if (totalMinutes < 60) {
@@ -1101,17 +1144,14 @@ class HydraTrack {
       this.notificationPermission = "granted";
       this.settings.notificationsEnabled = true;
       this.startNotificationTimer();
-      this.sendNotification(
-        "HydraTrack Ativado!",
-        "Você será lembrado de beber água. Mantenha-se hidratado!"
-      );
     } else if (currentPermission === "denied") {
       this.notificationPermission = "denied";
       this.settings.notificationsEnabled = false;
-      this.showInfoModal(
-        "Notificações Bloqueadas",
-        "Você bloqueou as notificações. Para reativá-las, você precisará alterar as permissões do site nas configurações do seu navegador."
-      );
+      this.showToast({
+        title: "Notificações Bloqueadas",
+        body: "Para reativar, altere as permissões do site nas configurações do seu navegador.",
+        type: "warning",
+      });
     } else {
       const permission = await Notification.requestPermission();
       this.notificationPermission = permission;
@@ -1250,7 +1290,6 @@ class HydraTrack {
     const volume = this.settings.friendNotifications.volume;
     const soundObj = this.sounds.find((s) => s.id === soundId);
     if (!soundObj) return;
-
     this.friendNotificationSound.src = `assets/sounds/${soundObj.file}`;
     this.friendNotificationSound.volume = volume;
     this.friendNotificationSound.play().catch((e) => {});
@@ -1281,10 +1320,10 @@ class HydraTrack {
     const hoursSinceLastDrink = (now - lastLogTime) / (1000 * 60 * 60);
     if (hoursSinceLastDrink > (this.notificationIntervalMinutes / 60) * 2) {
       setTimeout(() => {
-        this.showInfoModal(
-          `Bem-vindo de volta, ${this.user.name}!`,
-          `Parece que faz um tempo que você não registra seu consumo de água. Vamos voltar a se hidratar! 💧`
-        );
+        this.showToast({
+          title: `Bem-vindo de volta, ${this.user.name}!`,
+          body: "Parece que faz um tempo que você não registra. Vamos voltar a se hidratar! 💧",
+        });
       }, 1500);
     }
   }
@@ -1351,7 +1390,6 @@ class HydraTrack {
     const unlocked = this.allAchievements.filter((ach) =>
       this.unlockedAchievements.includes(ach.id)
     );
-
     if (unlocked.length === 0) {
       container.innerHTML = `
                 <div class="empty-timeline">
@@ -1361,7 +1399,6 @@ class HydraTrack {
                 </div>`;
       return;
     }
-
     container.innerHTML = unlocked
       .map((ach) => {
         const tierClass = ach.tier.toLowerCase();
@@ -1383,10 +1420,12 @@ class HydraTrack {
       this.unlockedAchievements.push(id);
       const achievement = this.allAchievements.find((a) => a.id === id);
       if (achievement) {
-        this.showInfoModal(
-          `🏆 Conquista Desbloqueada!`,
-          `Você ganhou a conquista "${achievement.name}"!`
-        );
+        this.showToast({
+          title: "Conquista Desbloqueada!",
+          body: `Você ganhou a conquista "${achievement.name}"!`,
+          icon: "🏆",
+          type: "success",
+        });
       }
       this.saveData();
     }
@@ -1413,12 +1452,9 @@ class HydraTrack {
     const daysSinceFirstLog = Math.ceil(
       Math.abs(new Date() - firstLogDate) / (1000 * 60 * 60 * 24)
     );
-
     this.allAchievements.forEach((ach) => {
       if (this.unlockedAchievements.includes(ach.id)) return;
-
       let conditionMet = false;
-
       switch (ach.id) {
         case "B01":
           conditionMet = totalLogs > 0;
@@ -1681,7 +1717,6 @@ class HydraTrack {
           );
           break;
       }
-
       if (conditionMet) {
         this.unlockAchievement(ach.id);
       }
@@ -1694,7 +1729,6 @@ class HydraTrack {
       .sort()
       .slice(-numDays);
     if (sortedDays.length < numDays) return false;
-
     return sortedDays.every((date) => {
       const dayTotal = this.waterLogs
         .filter((log) => log.date === date)
@@ -1722,7 +1756,6 @@ class HydraTrack {
     const relevantLogs = this.waterLogs.filter(filterFn);
     const uniqueDays = [...new Set(relevantLogs.map((log) => log.date))].sort();
     if (uniqueDays.length < numDays) return false;
-
     for (let i = 0; i <= uniqueDays.length - numDays; i++) {
       let isConsecutive = true;
       for (let j = 0; j < numDays - 1; j++) {
@@ -1741,12 +1774,10 @@ class HydraTrack {
   checkHourlyLogs(numHours) {
     const todayLogs = this.getTodayProgress().logs;
     if (todayLogs.length === 0) return false;
-
     const hoursWithLogs = [
       ...new Set(todayLogs.map((log) => new Date(log.timestamp).getHours())),
     ].sort((a, b) => a - b);
     if (hoursWithLogs.length < numHours) return false;
-
     for (let i = 0; i <= hoursWithLogs.length - numHours; i++) {
       let isConsecutive = true;
       for (let j = 0; j < numHours - 1; j++) {
@@ -1766,17 +1797,14 @@ class HydraTrack {
     lastSaturday.setDate(today.getDate() - today.getDay() - 1);
     let lastSunday = new Date(today);
     lastSunday.setDate(today.getDate() - today.getDay());
-
     const satString = lastSaturday.toISOString().split("T")[0];
     const sunString = lastSunday.toISOString().split("T")[0];
-
     const satTotal = this.waterLogs
       .filter((log) => log.date === satString)
       .reduce((sum, log) => sum + log.amount, 0);
     const sunTotal = this.waterLogs
       .filter((log) => log.date === sunString)
       .reduce((sum, log) => sum + log.amount, 0);
-
     return satTotal >= this.user.dailyGoal && sunTotal >= this.user.dailyGoal;
   }
 
@@ -2251,29 +2279,26 @@ class HydraTrack {
   initializePeer() {
     if (!this.user) return;
     if (this.peer) this.peer.destroy();
-
     this.peer = new Peer();
-
     this.peer.on("open", (id) => {
       this.myPeerId = id;
       document.getElementById("my-peer-id").value = id;
       document.getElementById("connection-state").textContent =
         "Status: Online e pronto para conectar.";
     });
-
     this.peer.on("connection", (conn) => {
       this.setupConnectionEventListeners(conn);
     });
-
     this.peer.on("error", (err) => {
       document.getElementById(
         "connection-state"
       ).textContent = `Erro: ${err.type}`;
       if (err.type === "network") {
-        this.showInfoModal(
-          "Erro de Conexão",
-          "Não foi possível conectar ao servidor de pares. Verifique sua conexão com a internet."
-        );
+        this.showToast({
+          title: "Erro de Conexão",
+          body: "Não foi possível conectar. Verifique sua conexão.",
+          type: "warning",
+        });
       }
     });
   }
@@ -2281,65 +2306,106 @@ class HydraTrack {
   connectToFriend(friendPeerId) {
     if (!friendPeerId || !this.peer) return;
     if (this.friendConnections[friendPeerId]) {
-      this.showInfoModal("Aviso", "Você já está conectado a este amigo.");
+      this.showToast({
+        title: "Aviso",
+        body: "Você já está conectado a este amigo.",
+      });
       return;
     }
-
     const conn = this.peer.connect(friendPeerId, {
       reliable: true,
       metadata: { name: this.user.name },
     });
-
     this.setupConnectionEventListeners(conn);
   }
 
   setupConnectionEventListeners(conn) {
     conn.on("open", () => {
       this.friendConnections[conn.peer] = conn;
-      if (!this.friendsData[conn.peer])
-        this.friendsData[conn.peer] = { logs: [], goalReached: false };
+      if (!this.friendsData[conn.peer]) {
+        this.friendsData[conn.peer] = {
+          logs: [],
+          goalReached: false,
+          color: this.generateRandomColor(),
+        };
+      }
+      const friendName = conn.metadata.name;
+      if (friendName) {
+        this.showToast({
+          title: "Novo Amigo Conectado!",
+          body: `se conectou com você.`,
+          icon: "🤝",
+          type: "success",
+        });
+      }
 
-      const { percentage } = this.getTodayProgress();
+      const { consumed, goal, percentage } = this.getTodayProgress();
       this.sendDataToFriend(conn.peer, {
         type: "profile_update",
-        payload: { name: this.user.name, percentage: percentage },
+        payload: {
+          name: this.user.name,
+          consumed: consumed,
+          dailyGoal: goal,
+          percentage: percentage,
+        },
       });
-
       this.unlockAchievement("E01");
       this.updateFriendsList();
       this.updateTimeline();
+      this.renderFriendsDashboard();
     });
-
     conn.on("data", (data) => {
       this.handleReceivedData(conn.peer, data);
     });
-
     conn.on("close", () => {
       const friendName = this.friendsData[conn.peer]?.name || "um amigo";
       delete this.friendConnections[conn.peer];
       delete this.friendsData[conn.peer];
       this.updateFriendsList();
       this.updateTimeline();
-      this.showInfoModal(
-        "Conexão Perdida",
-        `A conexão com ${friendName} foi perdida.`
-      );
+      this.renderFriendsDashboard();
+      this.showToast({
+        title: "Conexão Perdida",
+        body: `A conexão com ${friendName} foi perdida.`,
+      });
     });
   }
 
   handleReceivedData(peerId, data) {
     const friendName =
       data.payload?.name || this.friendsData[peerId]?.name || "um amigo";
-    if (!this.friendsData[peerId])
-      this.friendsData[peerId] = { logs: [], goalReached: false };
-
+    if (!this.friendsData[peerId]) {
+      this.friendsData[peerId] = {
+        logs: [],
+        goalReached: false,
+        color: this.generateRandomColor(),
+      };
+    }
     switch (data.type) {
       case "profile_update":
+        const isNewConnection = !this.friendsData[peerId]?.connectionNotified;
+
         this.friendsData[peerId] = {
           ...this.friendsData[peerId],
           ...data.payload,
+          connectionNotified: true,
         };
+
+        if (isNewConnection) {
+          const connectedFriendName =
+            this.friendsData[peerId].name || "um amigo";
+          const conn = this.friendConnections[peerId];
+          if (!conn.metadata.name) {
+            this.showToast({
+              title: "Conectado!",
+              body: `Você agora está conectado com ${connectedFriendName}.`,
+              icon: "🤝",
+              type: "success",
+            });
+          }
+        }
         this.updateFriendsList();
+        this.renderFriendsDashboard();
         break;
       case "hydration_log":
         this.friendsData[peerId].logs.push(data.payload);
@@ -2390,6 +2456,7 @@ class HydraTrack {
     this.friendsData = {};
     this.updateFriendsList();
     this.updateTimeline();
+    this.renderFriendsDashboard();
   }
 
   showFriendsModal() {
@@ -2416,7 +2483,6 @@ class HydraTrack {
           }>${sound.name}</option>`
       )
       .join("");
-
     container.innerHTML = `
         <div class="toggle-switch-container">
             <label for="friend-notification-toggle" class="toggle-switch-label">Ativar Notificações de Amigos</label>
@@ -2453,10 +2519,11 @@ class HydraTrack {
     const peerIdInput = document.getElementById("my-peer-id");
     peerIdInput.select();
     document.execCommand("copy");
-    this.showInfoModal(
-      "Copiado!",
-      "Seu código foi copiado para a área de transferência."
-    );
+    this.showToast({
+      title: "Copiado!",
+      body: "Seu código foi copiado para a área de transferência.",
+      type: "success",
+    });
   }
 
   updateFriendsList() {
@@ -2465,7 +2532,6 @@ class HydraTrack {
       listContainer.innerHTML = `<p class="empty-list-info">Você não está conectado a nenhum amigo ainda.</p>`;
       return;
     }
-
     listContainer.innerHTML = Object.entries(this.friendsData)
       .map(([peerId, data]) => {
         const connStatus = this.friendConnections[peerId]?.open
@@ -2498,7 +2564,6 @@ class HydraTrack {
       this.notificationPermission !== "granted"
     )
       return;
-
     const options = {
       body: message,
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2350C878'><path d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V18h6v-1.5c0-2.33-4.67-3.5-7-3.5z'/></svg>",
@@ -2507,6 +2572,61 @@ class HydraTrack {
     };
     new Notification("Atividade de Amigo", options);
     this.playFriendSound();
+  }
+
+  renderFriendsDashboard() {
+    const container = document.getElementById("friends-glasses-container");
+    const friends = Object.entries(this.friendsData);
+    if (friends.length === 0) {
+      container.innerHTML = "";
+      return;
+    }
+    container.innerHTML = "";
+    friends.forEach(([peerId, data]) => {
+      const percentage = data.percentage || 0;
+      const consumed = data.consumed || 0;
+      const goal = data.dailyGoal || 2000;
+      const color = data.color || "hsl(var(--primary))";
+      const fillHeight = Math.max(0, Math.min(116, (percentage / 100) * 116));
+      const fillY = 138 - fillHeight;
+      const friendCardHTML = `
+            <div class="friend-glass-card ${
+              percentage >= 100 ? "goal-met" : ""
+            }">
+                <h3 class="friend-name" style="color: ${color}">${
+        data.name || "Amigo"
+      }</h3>
+                <div class="water-glass-container">
+                    <div class="water-glass">
+                         <svg viewBox="0 0 120 160" class="glass-svg">
+                            <defs>
+                              <clipPath id="glass-clip-${peerId}">
+                                <path d="M22 22 L98 22 L93 138 L27 138 Z" />
+                              </clipPath>
+                            </defs>
+                            <path d="M20 20 L100 20 L95 140 L25 140 Z" fill="none" stroke="currentColor" stroke-width="3" class="glass-outline" />
+                            <rect 
+                                id="water-fill-${peerId}" 
+                                x="22" y="${fillY}" 
+                                width="76" 
+                                height="${fillHeight}" 
+                                clip-path="url(#glass-clip-${peerId})" 
+                                style="fill: ${color}; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);"
+                            />
+                            <path d="M25 25 L35 25 L33 130 L27 130 Z" fill="white" opacity="0.3" />
+                         </svg>
+                    </div>
+                </div>
+                <div class="friend-progress-details">
+                    <div class="percentage-friend" style="color: ${color}">${percentage.toFixed(
+        0
+      )}%</div>
+                    <div class="amount-text-friend">${consumed}ml de ${goal}ml</div>
+                </div>
+            </div>
+        `;
+      container.innerHTML += friendCardHTML;
+    });
   }
 }
 
@@ -2521,19 +2641,16 @@ class Particle {
     this.gravity = 0.05;
     this.opacity = Math.random() * 0.5 + 0.3;
   }
-
   update() {
     this.speedY += this.gravity;
     this.y += this.speedY;
   }
-
   draw() {
     this.ctx.fillStyle = `hsla(195, 100%, 65%, ${this.opacity})`;
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     this.ctx.fill();
   }
-
   isDead() {
     return this.y > this.ctx.canvas.height + this.size;
   }
@@ -2542,4 +2659,3 @@ class Particle {
 document.addEventListener("DOMContentLoaded", () => {
   window.hydraTrack = new HydraTrack();
 });
-
