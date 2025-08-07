@@ -1,59 +1,62 @@
 # 💧 HydraTrack - Lembrete de Hidratação
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-
----
-
 ## ✨ Visão Geral
 
-**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente e motivadora. Desenvolvido com **HTML, CSS e JavaScript puros**, o projeto utiliza Programação Orientada a Objetos (POO) para ser extremamente leve, responsivo e funcional em qualquer navegador moderno, sem a necessidade de dependências externas.
+**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente, social e motivadora. Desenvolvido com HTML, CSS e JavaScript puros, o projeto agora conta com a tecnologia **PeerJS** para criar uma experiência de hidratação compartilhada, permitindo que você e seus amigos se mantenham hidratados juntos.
 
-Desde um onboarding personalizado que calcula sua meta diária até um dashboard completo com gamificação e notificações inteligentes, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência agradável e divertida.
+A aplicação continua extremamente leve e responsiva, funcionando em qualquer navegador moderno sem a necessidade de dependências complexas. Desde um onboarding personalizado até um dashboard completo com gamificação, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência social e divertida.
 
 ---
 
 ## 📚 Índice
 
-- [🚀 Funcionalidades Principais](#-funcionalidades-principais)
-- [🧠 Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-- [🎯 Começando](#-começando)
-- [⚙️ Personalização](#️-personalização)
-- [📢 Permissões e Notificações](#-permissões-e-notificações)
-- [📜 Licença](#-licença)
+- [🚀 Funcionalidades Principais](#🚀-funcionalidades-principais)
+- [🤝 Recursos Sociais com PeerJS](#🤝-recursos-sociais-com-peerjs)
+- [🧠 Tecnologias Utilizadas](#🧠-tecnologias-utilizadas)
+- [📂 Estrutura do Projeto](#📂-estrutura-do-projeto)
+- [🎯 Começando](#🎯-começando)
+- [⚙️ Personalização](#⚙️-personalização)
+- [📢 Permissões e Notificações](#📢-permissões-e-notificações)
+- [📜 Licença](#📜-licença)
 
 ---
 
 ## 🚀 Funcionalidades Principais
 
 - 📱 **Interface Moderna e Responsiva**: Design limpo e adaptável para desktops e dispositivos móveis.
-- 🧠 **Onboarding Inteligente**: Um passo a passo que calcula sua meta de hidratação personalizada com base em peso e nível de atividade.
-- 📊 **Dashboard Completo**: Visualize seu progresso com um copo d'água animado, estatísticas de consumo, meta restante e registros do dia.
-- 🏆 **Sistema de Gamificação**: Desbloqueie mais de 50 conquistas (Bronze, Prata e Ouro) ao atingir marcos de hidratação, formando hábitos de maneira divertida.
-- 🔔 **Notificações Inteligentes e Personalizáveis**:
-  - Lembretes nativos do navegador para beber água em intervalos configuráveis.
-  - Alertas sonoros com **múltiplas opções de som** e controle de volume.
-  - Modal interativa para confirmar a hidratação e silenciar o alerta.
-- 🌗 **Tema Claro e Escuro**: Detecção automática baseada no sistema ou troca manual.
-- 📈 **Progresso Semanal**: Gráfico visual para acompanhar sua consistência ao longo da semana.
-- 🎉 **Animações e Feedback Visual**: Celebração ao atingir a meta diária e efeitos de partículas ao registrar o consumo.
-- 🔧 **Configurações Flexíveis**: Ajuste seu perfil, meta de hidratação, som e intervalo das notificações a qualquer momento.
-- 💰 **Apoie o Projeto**: Link de doação para quem quiser apoiar o desenvolvimento contínuo.
+- 🧠 **Onboarding Inteligente**: Cálculo personalizado da meta de hidratação com base em peso e nível de atividade.
+- 📊 **Dashboard Completo**: Copo animado, estatísticas de consumo, meta restante e registros do dia.
+- 🏆 **Gamificação Extensiva**: Mais de 60 conquistas (Bronze, Prata, Ouro, Esmeralda).
+- 🔔 **Notificações Inteligentes**:
+  - Lembretes nativos configuráveis.
+  - Alertas sonoros personalizáveis.
+- 🌗 **Tema Claro e Escuro**: Detecção automática ou troca manual.
+- 📈 **Progresso Semanal**: Gráfico de consistência de hidratação.
+- 🎉 **Animações e Feedbacks**: Efeitos visuais ao registrar consumo e atingir metas.
+- 🔧 **Configurações Flexíveis**: Perfil, meta, sons e lembretes totalmente personalizáveis.
+
+---
+
+## 🤝 Recursos Sociais com PeerJS
+
+- 🔗 **Conexão P2P com Amigos**: Use um código de convite único para conectar-se diretamente.
+- 🔄 **Timeline Compartilhada em Tempo Real**: Veja registros de consumo seus e dos seus amigos ao vivo.
+- 🔔 **Notificações Sociais Nativas**: Receba alertas quando seus amigos beberem água ou alcançarem metas.
+- 💎 **Conquistas Esmeralda**: Baseadas em interações sociais.
+- ⚙️ **Notificações Sociais Independentes**: Controle separado de som, volume e preferências sociais.
 
 ---
 
 ## 🧠 Tecnologias Utilizadas
 
 - **HTML5**: Estrutura semântica e acessível.
-- **CSS3**: Estilização moderna e responsiva.
-  - **Variáveis CSS**: Para um sistema de temas (claro/escuro) flexível.
-  - **Flexbox & Grid Layout**: Para a construção de layouts complexos.
-  - **Animações (`@keyframes`) e Transições**: Para uma experiência de usuário fluida.
-- **JavaScript (ES6+)**: Lógica completa da aplicação, sem frameworks.
-  - **Programação Orientada a Objetos (POO)**: Código modularizado na classe `HydraTrack` para melhor organização, manutenção e escalabilidade.
-  - **`localStorage`**: Para salvar dados do usuário, configurações e conquistas, persistindo a sessão no navegador.
-  - **DOM API**: Manipulação dinâmica da interface.
-  - **Web Notifications API**: Para a criação de lembretes nativos.
+- **CSS3**: Estilização responsiva e moderna com variáveis, Flexbox e Grid.
+- **JavaScript (ES6+)**: Lógica da aplicação.
+- **Programação Orientada a Objetos (POO)**: Classe `HydraTrack` modular.
+- **localStorage**: Persistência de dados e configurações.
+- **DOM API**: Manipulação dinâmica da interface.
+- **Web Notifications API**: Notificações nativas do navegador.
+- **PeerJS**: Conexões WebRTC peer-to-peer.
 
 ---
 

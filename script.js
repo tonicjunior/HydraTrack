@@ -11,6 +11,11 @@ class HydraTrack {
       soundEnabled: true,
       notificationsEnabled: false,
       notificationVolume: 0.8,
+      friendNotifications: {
+        enabled: false,
+        sound: 1,
+        volume: 0.8,
+      },
     };
     this.sounds = [
       { id: 1, name: "Gato Pianista", file: "cat.mp3" },
@@ -35,12 +40,18 @@ class HydraTrack {
       "Psst... Hora da hidratação! Seu último registro foi há {time}.",
     ];
     this.notificationSound = new Audio();
+    this.friendNotificationSound = new Audio();
     this.particleCanvas = null;
     this.particleCtx = null;
     this.particles = [];
 
     this.unlockedAchievements = [];
     this.allAchievements = this.getAchievementsList();
+
+    this.peer = null;
+    this.myPeerId = null;
+    this.friendConnections = {};
+    this.friendsData = {};
 
     this.initializeApp();
   }
@@ -65,10 +76,21 @@ class HydraTrack {
       this.user = JSON.parse(localStorage.getItem("hydratrack-user")) || null;
       this.waterLogs =
         JSON.parse(localStorage.getItem("hydratrack-logs")) || [];
-      this.settings = {
-        ...this.settings,
-        ...JSON.parse(localStorage.getItem("hydratrack-settings")),
-      };
+      const savedSettings =
+        JSON.parse(localStorage.getItem("hydratrack-settings")) || {};
+      this.settings = { ...this.settings, ...savedSettings };
+
+      if (
+        !this.settings.friendNotifications ||
+        typeof this.settings.friendNotifications.enabled === "undefined"
+      ) {
+        this.settings.friendNotifications = {
+          enabled: true,
+          sound: 1,
+          volume: 0.8,
+        };
+      }
+
       this.streak = parseInt(localStorage.getItem("hydratrack-streak")) || 0;
       this.isOnboarded =
         localStorage.getItem("hydratrack-onboarded") === "true";
@@ -356,6 +378,10 @@ class HydraTrack {
       "amount-text"
     ).textContent = `${consumed}ml de ${goal}ml`;
     this.animateWaterFill(percentage);
+    this.sendDataToAllFriends({
+      type: "profile_update",
+      payload: { percentage: percentage },
+    });
   }
 
   updateStats() {
@@ -393,29 +419,58 @@ class HydraTrack {
   }
 
   updateTimeline() {
+    const isConnected = Object.keys(this.friendConnections).length > 0;
+    let timelineLogs = this.getTodayProgress().logs.map((log) => ({
+      ...log,
+      userName: this.user.name,
+    }));
+
+    if (isConnected) {
+      Object.values(this.friendsData).forEach((friend) => {
+        if (friend.logs) {
+          timelineLogs.push(...friend.logs);
+        }
+      });
+      timelineLogs.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+    }
+    this.renderTimeline(timelineLogs, isConnected);
+  }
+
+  renderTimeline(logs, isShared) {
     const container = document.getElementById("timeline-container");
-    const { logs } = this.getTodayProgress();
     if (logs.length === 0) {
       container.innerHTML = `<div class="empty-timeline"><svg class="empty-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>Nenhum registro hoje ainda.</p><p>Que tal começar agora?</p></div>`;
     } else {
-      container.innerHTML = [...logs]
-        .reverse()
-        .map(
-          (log) =>
-            `<div class="timeline-item">
+      container.innerHTML = logs
+        .map((log) => {
+          const userNameDisplay = isShared
+            ? `<span class="timeline-user-name">${
+                log.userName === this.user.name ? "Você" : log.userName
+              }</span>`
+            : "";
+          const deleteButton =
+            log.userName === this.user.name
+              ? `<button class="timeline-delete" data-log-id="${log.id}">×</button>`
+              : "";
+
+          return `
+                <div class="timeline-item">
                     <div class="timeline-content">
                         <div class="timeline-dot"></div>
-                        <div><div class="timeline-amount">${
-                          log.amount
-                        }ml</div><div class="timeline-time">${this.formatTime(
-              log.timestamp
-            )}</div></div>
+                        <div>
+                            <div class="timeline-amount">${
+                              log.amount
+                            }ml ${userNameDisplay}</div>
+                            <div class="timeline-time">${this.formatTime(
+                              log.timestamp
+                            )}</div>
+                        </div>
                     </div>
-                    <button class="timeline-delete" data-log-id="${
-                      log.id
-                    }">×</button>
-                </div>`
-        )
+                    ${deleteButton}
+                </div>`;
+        })
         .join("");
     }
   }
@@ -465,18 +520,24 @@ class HydraTrack {
     this.triggerWaterAnimation();
     const prevProgress = this.getTodayProgress();
 
-    this.waterLogs.push({
+    const newLog = {
       id: this.generateId(),
       amount: parseInt(amount),
       timestamp: new Date().toISOString(),
       date: this.getTodayDateString(),
       isCustom: isCustom,
-    });
+      userName: this.user.name,
+    };
+    this.waterLogs.push(newLog);
 
     const newProgress = this.getTodayProgress();
+
+    this.broadcastHydration(newLog);
+
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
       this.updateStreak();
+      this.broadcastGoalReached();
     }
 
     this.checkAllAchievements();
@@ -574,7 +635,7 @@ class HydraTrack {
     }"></div></div>
             </div>
             <div class="settings-group">
-                <h3>Notificações</h3>
+                <h3>Notificações Pessoais</h3>
                 <div class="toggle-switch-container"><label for="setting-notifications" class="toggle-switch-label">Ativar lembretes</label><label class="toggle-switch"><input type="checkbox" id="setting-notifications" ${
                   this.settings.notificationsEnabled ? "checked" : ""
                 }><span class="slider"></span></label></div>
@@ -758,6 +819,25 @@ class HydraTrack {
     document
       .getElementById("close-achievements-btn")
       ?.addEventListener("click", () => this.hideAchievements());
+    document
+      .getElementById("friends-btn")
+      ?.addEventListener("click", () => this.showFriendsModal());
+    document
+      .getElementById("close-friends-btn")
+      ?.addEventListener("click", () => this.hideFriendsModal());
+    document
+      .getElementById("copy-peer-id-btn")
+      ?.addEventListener("click", () => this.copyPeerId());
+    document
+      .getElementById("connect-friend-btn")
+      ?.addEventListener("click", () => {
+        const friendId = document.getElementById("friend-peer-id").value.trim();
+        this.connectToFriend(friendId);
+        document.getElementById("friend-peer-id").value = "";
+      });
+    document
+      .getElementById("disconnect-all-btn")
+      ?.addEventListener("click", () => this.disconnectAll());
   }
 
   attachStepEventListeners() {
@@ -890,6 +970,38 @@ class HydraTrack {
       });
     }
     this.updatePermissionStatusText();
+  }
+
+  attachFriendSettingsListeners() {
+    document
+      .getElementById("friend-notification-toggle")
+      .addEventListener("change", (e) => {
+        this.settings.friendNotifications.enabled = e.target.checked;
+        this.saveData();
+      });
+    document
+      .getElementById("friend-notification-sound")
+      .addEventListener("change", (e) => {
+        this.settings.friendNotifications.sound = parseInt(e.target.value);
+        this.playFriendSound();
+        this.saveData();
+      });
+    document
+      .getElementById("friend-notification-volume")
+      .addEventListener("input", (e) => {
+        const volume = parseFloat(e.target.value);
+        this.settings.friendNotifications.volume = volume;
+        document.getElementById(
+          "friend-volume-percentage"
+        ).textContent = `${Math.round(volume * 100)}%`;
+        this.friendNotificationSound.volume = volume;
+        this.saveData();
+      });
+    document
+      .getElementById("test-friend-volume-btn")
+      .addEventListener("click", () => {
+        this.playFriendSound();
+      });
   }
 
   getTodayDateString() {
@@ -1113,10 +1225,7 @@ class HydraTrack {
     if (this.soundTimeout) clearTimeout(this.soundTimeout);
     const soundToPlayId = soundId || this.settings.sound;
     const soundObj = this.sounds.find((s) => s.id === soundToPlayId);
-    if (!soundObj) {
-      console.error(`Sound with id "${soundToPlayId}" not found.`);
-      return;
-    }
+    if (!soundObj) return;
     this.notificationSound.src = `assets/sounds/${soundObj.file}`;
     this.notificationSound.load();
     this.notificationSound.volume = this.settings.notificationVolume;
@@ -1128,13 +1237,22 @@ class HydraTrack {
         .catch(() => {});
       return;
     }
-    this.notificationSound
-      .play()
-      .catch((e) => console.error("Erro ao tocar som:", e));
+    this.notificationSound.play().catch((e) => {});
     this.soundTimeout = setTimeout(() => {
       this.notificationSound.pause();
       this.notificationSound.currentTime = 0;
     }, 5000);
+  }
+
+  playFriendSound() {
+    const soundId = this.settings.friendNotifications.sound;
+    const volume = this.settings.friendNotifications.volume;
+    const soundObj = this.sounds.find((s) => s.id === soundId);
+    if (!soundObj) return;
+
+    this.friendNotificationSound.src = `assets/sounds/${soundObj.file}`;
+    this.friendNotificationSound.volume = volume;
+    this.friendNotificationSound.play().catch((e) => {});
   }
 
   showReminderModal() {
@@ -1537,6 +1655,29 @@ class HydraTrack {
           break;
         case "G20":
           conditionMet = this.unlockedAchievements.length >= 59;
+          break;
+        case "E01":
+          conditionMet = Object.keys(this.friendConnections).length > 0;
+          break;
+        case "E02":
+          conditionMet = Object.keys(this.friendsData).some(
+            (friend) => friend.goalReached
+          );
+          break;
+        case "E03":
+          conditionMet =
+            todayProgress.percentage >= 100 &&
+            Object.values(this.friendsData).some(
+              (friend) => friend.goalReached
+            );
+          break;
+        case "E04":
+          conditionMet = Object.keys(this.friendConnections).length >= 3;
+          break;
+        case "E05":
+          conditionMet = Object.values(this.friendsData).some(
+            (friend) => friend.logs && friend.logs.length > 0
+          );
           break;
       }
 
@@ -2067,7 +2208,304 @@ class HydraTrack {
         tier: "Gold",
         icon: "💎",
       },
+      {
+        id: "E01",
+        name: "Conectados",
+        description: "Conecte-se com um amigo pela primeira vez.",
+        tier: "Esmeralda",
+        icon: "🤝",
+      },
+      {
+        id: "E02",
+        name: "Parceria de Sucesso",
+        description: "Receba uma notificação de que seu amigo atingiu a meta.",
+        tier: "Esmeralda",
+        icon: "🧑‍🤝‍🧑",
+      },
+      {
+        id: "E03",
+        name: "Dupla Dinâmica",
+        description: "Você e um amigo atingem a meta no mesmo dia.",
+        tier: "Esmeralda",
+        icon: "🚀",
+      },
+      {
+        id: "E04",
+        name: "Socializando",
+        description: "Conecte-se com 3 amigos simultaneamente.",
+        tier: "Esmeralda",
+        icon: "👨‍👩‍👦",
+      },
+      {
+        id: "E05",
+        name: "Observador",
+        description:
+          "Veja o primeiro registro de um amigo na timeline compartilhada.",
+        tier: "Esmeralda",
+        icon: "👀",
+      },
     ];
+  }
+
+  initializePeer() {
+    if (!this.user) return;
+    if (this.peer) this.peer.destroy();
+
+    this.peer = new Peer();
+
+    this.peer.on("open", (id) => {
+      this.myPeerId = id;
+      document.getElementById("my-peer-id").value = id;
+      document.getElementById("connection-state").textContent =
+        "Status: Online e pronto para conectar.";
+    });
+
+    this.peer.on("connection", (conn) => {
+      this.setupConnectionEventListeners(conn);
+    });
+
+    this.peer.on("error", (err) => {
+      document.getElementById(
+        "connection-state"
+      ).textContent = `Erro: ${err.type}`;
+      if (err.type === "network") {
+        this.showInfoModal(
+          "Erro de Conexão",
+          "Não foi possível conectar ao servidor de pares. Verifique sua conexão com a internet."
+        );
+      }
+    });
+  }
+
+  connectToFriend(friendPeerId) {
+    if (!friendPeerId || !this.peer) return;
+    if (this.friendConnections[friendPeerId]) {
+      this.showInfoModal("Aviso", "Você já está conectado a este amigo.");
+      return;
+    }
+
+    const conn = this.peer.connect(friendPeerId, {
+      reliable: true,
+      metadata: { name: this.user.name },
+    });
+
+    this.setupConnectionEventListeners(conn);
+  }
+
+  setupConnectionEventListeners(conn) {
+    conn.on("open", () => {
+      this.friendConnections[conn.peer] = conn;
+      if (!this.friendsData[conn.peer])
+        this.friendsData[conn.peer] = { logs: [], goalReached: false };
+
+      const { percentage } = this.getTodayProgress();
+      this.sendDataToFriend(conn.peer, {
+        type: "profile_update",
+        payload: { name: this.user.name, percentage: percentage },
+      });
+
+      this.unlockAchievement("E01");
+      this.updateFriendsList();
+      this.updateTimeline();
+    });
+
+    conn.on("data", (data) => {
+      this.handleReceivedData(conn.peer, data);
+    });
+
+    conn.on("close", () => {
+      const friendName = this.friendsData[conn.peer]?.name || "um amigo";
+      delete this.friendConnections[conn.peer];
+      delete this.friendsData[conn.peer];
+      this.updateFriendsList();
+      this.updateTimeline();
+      this.showInfoModal(
+        "Conexão Perdida",
+        `A conexão com ${friendName} foi perdida.`
+      );
+    });
+  }
+
+  handleReceivedData(peerId, data) {
+    const friendName =
+      data.payload?.name || this.friendsData[peerId]?.name || "um amigo";
+    if (!this.friendsData[peerId])
+      this.friendsData[peerId] = { logs: [], goalReached: false };
+
+    switch (data.type) {
+      case "profile_update":
+        this.friendsData[peerId] = {
+          ...this.friendsData[peerId],
+          ...data.payload,
+        };
+        this.updateFriendsList();
+        break;
+      case "hydration_log":
+        this.friendsData[peerId].logs.push(data.payload);
+        this.showFriendNotification(
+          `${friendName} acabou de beber ${data.payload.amount}ml!`
+        );
+        this.unlockAchievement("E05");
+        this.updateTimeline();
+        break;
+      case "goal_reached":
+        this.friendsData[peerId].goalReached = true;
+        this.showFriendNotification(`${friendName} atingiu a meta diária! 🎉`);
+        this.unlockAchievement("E02");
+        this.checkAllAchievements();
+        break;
+    }
+  }
+
+  sendDataToAllFriends(data) {
+    Object.values(this.friendConnections).forEach((conn) => {
+      if (conn && conn.open) {
+        conn.send(data);
+      }
+    });
+  }
+
+  sendDataToFriend(peerId, data) {
+    const conn = this.friendConnections[peerId];
+    if (conn && conn.open) {
+      conn.send(data);
+    }
+  }
+
+  broadcastHydration(log) {
+    this.sendDataToAllFriends({
+      type: "hydration_log",
+      payload: log,
+    });
+  }
+
+  broadcastGoalReached() {
+    this.sendDataToAllFriends({ type: "goal_reached" });
+  }
+
+  disconnectAll() {
+    Object.values(this.friendConnections).forEach((conn) => conn.close());
+    this.friendConnections = {};
+    this.friendsData = {};
+    this.updateFriendsList();
+    this.updateTimeline();
+  }
+
+  showFriendsModal() {
+    document.getElementById("friends-modal").style.display = "flex";
+    if (!this.peer || this.peer.destroyed) {
+      this.initializePeer();
+    }
+    this.renderFriendNotificationSettings();
+    this.updateFriendsList();
+  }
+
+  hideFriendsModal() {
+    document.getElementById("friends-modal").style.display = "none";
+  }
+
+  renderFriendNotificationSettings() {
+    const container = document.getElementById("friend-notification-settings");
+    const settings = this.settings.friendNotifications;
+    const soundOptions = this.sounds
+      .map(
+        (sound) =>
+          `<option value="${sound.id}" ${
+            settings.sound === sound.id ? "selected" : ""
+          }>${sound.name}</option>`
+      )
+      .join("");
+
+    container.innerHTML = `
+        <div class="toggle-switch-container">
+            <label for="friend-notification-toggle" class="toggle-switch-label">Ativar Notificações de Amigos</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="friend-notification-toggle" ${
+                  settings.enabled ? "checked" : ""
+                }>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="friend-notification-sound" class="form-label">Som das Notificações</label>
+            <select id="friend-notification-sound" class="form-input">${soundOptions}</select>
+        </div>
+        <div class="form-group">
+            <label for="friend-notification-volume" class="form-label">Volume do Som</label>
+            <div class="volume-control-container">
+                <input type="range" id="friend-notification-volume" class="volume-slider" min="0" max="1" step="0.01" value="${
+                  settings.volume
+                }">
+                <span id="friend-volume-percentage">${Math.round(
+                  settings.volume * 100
+                )}%</span>
+                <button id="test-friend-volume-btn" class="btn-icon" title="Testar som">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
+                </button>
+            </div>
+        </div>
+    `;
+    this.attachFriendSettingsListeners();
+  }
+
+  copyPeerId() {
+    const peerIdInput = document.getElementById("my-peer-id");
+    peerIdInput.select();
+    document.execCommand("copy");
+    this.showInfoModal(
+      "Copiado!",
+      "Seu código foi copiado para a área de transferência."
+    );
+  }
+
+  updateFriendsList() {
+    const listContainer = document.getElementById("friends-list");
+    if (Object.keys(this.friendConnections).length === 0) {
+      listContainer.innerHTML = `<p class="empty-list-info">Você não está conectado a nenhum amigo ainda.</p>`;
+      return;
+    }
+
+    listContainer.innerHTML = Object.entries(this.friendsData)
+      .map(([peerId, data]) => {
+        const connStatus = this.friendConnections[peerId]?.open
+          ? "Conectado"
+          : "Conectando...";
+        return `
+            <div class="friend-item">
+                <div class="friend-info">
+                    ${data.name || "Amigo Anônimo"}
+                    <span class="friend-status">(${(
+                      data.percentage || 0
+                    ).toFixed(0)}%)</span>
+                </div>
+                <button class="btn-icon" onclick="window.hydraTrack.disconnectFriend('${peerId}')" title="Desconectar amigo">❌</button>
+            </div>
+        `;
+      })
+      .join("");
+  }
+
+  disconnectFriend(peerId) {
+    if (this.friendConnections[peerId]) {
+      this.friendConnections[peerId].close();
+    }
+  }
+
+  showFriendNotification(message) {
+    if (
+      !this.settings.friendNotifications.enabled ||
+      this.notificationPermission !== "granted"
+    )
+      return;
+
+    const options = {
+      body: message,
+      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2350C878'><path d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V18h6v-1.5c0-2.33-4.67-3.5-7-3.5z'/></svg>",
+      tag: "hydratrack-friend-" + Date.now(),
+      silent: true,
+    };
+    new Notification("Atividade de Amigo", options);
+    this.playFriendSound();
   }
 }
 

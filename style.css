@@ -764,6 +764,12 @@ input:checked + .slider:before {
   font-size: 0.75rem;
   color: hsl(var(--muted-foreground));
 }
+.timeline-user-name {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: hsl(var(--secondary));
+  margin-left: 0.5rem;
+}
 .timeline-delete {
   background: none;
   border: none;
@@ -1016,7 +1022,8 @@ input:checked + .slider:before {
   box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
 }
 #volume-percentage,
-#onboarding-volume-percentage {
+#onboarding-volume-percentage,
+#friend-volume-percentage {
   font-weight: 600;
   color: hsl(var(--primary));
   width: 4ch;
@@ -1024,7 +1031,8 @@ input:checked + .slider:before {
   font-size: 0.875rem;
 }
 #test-volume-btn,
-#onboarding-test-volume-btn {
+#onboarding-test-volume-btn,
+#test-friend-volume-btn {
   flex-shrink: 0;
 }
 
@@ -1173,6 +1181,12 @@ input:checked + .slider:before {
   box-shadow: 0 0 15px #ffd70099;
 }
 
+.achievement-item.unlocked.esmeralda .achievement-icon {
+  background-color: #50c878;
+  color: white;
+  box-shadow: 0 0 15px #50c87899;
+}
+
 .site-footer {
   padding: 1rem;
   text-align: center;
@@ -1193,4 +1207,65 @@ input:checked + .slider:before {
 #custom-amount {
   background: var(--foreground);
   color: var(--foreground);
+}
+
+.peer-id-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.peer-id-container .form-input {
+  flex-grow: 1;
+  background-color: hsl(var(--muted));
+}
+
+#copy-peer-id-btn {
+  flex-shrink: 0;
+}
+
+.connection-status {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.friends-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: hsl(var(--muted));
+  border-radius: var(--radius);
+}
+
+.friend-info {
+  font-weight: 600;
+}
+
+.friend-status {
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  margin-left: 0.5rem;
+}
+
+.friend-item .btn-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+}
+
+.empty-list-info {
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  padding: 1rem;
+}
+
+#friend-notification-settings .form-group {
+  margin-bottom: 0.5rem;
 }
