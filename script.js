@@ -431,10 +431,11 @@ class HydraTrack {
           timelineLogs.push(...friend.logs);
         }
       });
+    }
+    
       timelineLogs.sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
-    }
     this.renderTimeline(timelineLogs, isConnected);
   }
 
