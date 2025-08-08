@@ -5,6 +5,7 @@ class HydraTrack {
     this.onboardingData = {};
     this.user = null;
     this.waterLogs = [];
+    this.amountFrequencies = {};
     this.settings = {
       theme: "system",
       sound: 1,
@@ -73,6 +74,8 @@ class HydraTrack {
       this.user = JSON.parse(localStorage.getItem("hydratrack-user")) || null;
       this.waterLogs =
         JSON.parse(localStorage.getItem("hydratrack-logs")) || [];
+      this.amountFrequencies =
+        JSON.parse(localStorage.getItem("hydratrack-amount-frequencies")) || {};
       const savedSettings =
         JSON.parse(localStorage.getItem("hydratrack-settings")) || {};
       this.settings = { ...this.settings, ...savedSettings };
@@ -102,6 +105,10 @@ class HydraTrack {
     try {
       localStorage.setItem("hydratrack-user", JSON.stringify(this.user));
       localStorage.setItem("hydratrack-logs", JSON.stringify(this.waterLogs));
+      localStorage.setItem(
+        "hydratrack-amount-frequencies",
+        JSON.stringify(this.amountFrequencies)
+      );
       localStorage.setItem(
         "hydratrack-settings",
         JSON.stringify(this.settings)
@@ -312,6 +319,13 @@ class HydraTrack {
     const finalGoal = customGoalCheck
       ? parseInt(customGoalValue)
       : calculatedGoal;
+
+    const defaultQuickAmounts = [250, 500, 750, 1000];
+    this.amountFrequencies = {};
+    defaultQuickAmounts.forEach((amount) => {
+      this.amountFrequencies[amount] = 5;
+    });
+
     this.user = {
       id: this.generateId(),
       name,
@@ -321,7 +335,7 @@ class HydraTrack {
       sleepTime,
       dailyGoal: finalGoal,
       isManualGoal: customGoalCheck,
-      quickAmounts: [250, 500, 750, 1000],
+      quickAmounts: defaultQuickAmounts,
     };
     this.settings.notificationVolume = notificationVolume ?? 0.8;
     this.settings.sound = sound || 1;
@@ -508,29 +522,53 @@ class HydraTrack {
     container.innerHTML = html;
   }
 
+  updateQuickAmounts() {
+    const sortedAmounts = Object.entries(this.amountFrequencies)
+      .sort(([, a], [, b]) => b - a)
+      .map(([amount]) => parseInt(amount));
+
+    const newQuickAmounts = sortedAmounts.slice(0, 4);
+
+    this.user.quickAmounts = newQuickAmounts.sort((a, b) => a - b);
+    this.updateQuickButtons();
+  }
+
   addWaterLog(amount, isCustom = false) {
+    const parsedAmount = parseInt(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) return;
+
     this.triggerWaterAnimation();
+
+    this.amountFrequencies[parsedAmount] =
+      (this.amountFrequencies[parsedAmount] || 0) + 1;
+
     const prevProgress = this.getTodayProgress();
+
     const newLog = {
       id: this.generateId(),
-      amount: parseInt(amount),
+      amount: parsedAmount,
       timestamp: new Date().toISOString(),
       date: this.getTodayDateString(),
       isCustom: isCustom,
       userName: this.user.name,
     };
     this.waterLogs.push(newLog);
+    this.updateQuickAmounts();
+
     const newProgress = this.getTodayProgress();
     this.broadcastHydration(newLog);
+
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
       this.updateStreak();
       this.broadcastGoalReached();
     }
+
     this.checkAllAchievements();
     this.saveData();
     this.resetNotificationTimer();
     this.updateDashboard();
+
     const customInput = document.getElementById("custom-amount");
     if (customInput) customInput.value = "";
   }
@@ -572,13 +610,29 @@ class HydraTrack {
   }
 
   showCelebration() {
-    this.showToast({
-      title: "Parabéns!",
-      body: "Você atingiu sua meta diária!",
-      icon: "🎉",
-      type: "success",
-      duration: 4000,
-    });
+    const celebrationOverlay = document.getElementById("celebration-overlay");
+    celebrationOverlay.innerHTML = "";
+
+    for (let i = 0; i < 100; i++) {
+      const confetti = document.createElement("div");
+      confetti.className = "confetti";
+      confetti.style.left = `${Math.random() * 100}vw`;
+      confetti.style.animationDuration = `${Math.random() * 2 + 3}s`;
+      confetti.style.animationDelay = `${Math.random() * 2}s`;
+      confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      celebrationOverlay.appendChild(confetti);
+    }
+
+    const message = document.createElement("div");
+    message.className = "celebration-message";
+    message.innerHTML = `🎉<br>Parabéns!<br>Você atingiu sua meta!`;
+    celebrationOverlay.appendChild(message);
+
+    celebrationOverlay.classList.add("active");
+
+    setTimeout(() => {
+      celebrationOverlay.classList.remove("active");
+    }, 4000);
   }
 
   animateWaterFill(percentage) {
@@ -713,6 +767,7 @@ class HydraTrack {
     localStorage.removeItem("hydratrack-streak");
     localStorage.removeItem("hydratrack-onboarded");
     localStorage.removeItem("hydratrack-unlocked-achievements");
+    localStorage.removeItem("hydratrack-amount-frequencies");
     window.location.reload();
   }
 
