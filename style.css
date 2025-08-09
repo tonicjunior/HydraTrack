@@ -118,19 +118,21 @@ body {
     transform: scale(1.1) rotate(5deg);
   }
 }
+
 @keyframes bubble-float {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(0px);
   }
-  50% {
+  20% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-110px);
   }
 }
+
 @keyframes modal-fade-in {
   from {
     opacity: 0;
@@ -574,6 +576,7 @@ input:checked + .slider:before {
   align-items: center;
   min-height: 280px;
   flex-shrink: 0;
+  position: relative;
 }
 .water-glass-container {
   display: flex;
@@ -599,31 +602,20 @@ input:checked + .slider:before {
   inset: 0;
   pointer-events: none;
 }
-/* --- MELHORIA 1: CORREÇÃO DA COR DAS BOLHAS --- */
+
 .bubble {
-  position: absolute;
-  width: 0.5rem;
-  height: 0.5rem;
-  /* Utiliza 'fill' para elementos SVG em vez de 'background' */
-  fill: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
+  fill: hsl(var(--primary-glow) / 0.6);
   opacity: 0;
 }
-/* --- FIM DA MELHORIA 1 --- */
+
 .bubble-1 {
-  left: 30%;
-  bottom: 20%;
-  animation: bubble-float 2s infinite;
+  animation: bubble-float 4s infinite 0.5s;
 }
 .bubble-2 {
-  left: 45%;
-  bottom: 30%;
-  animation: bubble-float 2.3s infinite 0.5s;
+  animation: bubble-float 3.5s infinite 1.5s;
 }
 .bubble-3 {
-  left: 60%;
-  bottom: 25%;
-  animation: bubble-float 2.7s infinite 1s;
+  animation: bubble-float 5s infinite 2s;
 }
 .wave {
   animation: wave 2s ease-in-out infinite;
@@ -633,6 +625,7 @@ input:checked + .slider:before {
   animation-delay: 0.5s;
 }
 .progress-text {
+  min-width: 124px;
   margin-top: 1rem;
 }
 .percentage {
@@ -1597,7 +1590,6 @@ input:checked + .slider:before {
   display: none !important;
 }
 
-/* --- MELHORIA 2: ANIMAÇÕES VARIADAS PARA PERSONAGENS --- */
 @keyframes anim-sad-kf {
   0%,
   100% {
@@ -1660,4 +1652,40 @@ input:checked + .slider:before {
 }
 .anim-happy {
   animation: anim-happy-kf 2.5s ease-in-out infinite;
+}
+
+#character-bubble-overlay {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 145px;
+  margin: 0 auto;
+  width: 200px;
+  height: 250px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.character-bubble {
+  position: absolute;
+  bottom: 0;
+  background: hsl(220, 100%, 80%);
+  border: 1px solid hsl(var(--primary-glow) / 0.7);
+  box-shadow: 0 0 4px hsla(195, 100%, 75%, 0.9);
+  border-radius: 50%;
+  opacity: 0;
+  animation-name: rise-and-fade;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes rise-and-fade {
+  0% {
+    transform: translateY(0) scale(0.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-250px) scale(1);
+    opacity: 0;
+  }
 }

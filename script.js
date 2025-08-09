@@ -710,11 +710,52 @@ class HydraTrack {
     this.updateQuickButtons();
   }
 
+  triggerCharacterBubbles(amount) {
+    const FATOR_MULTIPLICADOR_BOLHAS_PERSONAGEM = 0.1;
+    const overlay = document.getElementById("character-bubble-overlay");
+    if (!overlay) return;
+
+    const isCharacterVisible =
+      this.settings.character === "axolotl" ||
+      this.settings.character === "frog";
+    if (!isCharacterVisible) return;
+
+    const bubbleCount = Math.min(
+      50,
+      Math.floor(amount * FATOR_MULTIPLICADOR_BOLHAS_PERSONAGEM)
+    );
+
+    for (let i = 0; i < bubbleCount; i++) {
+      const bubble = document.createElement("div");
+      bubble.className = "character-bubble";
+
+      const size = Math.random() * 20 + 5;
+      const duration = Math.random() * 3 + 2;
+      const delay = Math.random() * 2;
+      const horizontalPosition = Math.random() * 90 + 5;
+
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${horizontalPosition}%`;
+      bubble.style.animationDuration = `${duration}s`;
+      bubble.style.animationDelay = `${delay}s`;
+
+      overlay.appendChild(bubble);
+
+      setTimeout(() => {
+        if (bubble) {
+          bubble.remove();
+        }
+      }, (duration + delay) * 1000);
+    }
+  }
+
   addWaterLog(amount, isCustom = false) {
     const parsedAmount = parseInt(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) return;
 
     this.triggerWaterAnimation();
+    this.triggerCharacterBubbles(parsedAmount);
 
     this.amountFrequencies[parsedAmount] =
       (this.amountFrequencies[parsedAmount] || 0) + 1;

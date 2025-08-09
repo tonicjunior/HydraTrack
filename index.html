@@ -127,6 +127,26 @@
                         height="0"
                         fill="url(#water-gradient)"
                       />
+                      <g class="bubbles-container">
+                        <circle
+                          class="bubble bubble-1"
+                          cx="40"
+                          cy="135"
+                          r="3"
+                        />
+                        <circle
+                          class="bubble bubble-2"
+                          cx="60"
+                          cy="135"
+                          r="4"
+                        />
+                        <circle
+                          class="bubble bubble-3"
+                          cx="85"
+                          cy="135"
+                          r="2.5"
+                        />
+                      </g>
                     </g>
                     <path
                       d="M20 20 L100 20 L95 140 L25 140 Z"
@@ -158,16 +178,6 @@
                       fill="white"
                       opacity="0.3"
                     />
-                    <g class="bubbles-container">
-                      <circle class="bubble bubble-1" cx="30" cy="130" r="3" />
-                      <circle class="bubble bubble-2" cx="50" cy="130" r="4" />
-                      <circle
-                        class="bubble bubble-3"
-                        cx="80"
-                        cy="130"
-                        r="2.5"
-                      />
-                    </g>
                   </svg>
                 </div>
               </div>
@@ -191,6 +201,7 @@
                   class="axolotl-image"
                 />
               </div>
+              <div id="character-bubble-overlay"></div>
               <div class="progress-text">
                 <span id="percentage-text" class="percentage">0%</span>
                 <p id="amount-text" class="amount-text">0ml de 2000ml</p>
