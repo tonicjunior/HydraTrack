@@ -1,5 +1,6 @@
 class HydraTrack {
   constructor() {
+    this.appVersion = "1.1.1";
     this.currentStep = 1;
     this.totalSteps = 7;
     this.onboardingData = {
@@ -57,7 +58,24 @@ class HydraTrack {
     this.initializeApp();
   }
 
+  checkAppVersion() {
+    const storedVersion = localStorage.getItem("hydratrack-version");
+    if (storedVersion !== this.appVersion) {
+      localStorage.removeItem("hydratrack-user");
+      localStorage.removeItem("hydratrack-logs");
+      localStorage.removeItem("hydratrack-settings");
+      localStorage.removeItem("hydratrack-streak");
+      localStorage.removeItem("hydratrack-onboarded");
+      localStorage.removeItem("hydratrack-unlocked-achievements");
+      localStorage.removeItem("hydratrack-amount-frequencies");
+
+      localStorage.setItem("hydratrack-version", this.appVersion);
+      window.location.reload();
+    }
+  }
+
   initializeApp() {
+    this.checkAppVersion();
     this.loadData();
     this.applyTheme();
     this.initializeNotifications();
