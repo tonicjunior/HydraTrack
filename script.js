@@ -174,13 +174,13 @@ class HydraTrack {
                     <div class="character-option ${
                       selectedCharacter === "axolotl" ? "selected" : ""
                     }" data-character="axolotl">
-                        <img src="assets/images/axolotl/FELIZ1.PNG" alt="Axolote">
+                        <img src="assets/images/axolotl/FELIZ1.png" alt="Axolote">
                         <span>Axolote</span>
                     </div>
                     <div class="character-option ${
                       selectedCharacter === "frog" ? "selected" : ""
                     }" data-character="frog">
-                        <img src="assets/images/frog/FELIZ1.PNG" alt="Sapo">
+                        <img src="assets/images/frog/FELIZ1.png" alt="Sapo">
                         <span>Sapo</span>
                     </div>
                 </div>`;
@@ -456,25 +456,25 @@ class HydraTrack {
       axolotlImage.classList.add("celebrate-anim");
     } else if (percentage >= 80) {
       axolotlImage.classList.add("anim-happy");
-      newImageSrc += "FELIZ6.PNG";
+      newImageSrc += "FELIZ6.png";
     } else if (percentage >= 70) {
       axolotlImage.classList.add("anim-happy");
-      newImageSrc += Math.random() < 0.5 ? "FELIZ4.PNG" : "FELIZ5.PNG";
+      newImageSrc += Math.random() < 0.5 ? "FELIZ4.png" : "FELIZ5.png";
     } else if (percentage >= 60) {
       axolotlImage.classList.add("anim-happy");
-      newImageSrc += "FELIZ3.PNG";
+      newImageSrc += "FELIZ3.png";
     } else if (percentage >= 40) {
       axolotlImage.classList.add("anim-neutral");
-      newImageSrc += Math.random() < 0.5 ? "FELIZ1.PNG" : "FELIZ2.PNG";
+      newImageSrc += Math.random() < 0.5 ? "FELIZ1.png" : "FELIZ2.png";
     } else if (percentage >= 20) {
       axolotlImage.classList.add("anim-tired");
-      newImageSrc += "CANSADO1.PNG";
+      newImageSrc += "CANSADO1.png";
     } else if (percentage > 0) {
       axolotlImage.classList.add("anim-sad");
-      newImageSrc += "TRISTE1.PNG";
+      newImageSrc += "TRISTE1.png";
     } else {
       axolotlImage.classList.add("anim-sad");
-      newImageSrc += "TRISTE.PNG";
+      newImageSrc += "TRISTE.png";
     }
 
     if (axolotlImage.src.split("/").pop() !== newImageSrc.split("/").pop()) {
@@ -505,25 +505,25 @@ class HydraTrack {
       frogImage.classList.add("celebrate-anim");
     } else if (percentage >= 80) {
       frogImage.classList.add("anim-happy");
-      newImageSrc += "FELIZ6.PNG";
+      newImageSrc += "FELIZ6.png";
     } else if (percentage >= 70) {
       frogImage.classList.add("anim-happy");
-      newImageSrc += Math.random() < 0.5 ? "FELIZ4.PNG" : "FELIZ5.PNG";
+      newImageSrc += Math.random() < 0.5 ? "FELIZ4.png" : "FELIZ5.png";
     } else if (percentage >= 60) {
       frogImage.classList.add("anim-happy");
-      newImageSrc += "FELIZ3.PNG";
+      newImageSrc += "FELIZ3.png";
     } else if (percentage >= 40) {
       frogImage.classList.add("anim-neutral");
-      newImageSrc += Math.random() < 0.5 ? "FELIZ1.PNG" : "FELIZ2.PNG";
+      newImageSrc += Math.random() < 0.5 ? "FELIZ1.png" : "FELIZ2.png";
     } else if (percentage >= 20) {
       frogImage.classList.add("anim-tired");
-      newImageSrc += "CANSADO1.PNG";
+      newImageSrc += "CANSADO1.png";
     } else if (percentage > 0) {
       frogImage.classList.add("anim-sad");
-      newImageSrc += "TRISTE1.PNG";
+      newImageSrc += "TRISTE1.png";
     } else {
       frogImage.classList.add("anim-sad");
-      newImageSrc += "TRISTE.PNG";
+      newImageSrc += "TRISTE.png";
     }
 
     if (frogImage.src.split("/").pop() !== newImageSrc.split("/").pop()) {
@@ -846,13 +846,13 @@ class HydraTrack {
                     <div class="character-option ${
                       this.settings.character === "axolotl" ? "selected" : ""
                     }" data-character="axolotl">
-                        <img src="assets/images/axolotl/FELIZ1.PNG" alt="Axolote">
+                        <img src="assets/images/axolotl/FELIZ1.png" alt="Axolote">
                         <span>Axolote</span>
                     </div>
                     <div class="character-option ${
                       this.settings.character === "frog" ? "selected" : ""
                     }" data-character="frog">
-                        <img src="assets/images/frog/FELIZ1.PNG" alt="Sapo">
+                        <img src="assets/images/frog/FELIZ1.png" alt="Sapo">
                         <span>Sapo</span>
                     </div>
                 </div>
@@ -1642,7 +1642,7 @@ class HydraTrack {
         this.showToast({
           title: `Bem-vindo de volta, ${this.user.name}!`,
           body: "Parece que faz um tempo que você não registra. Vamos voltar a se hidratar! 💧",
-          imageSrc: `${basePath}OLA.PNG`,
+          imageSrc: `${basePath}OLA.png`,
         });
       }, 1500);
     }
@@ -1751,8 +1751,8 @@ class HydraTrack {
         const basePath = this.getCharacterAssetPath();
         const achievementImage =
           Math.random() < 0.5
-            ? `${basePath}CONQUISTA.PNG`
-            : `${basePath}CONQUISTA2.PNG`;
+            ? `${basePath}CONQUISTA.png`
+            : `${basePath}CONQUISTA2.png`;
         this.showToast({
           title: "Conquista Desbloqueada!",
           body: `Você ganhou a conquista "${achievement.name}"!`,
@@ -2812,7 +2812,7 @@ class HydraTrack {
             this.showToast({
               title: "Conectado!",
               body: `Você agora está conectado com ${connectedFriendName}.`,
-              imageSrc: `${basePath}NOTIFICACAO.PNG`,
+              imageSrc: `${basePath}NOTIFICACAO.png`,
               type: "success",
             });
           }
@@ -2995,7 +2995,7 @@ class HydraTrack {
     const basePath = this.getCharacterAssetPath();
     const options = {
       body: message,
-      icon: `${basePath}NOTIFICACAO.PNG`,
+      icon: `${basePath}NOTIFICACAO.png`,
       tag: "hydratrack-friend-" + Date.now(),
       silent: true,
     };
@@ -3019,34 +3019,34 @@ class HydraTrack {
       const character = data.character || "copo";
       let characterHTML = "";
       if (character === "axolotl") {
-        let imageSrc = "assets/images/axolotl/TRISTE.PNG";
+        let imageSrc = "assets/images/axolotl/TRISTE.png";
         if (percentage >= 100)
-          imageSrc = "assets/images/axolotl/META-DIARIA.PNG";
+          imageSrc = "assets/images/axolotl/META-DIARIA.png";
         else if (percentage >= 80)
-          imageSrc = "assets/images/axolotl/FELIZ6.PNG";
+          imageSrc = "assets/images/axolotl/FELIZ6.png";
         else if (percentage >= 70)
-          imageSrc = "assets/images/axolotl/FELIZ4.PNG";
+          imageSrc = "assets/images/axolotl/FELIZ4.png";
         else if (percentage >= 60)
-          imageSrc = "assets/images/axolotl/FELIZ3.PNG";
+          imageSrc = "assets/images/axolotl/FELIZ3.png";
         else if (percentage >= 50)
-          imageSrc = "assets/images/axolotl/FELIZ2.PNG";
+          imageSrc = "assets/images/axolotl/FELIZ2.png";
         else if (percentage >= 40)
-          imageSrc = "assets/images/axolotl/FELIZ1.PNG";
+          imageSrc = "assets/images/axolotl/FELIZ1.png";
         else if (percentage >= 30)
-          imageSrc = "assets/images/axolotl/CANSADO1.PNG";
+          imageSrc = "assets/images/axolotl/CANSADO1.png";
         else if (percentage >= 20)
-          imageSrc = "assets/images/axolotl/TRISTE1.PNG";
+          imageSrc = "assets/images/axolotl/TRISTE1.png";
         characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Axolote do amigo" class="axolotl-image"></div>`;
       } else if (character === "frog") {
-        let imageSrc = "assets/images/frog/TRISTE.PNG";
-        if (percentage >= 100) imageSrc = "assets/images/frog/META-DIARIA.PNG";
-        else if (percentage >= 80) imageSrc = "assets/images/frog/FELIZ6.PNG";
-        else if (percentage >= 70) imageSrc = "assets/images/frog/FELIZ4.PNG";
-        else if (percentage >= 60) imageSrc = "assets/images/frog/FELIZ3.PNG";
-        else if (percentage >= 50) imageSrc = "assets/images/frog/FELIZ2.PNG";
-        else if (percentage >= 40) imageSrc = "assets/images/frog/FELIZ1.PNG";
-        else if (percentage >= 30) imageSrc = "assets/images/frog/CANSADO1.PNG";
-        else if (percentage >= 20) imageSrc = "assets/images/frog/TRISTE1.PNG";
+        let imageSrc = "assets/images/frog/TRISTE.png";
+        if (percentage >= 100) imageSrc = "assets/images/frog/META-DIARIA.png";
+        else if (percentage >= 80) imageSrc = "assets/images/frog/FELIZ6.png";
+        else if (percentage >= 70) imageSrc = "assets/images/frog/FELIZ4.png";
+        else if (percentage >= 60) imageSrc = "assets/images/frog/FELIZ3.png";
+        else if (percentage >= 50) imageSrc = "assets/images/frog/FELIZ2.png";
+        else if (percentage >= 40) imageSrc = "assets/images/frog/FELIZ1.png";
+        else if (percentage >= 30) imageSrc = "assets/images/frog/CANSADO1.png";
+        else if (percentage >= 20) imageSrc = "assets/images/frog/TRISTE1.png";
         characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Sapo do amigo" class="axolotl-image"></div>`;
       } else {
         const fillHeight = Math.max(0, Math.min(116, (percentage / 100) * 116));
