@@ -561,13 +561,19 @@ input:checked + .slider:before {
   text-align: center;
   padding-top: 2rem;
 }
-.all-glasses-container {
+.main-display-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pet-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
+  min-height: 280px;
+  flex-shrink: 0;
 }
 .water-glass-container {
   display: flex;
@@ -593,14 +599,17 @@ input:checked + .slider:before {
   inset: 0;
   pointer-events: none;
 }
+/* --- MELHORIA 1: CORREÇÃO DA COR DAS BOLHAS --- */
 .bubble {
   position: absolute;
   width: 0.5rem;
   height: 0.5rem;
-  background: rgba(255, 255, 255, 0.6);
+  /* Utiliza 'fill' para elementos SVG em vez de 'background' */
+  fill: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   opacity: 0;
 }
+/* --- FIM DA MELHORIA 1 --- */
 .bubble-1 {
   left: 30%;
   bottom: 20%;
@@ -1132,13 +1141,22 @@ input:checked + .slider:before {
 }
 
 .celebration-message {
-  color: hsl(var(--foreground));
+  padding: 60px;
+  background: rgba(32, 32, 32, 0.589);
+  border-radius: 15px;
+  color: hsl(160 100% 45%);
   font-size: 2.5rem;
   font-weight: bold;
   text-align: center;
   text-shadow: 0 4px 15px hsla(var(--foreground), 0.2);
   animation: message-appear 1s var(--bounce-spring) forwards;
   opacity: 0;
+}
+
+@media (max-width: 468px) {
+  .character-selection {
+    flex-wrap: wrap;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1329,53 +1347,62 @@ input:checked + .slider:before {
 
 .friends-glasses-container {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  min-height: 150px;
 }
 
 .friend-glass-card {
-  padding: 1rem;
+  padding: 0.5rem;
   text-align: center;
   background-color: transparent;
   border: none;
+  max-width: 100px;
 }
 
 .friend-glass-card .friend-name {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .friend-glass-card .water-glass-container {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .friend-glass-card .water-glass {
-  width: 6rem;
-  height: 8rem;
+  width: 4rem;
+  height: 5rem;
   margin: 0 auto;
   position: relative;
 }
 
 .friend-glass-card .percentage-friend {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: bold;
   line-height: 1.2;
 }
 
 .friend-glass-card .amount-text-friend {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: hsl(var(--muted-foreground));
 }
 
 .friend-glass-card.goal-met .friend-name::after {
   content: " 🏆";
   display: inline;
+  font-size: 0.7rem;
+}
+
+.friend-glass-card .axolotl-image {
+  width: 5rem;
+  height: 5rem;
 }
 
 #toast-container {
@@ -1467,4 +1494,170 @@ input:checked + .slider:before {
 
 #percentage-text {
   margin-bottom: -15px;
+}
+
+.pet-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+}
+
+.axolotl-image {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  transform: scale(1);
+}
+
+.axolotl-image.fade-out {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+@keyframes celebrate {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.axolotl-image.celebrate-anim {
+  animation: celebrate 1s ease-in-out infinite;
+}
+
+.character-selection {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.character-option {
+  padding: 1rem;
+  border: 2px solid hsl(var(--border));
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+  width: 120px;
+  transition: all 0.2s ease-in-out;
+}
+
+.character-option:hover {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+}
+
+.character-option.selected {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary));
+  background: hsl(var(--primary) / 0.2);
+}
+
+.character-option img {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 0.5rem;
+  display: block;
+  object-fit: contain;
+}
+
+.character-option span {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.toast-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toast-body img {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.toast-body-text {
+  flex-grow: 1;
+}
+
+.hidden-character {
+  display: none !important;
+}
+
+/* --- MELHORIA 2: ANIMAÇÕES VARIADAS PARA PERSONAGENS --- */
+@keyframes anim-sad-kf {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-5px) rotate(1.5deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-1.5deg);
+  }
+}
+.anim-sad {
+  animation: anim-sad-kf 6s ease-in-out infinite;
+}
+
+@keyframes anim-tired-kf {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-5px) rotate(1.5deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-1.5deg);
+  }
+}
+.anim-tired {
+  animation: anim-tired-kf 5s ease-in-out infinite;
+}
+
+@keyframes anim-neutral-kf {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-5px) rotate(1.5deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-1.5deg);
+  }
+}
+.anim-neutral {
+  animation: anim-neutral-kf 4s ease-in-out infinite;
+}
+
+@keyframes anim-happy-kf {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-5px) rotate(1.5deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-1.5deg);
+  }
+}
+.anim-happy {
+  animation: anim-happy-kf 2.5s ease-in-out infinite;
 }

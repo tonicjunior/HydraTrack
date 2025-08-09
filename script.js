@@ -1,8 +1,10 @@
 class HydraTrack {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 6;
-    this.onboardingData = {};
+    this.totalSteps = 7;
+    this.onboardingData = {
+      character: "copo",
+    };
     this.user = null;
     this.waterLogs = [];
     this.amountFrequencies = {};
@@ -12,6 +14,7 @@ class HydraTrack {
       soundEnabled: true,
       notificationsEnabled: false,
       notificationVolume: 0.8,
+      character: "copo",
       friendNotifications: {
         enabled: false,
         sound: 1,
@@ -152,18 +155,42 @@ class HydraTrack {
     switch (step) {
       case 1:
         return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24"><path d="M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z"/></svg></div>
-                <h2 class="step-title">Bem-vindo ao HydraTrack!</h2>
-                <p class="step-subtitle">Vamos configurar seu perfil para uma hidratação personalizada.</p>
-                <div class="form-group"><label for="user-name" class="form-label">Como podemos te chamar?</label><input type="text" id="user-name" class="form-input" placeholder="Seu nome" value="${
-                  this.onboardingData.name || ""
-                }"></div>`;
+                      <h2 class="step-title">Bem-vindo ao HydraTrack!</h2>
+                      <p class="step-subtitle">Vamos configurar seu perfil para uma hidratação personalizada.</p>
+                      <div class="form-group"><label for="user-name" class="form-label">Como podemos te chamar?</label><input type="text" id="user-name" class="form-input" placeholder="Seu nome" value="${
+                        this.onboardingData.name || ""
+                      }"></div>`;
       case 2:
-        return `<div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7 7-7z"/></svg></div>
-                <h2 class="step-title">Seu peso atual</h2><p class="step-subtitle">Usaremos para calcular sua meta ideal.</p>
-                <div class="form-group"><label for="user-weight" class="form-label">Peso (kg)</label><input type="number" id="user-weight" class="form-input" placeholder="Ex: 70" min="30" max="200" value="${
-                  this.onboardingData.weight || ""
-                }"></div>`;
+        const selectedCharacter = this.onboardingData.character || "copo";
+        return `<div class="step-icon" style="background: var(--gradient-primary);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,3A3,3 0 0,0 9,6A3,3 0 0,0 12,9A3,3 0 0,0 15,6A3,3 0 0,0 12,3M19,20H5V18C5,15.67 10.33,14 12,14C13.67,14 19,15.67 19,18V20M19,2H5A3,3 0 0,0 2,5V16A3,3 0 0,0 5,19H9V20A1,1 0 0,0 10,21H14A1,1 0 0,0 15,20V19H19A3,3 0 0,0 22,16V5A3,3 0 0,0 19,2Z" /></svg></div>
+                <h2 class="step-title">Escolha seu Companheiro</h2><p class="step-subtitle">Quem irá te acompanhar na sua jornada de hidratação?</p>
+                <div class="character-selection">
+                    <div class="character-option ${
+                      selectedCharacter === "copo" ? "selected" : ""
+                    }" data-character="copo">
+                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Cpath d='M20 20 L100 20 L95 140 L25 140 Z' fill='hsl(210, 40%, 96.1%)' stroke='hsl(210, 40%, 82%)' stroke-width='3'/%3E%3C/svg%3E" alt="Copo de Água">
+                        <span>Copo</span>
+                    </div>
+                    <div class="character-option ${
+                      selectedCharacter === "axolotl" ? "selected" : ""
+                    }" data-character="axolotl">
+                        <img src="assets/images/axolotl/FELIZ1.PNG" alt="Axolote">
+                        <span>Axolote</span>
+                    </div>
+                    <div class="character-option ${
+                      selectedCharacter === "frog" ? "selected" : ""
+                    }" data-character="frog">
+                        <img src="assets/images/frog/FELIZ1.PNG" alt="Sapo">
+                        <span>Sapo</span>
+                    </div>
+                </div>`;
       case 3:
+        return `<div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7 7-7z"/></svg></div>
+                      <h2 class="step-title">Seu peso atual</h2><p class="step-subtitle">Usaremos para calcular sua meta ideal.</p>
+                      <div class="form-group"><label for="user-weight" class="form-label">Peso (kg)</label><input type="number" id="user-weight" class="form-input" placeholder="Ex: 70" min="30" max="200" value="${
+                        this.onboardingData.weight || ""
+                      }"></div>`;
+      case 4:
         const activity = this.onboardingData.activityLevel || "moderado";
         return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
                 <h2 class="step-title">Nível de atividade</h2><p class="step-subtitle">Isso afeta sua necessidade de hidratação.</p>
@@ -178,29 +205,29 @@ class HydraTrack {
                       activity === "ativo" ? "active" : ""
                     }" data-value="ativo"><div class="activity-title">Ativo</div><div class="activity-desc">Exercício 4+ vezes por semana</div></button>
                 </div>`;
-      case 4:
+      case 5:
         const weight = this.onboardingData.weight || 70;
         const activityLevel = this.onboardingData.activityLevel || "moderado";
         const calculatedGoal = this.calculateDailyGoal(weight, activityLevel);
         return `<div class="step-icon" style="background: var(--gradient-secondary);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
-            <h2 class="step-title">Sua meta diária</h2><p class="step-subtitle">Com base no seu perfil, calculamos sua meta ideal.</p>
-            <div class="goal-card">
-                <div class="goal-label">Meta sugerida</div><div class="goal-value">${calculatedGoal}ml</div>
-            </div>
-            <div class="toggle-switch-container">
-                <label for="custom-goal-check" class="toggle-switch-label">Definir meta personalizada</label>
-                <label class="toggle-switch"><input type="checkbox" id="custom-goal-check" ${
-                  this.onboardingData.customGoalCheck ? "checked" : ""
-                }><span class="slider"></span></label>
-            </div>
-            <div id="custom-goal-input" style="display: ${
-              this.onboardingData.customGoalCheck ? "block" : "none"
-            }; margin-top: 1rem;">
-                <input type="number" id="custom-goal-value" class="form-input" placeholder="Meta personalizada (ml)" min="500" max="5000" value="${
-                  this.onboardingData.customGoalValue || ""
-                }">
-            </div>`;
-      case 5:
+                <h2 class="step-title">Sua meta diária</h2><p class="step-subtitle">Com base no seu perfil, calculamos sua meta ideal.</p>
+                <div class="goal-card">
+                    <div class="goal-label">Meta sugerida</div><div class="goal-value">${calculatedGoal}ml</div>
+                </div>
+                <div class="toggle-switch-container">
+                    <label for="custom-goal-check" class="toggle-switch-label">Definir meta personalizada</label>
+                    <label class="toggle-switch"><input type="checkbox" id="custom-goal-check" ${
+                      this.onboardingData.customGoalCheck ? "checked" : ""
+                    }><span class="slider"></span></label>
+                </div>
+                <div id="custom-goal-input" style="display: ${
+                  this.onboardingData.customGoalCheck ? "block" : "none"
+                }; margin-top: 1rem;">
+                    <input type="number" id="custom-goal-value" class="form-input" placeholder="Meta personalizada (ml)" min="500" max="5000" value="${
+                      this.onboardingData.customGoalValue || ""
+                    }">
+                </div>`;
+      case 6:
         const currentVolume = this.onboardingData.notificationVolume ?? 0.8;
         const currentSound = this.onboardingData.sound || this.settings.sound;
         const soundOptions = this.sounds
@@ -212,24 +239,24 @@ class HydraTrack {
           )
           .join("");
         return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></div>
-            <h2 class="step-title">Som dos Lembretes</h2><p class="step-subtitle">Personalize o som e o volume dos alertas de hidratação.</p>
-            <div class="form-group" style="margin-top: 1.5rem;">
-                 <label for="onboarding-notification-sound" class="form-label">Som do Lembrete</label>
-                 <select id="onboarding-notification-sound" class="form-input">${soundOptions}</select>
-            </div>
-            <div class="form-group">
-                <label for="onboarding-notification-volume" class="form-label">Volume do Lembrete</label>
-                <div class="volume-control-container">
-                    <input type="range" id="onboarding-notification-volume" class="volume-slider" min="0" max="1" step="0.01" value="${currentVolume}">
-                    <span id="onboarding-volume-percentage">${Math.round(
-                      currentVolume * 100
-                    )}%</span>
-                    <button type="button" id="onboarding-test-volume-btn" class="btn-icon" title="Testar som">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
-                    </button>
+                <h2 class="step-title">Som dos Lembretes</h2><p class="step-subtitle">Personalize o som e o volume dos alertas de hidratação.</p>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                     <label for="onboarding-notification-sound" class="form-label">Som do Lembrete</label>
+                     <select id="onboarding-notification-sound" class="form-input">${soundOptions}</select>
                 </div>
-            </div>`;
-      case 6:
+                <div class="form-group">
+                    <label for="onboarding-notification-volume" class="form-label">Volume do Lembrete</label>
+                    <div class="volume-control-container">
+                        <input type="range" id="onboarding-notification-volume" class="volume-slider" min="0" max="1" step="0.01" value="${currentVolume}">
+                        <span id="onboarding-volume-percentage">${Math.round(
+                          currentVolume * 100
+                        )}%</span>
+                        <button type="button" id="onboarding-test-volume-btn" class="btn-icon" title="Testar som">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
+                        </button>
+                    </div>
+                </div>`;
+      case 7:
         return `<div class="step-icon" style="background: var(--gradient-primary);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
                 <h2 class="step-title">Ativar Lembretes</h2>
                 <p class="step-subtitle">Para te lembrarmos de beber água, precisamos da sua permissão para enviar notificações.</p>
@@ -253,22 +280,30 @@ class HydraTrack {
           ?.value.trim();
         break;
       case 2:
+        const selectedCharacter = document.querySelector(
+          ".character-option.selected"
+        );
+        if (selectedCharacter) {
+          this.onboardingData.character = selectedCharacter.dataset.character;
+        }
+        break;
+      case 3:
         this.onboardingData.weight = parseInt(
           document.getElementById("user-weight")?.value
         );
         break;
-      case 3:
+      case 4:
         this.onboardingData.activityLevel = document.querySelector(
           ".activity-option.active"
         )?.dataset.value;
         break;
-      case 4:
+      case 5:
         this.onboardingData.customGoalCheck =
           document.getElementById("custom-goal-check")?.checked;
         this.onboardingData.customGoalValue =
           document.getElementById("custom-goal-value")?.value;
         break;
-      case 5:
+      case 6:
         this.onboardingData.notificationVolume = parseFloat(
           document.getElementById("onboarding-notification-volume")?.value
         );
@@ -276,7 +311,7 @@ class HydraTrack {
           document.getElementById("onboarding-notification-sound")?.value
         );
         break;
-      case 6:
+      case 7:
         break;
     }
   }
@@ -287,16 +322,18 @@ class HydraTrack {
       case 1:
         return data.name && data.name.length > 0;
       case 2:
-        return data.weight && data.weight > 0;
+        return !!data.character;
       case 3:
-        return !!data.activityLevel;
+        return data.weight && data.weight > 0;
       case 4:
+        return !!data.activityLevel;
+      case 5:
         if (data.customGoalCheck) {
           return data.customGoalValue && parseInt(data.customGoalValue) > 0;
         }
         return true;
-      case 5:
       case 6:
+      case 7:
         return true;
       default:
         return false;
@@ -314,7 +351,9 @@ class HydraTrack {
       customGoalValue,
       notificationVolume,
       sound,
+      character,
     } = this.onboardingData;
+
     const calculatedGoal = this.calculateDailyGoal(weight, activityLevel);
     const finalGoal = customGoalCheck
       ? parseInt(customGoalValue)
@@ -336,7 +375,9 @@ class HydraTrack {
       dailyGoal: finalGoal,
       isManualGoal: customGoalCheck,
       quickAmounts: defaultQuickAmounts,
+      character: character,
     };
+    this.settings.character = character;
     this.settings.notificationVolume = notificationVolume ?? 0.8;
     this.settings.sound = sound || 1;
     this.notificationSound.volume = this.settings.notificationVolume;
@@ -357,12 +398,141 @@ class HydraTrack {
   updateDashboard() {
     if (!this.user) return;
     this.updateHeader();
-    this.updateWaterGlass();
+    this.updateCharacterDisplay();
     this.updateStats();
     this.updateQuickButtons();
     this.updateTimeline();
     this.updateProgressSection();
     this.renderFriendsDashboard();
+    this.broadcastProfileUpdate();
+  }
+
+  updateCharacterDisplay() {
+    const { percentage } = this.getTodayProgress();
+    const glassContainer = document.getElementById("glass-container");
+    const axolotlContainer = document.getElementById("axolotl-container");
+    const frogContainer = document.getElementById("frog-container");
+
+    glassContainer.classList.add("hidden-character");
+    axolotlContainer.classList.add("hidden-character");
+    frogContainer.classList.add("hidden-character");
+
+    if (this.settings.character === "axolotl") {
+      axolotlContainer.classList.remove("hidden-character");
+      this.updateAxolotlImage(percentage);
+    } else if (this.settings.character === "frog") {
+      frogContainer.classList.remove("hidden-character");
+      this.updateFrogImage(percentage);
+    } else {
+      glassContainer.classList.remove("hidden-character");
+      this.updateWaterGlass();
+    }
+
+    const { consumed, goal } = this.getTodayProgress();
+    document.getElementById(
+      "percentage-text"
+    ).textContent = `${percentage.toFixed(0)}%`;
+    document.getElementById(
+      "amount-text"
+    ).textContent = `${consumed}ml de ${goal}ml`;
+  }
+
+  updateAxolotlImage(percentage) {
+    const axolotlImage = document.getElementById("axolotl-image");
+    let newImageSrc = "assets/images/axolotl/";
+
+    const allAnims = [
+      "celebrate-anim",
+      "anim-happy",
+      "anim-neutral",
+      "anim-tired",
+      "anim-sad",
+    ];
+    axolotlImage.classList.remove(...allAnims);
+
+    if (percentage >= 100) {
+      newImageSrc +=
+        Math.random() < 0.5 ? "META-DIARIA.png" : "META-DIARIA2.png";
+      axolotlImage.classList.add("celebrate-anim");
+    } else if (percentage >= 80) {
+      axolotlImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ6.PNG";
+    } else if (percentage >= 70) {
+      axolotlImage.classList.add("anim-happy");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ4.PNG" : "FELIZ5.PNG";
+    } else if (percentage >= 60) {
+      axolotlImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ3.PNG";
+    } else if (percentage >= 40) {
+      axolotlImage.classList.add("anim-neutral");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ1.PNG" : "FELIZ2.PNG";
+    } else if (percentage >= 20) {
+      axolotlImage.classList.add("anim-tired");
+      newImageSrc += "CANSADO1.PNG";
+    } else if (percentage > 0) {
+      axolotlImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE1.PNG";
+    } else {
+      axolotlImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE.PNG";
+    }
+
+    if (axolotlImage.src.split("/").pop() !== newImageSrc.split("/").pop()) {
+      axolotlImage.classList.add("fade-out");
+      setTimeout(() => {
+        axolotlImage.src = newImageSrc;
+        axolotlImage.classList.remove("fade-out");
+      }, 250);
+    }
+  }
+
+  updateFrogImage(percentage) {
+    const frogImage = document.getElementById("frog-image");
+    let newImageSrc = "assets/images/frog/";
+
+    const allAnims = [
+      "celebrate-anim",
+      "anim-happy",
+      "anim-neutral",
+      "anim-tired",
+      "anim-sad",
+    ];
+    frogImage.classList.remove(...allAnims);
+
+    if (percentage >= 100) {
+      newImageSrc +=
+        Math.random() < 0.5 ? "META-DIARIA.png" : "META-DIARIA2.png";
+      frogImage.classList.add("celebrate-anim");
+    } else if (percentage >= 80) {
+      frogImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ6.PNG";
+    } else if (percentage >= 70) {
+      frogImage.classList.add("anim-happy");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ4.PNG" : "FELIZ5.PNG";
+    } else if (percentage >= 60) {
+      frogImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ3.PNG";
+    } else if (percentage >= 40) {
+      frogImage.classList.add("anim-neutral");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ1.PNG" : "FELIZ2.PNG";
+    } else if (percentage >= 20) {
+      frogImage.classList.add("anim-tired");
+      newImageSrc += "CANSADO1.PNG";
+    } else if (percentage > 0) {
+      frogImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE1.PNG";
+    } else {
+      frogImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE.PNG";
+    }
+
+    if (frogImage.src.split("/").pop() !== newImageSrc.split("/").pop()) {
+      frogImage.classList.add("fade-out");
+      setTimeout(() => {
+        frogImage.src = newImageSrc;
+        frogImage.classList.remove("fade-out");
+      }, 250);
+    }
   }
 
   updateHeader() {
@@ -375,14 +545,13 @@ class HydraTrack {
   }
 
   updateWaterGlass() {
-    const { consumed, goal, percentage } = this.getTodayProgress();
-    document.getElementById(
-      "percentage-text"
-    ).textContent = `${percentage.toFixed(0)}%`;
-    document.getElementById(
-      "amount-text"
-    ).textContent = `${consumed}ml de ${goal}ml`;
+    const { percentage } = this.getTodayProgress();
     this.animateWaterFill(percentage);
+  }
+
+  broadcastProfileUpdate() {
+    if (Object.keys(this.friendConnections).length === 0) return;
+    const { consumed, goal, percentage } = this.getTodayProgress();
     this.sendDataToAllFriends({
       type: "profile_update",
       payload: {
@@ -390,6 +559,7 @@ class HydraTrack {
         consumed: consumed,
         dailyGoal: goal,
         percentage: percentage,
+        character: this.settings.character,
       },
     });
   }
@@ -419,7 +589,7 @@ class HydraTrack {
           `<button class="quick-btn" data-amount="${amount}" style="background: var(${
             gradients[index % gradients.length]
           })">
-                <div class="quick-icon" style="font-size: 2rem;"> <img src="assets/${
+                <div class="quick-icon" style="font-size: 2rem;"> <img src="assets/images/${
                   icons[index % icons.length]
                 }.png"> </div>
                 <span class="quick-amount">${amount}ml</span>
@@ -430,17 +600,24 @@ class HydraTrack {
 
   updateTimeline() {
     const isConnected = Object.keys(this.friendConnections).length > 0;
+
     let timelineLogs = this.getTodayProgress().logs.map((log) => ({
       ...log,
       userName: this.user.name,
     }));
+
     if (isConnected) {
       Object.values(this.friendsData).forEach((friend) => {
-        if (friend.logs) {
-          timelineLogs.push(...friend.logs);
+        if (friend.logs && Array.isArray(friend.logs)) {
+          const friendLogs = friend.logs.map((log) => ({
+            ...log,
+            userName: friend.name || "Amigo",
+          }));
+          timelineLogs = timelineLogs.concat(friendLogs);
         }
       });
     }
+
     timelineLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     this.renderTimeline(timelineLogs, isConnected);
   }
@@ -657,6 +834,30 @@ class HydraTrack {
       )
       .join("");
     content.innerHTML = `<div class="settings-group">
+                <h3>Aparência</h3>
+                <label class="form-label">Selecione seu Personagem</label>
+                <div class="character-selection" id="settings-character-choice">
+                    <div class="character-option ${
+                      this.settings.character === "copo" ? "selected" : ""
+                    }" data-character="copo">
+                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Cpath d='M20 20 L100 20 L95 140 L25 140 Z' fill='hsl(210, 40%, 96.1%)' stroke='hsl(210, 40%, 82%)' stroke-width='3'/%3E%3C/svg%3E" alt="Copo de Água">
+                        <span>Copo</span>
+                    </div>
+                    <div class="character-option ${
+                      this.settings.character === "axolotl" ? "selected" : ""
+                    }" data-character="axolotl">
+                        <img src="assets/images/axolotl/FELIZ1.PNG" alt="Axolote">
+                        <span>Axolote</span>
+                    </div>
+                    <div class="character-option ${
+                      this.settings.character === "frog" ? "selected" : ""
+                    }" data-character="frog">
+                        <img src="assets/images/frog/FELIZ1.PNG" alt="Sapo">
+                        <span>Sapo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group">
                 <h3>Perfil</h3>
                 <div class="form-group"><label for="setting-name">Nome</label><input type="text" id="setting-name" class="form-input" value="${
                   this.user.name
@@ -706,7 +907,6 @@ class HydraTrack {
     modal.style.display = "flex";
     this.attachSettingsListeners();
   }
-
   hideSettings() {
     document.getElementById("settings-modal").style.display = "none";
   }
@@ -714,13 +914,23 @@ class HydraTrack {
   saveSettings() {
     const oldSoundId = this.settings.sound;
     const oldIsManual = this.user.isManualGoal;
+    const oldWeight = this.user.weight;
+    const newWeight = parseInt(document.getElementById("setting-weight").value);
+
     this.user.name = document.getElementById("setting-name").value;
-    this.user.weight = parseInt(
-      document.getElementById("setting-weight").value
-    );
+    this.user.weight = newWeight;
     this.user.isManualGoal = document.getElementById(
       "setting-manual-goal"
     ).checked;
+
+    const selectedCharacter = document.querySelector(
+      "#settings-character-choice .character-option.selected"
+    );
+    if (selectedCharacter) {
+      this.settings.character = selectedCharacter.dataset.character;
+      this.user.character = selectedCharacter.dataset.character;
+    }
+
     if (this.user.isManualGoal) {
       this.user.dailyGoal = parseInt(
         document.getElementById("setting-goal").value
@@ -731,6 +941,7 @@ class HydraTrack {
         this.user.activityLevel
       );
     }
+
     this.settings.notificationsEnabled = document.getElementById(
       "setting-notifications"
     ).checked;
@@ -743,18 +954,24 @@ class HydraTrack {
     this.settings.sound = parseInt(
       document.getElementById("setting-notification-sound").value
     );
+
     this.notificationSound.volume = this.settings.notificationVolume;
+
     if (this.settings.sound !== oldSoundId) {
       this.unlockAchievement("S20");
     }
     if (this.user.isManualGoal && !oldIsManual) {
       this.unlockAchievement("G14");
     }
+    if (oldWeight !== newWeight) {
+      this.unlockAchievement("B22");
+    }
     if (!this.settings.notificationsEnabled) {
       this.stopNotificationTimer();
     } else {
       this.resetNotificationTimer();
     }
+
     this.saveData();
     this.updateDashboard();
     this.hideSettings();
@@ -771,7 +988,14 @@ class HydraTrack {
     window.location.reload();
   }
 
-  showToast({ title, body, icon = null, type = "info", duration = 5000 }) {
+  showToast({
+    title,
+    body,
+    icon = null,
+    imageSrc = null,
+    type = "info",
+    duration = 5000,
+  }) {
     const container = document.getElementById("toast-container");
 
     const toast = document.createElement("div");
@@ -780,25 +1004,26 @@ class HydraTrack {
     const toastHeader = document.createElement("div");
     toastHeader.className = "toast-header";
 
-    let headerContent = "";
-    if (icon) {
-      headerContent += `<span class="toast-icon">${icon}</span>`;
-    }
-    headerContent += `<strong class="me-auto">${title}</strong>`;
-
+    let headerContent = `<strong class="me-auto">${title}</strong>`;
     const closeBtn = document.createElement("button");
     closeBtn.className = "btn-close";
     closeBtn.setAttribute("aria-label", "Close");
-
     toastHeader.innerHTML = headerContent;
     toastHeader.appendChild(closeBtn);
 
-    const toastBody = document.createElement("div");
-    toastBody.className = "toast-body";
-    toastBody.textContent = body;
+    const toastBodyEl = document.createElement("div");
+    toastBodyEl.className = "toast-body";
+
+    if (imageSrc) {
+      toastBodyEl.innerHTML = `<img src="${imageSrc}" alt="Notificação"><span class="toast-body-text">${body}</span>`;
+    } else {
+      const textSpan = document.createElement("span");
+      textSpan.textContent = body;
+      toastBodyEl.appendChild(textSpan);
+    }
 
     toast.appendChild(toastHeader);
-    toast.appendChild(toastBody);
+    toast.appendChild(toastBodyEl);
 
     const closeToast = () => {
       toast.classList.remove("show");
@@ -910,86 +1135,113 @@ class HydraTrack {
     document
       .getElementById("disconnect-all-btn")
       ?.addEventListener("click", () => this.disconnectAll());
+    document
+      .getElementById("donate-link")
+      ?.addEventListener("click", () => this.unlockAchievement("S21"));
   }
 
   attachStepEventListeners() {
-    document.querySelectorAll(".activity-option").forEach((option) => {
-      option.addEventListener("click", () => {
-        document
-          .querySelectorAll(".activity-option")
-          .forEach((opt) => opt.classList.remove("active"));
-        option.classList.add("active");
-      });
-    });
-    if (this.currentStep === 4) {
-      const customGoalCheck = document.getElementById("custom-goal-check");
-      if (customGoalCheck) {
-        customGoalCheck.addEventListener("change", (e) => {
-          document.getElementById("custom-goal-input").style.display = e.target
-            .checked
-            ? "block"
-            : "none";
+    const stepContent = document.getElementById("step-content");
+    if (!stepContent) return;
+
+    switch (this.currentStep) {
+      case 2:
+        stepContent.querySelectorAll(".character-option").forEach((option) => {
+          option.addEventListener("click", () => {
+            stepContent
+              .querySelectorAll(".character-option")
+              .forEach((opt) => opt.classList.remove("selected"));
+            option.classList.add("selected");
+          });
         });
-      }
-    }
-    if (this.currentStep === 5) {
-      const volumeSlider = document.getElementById(
-        "onboarding-notification-volume"
-      );
-      const volumePercentage = document.getElementById(
-        "onboarding-volume-percentage"
-      );
-      const soundSelector = document.getElementById(
-        "onboarding-notification-sound"
-      );
-      if (volumeSlider && volumePercentage) {
-        volumeSlider.addEventListener("input", (e) => {
-          const volume = parseFloat(e.target.value);
-          this.notificationSound.volume = volume;
-          volumePercentage.textContent = `${Math.round(volume * 100)}%`;
+        break;
+
+      case 4:
+        stepContent.querySelectorAll(".activity-option").forEach((option) => {
+          option.addEventListener("click", () => {
+            stepContent
+              .querySelectorAll(".activity-option")
+              .forEach((opt) => opt.classList.remove("active"));
+            option.classList.add("active");
+          });
         });
-      }
-      if (soundSelector) {
-        soundSelector.addEventListener("change", (e) => {
-          this.playSound(false, parseInt(e.target.value));
-        });
-      }
-      const testVolumeBtn = document.getElementById(
-        "onboarding-test-volume-btn"
-      );
-      if (testVolumeBtn) {
-        testVolumeBtn.addEventListener("click", () => {
-          const selectedSoundId = parseInt(soundSelector.value);
-          this.playSound(false, selectedSoundId);
-        });
-      }
-    }
-    if (this.currentStep === 6) {
-      const requestBtn = document.getElementById("request-permission-btn");
-      const statusDiv = document.getElementById("permission-status");
-      if (requestBtn) {
-        if (this.notificationPermission === "denied") {
-          requestBtn.disabled = true;
-          requestBtn.style.opacity = "0.5";
-          requestBtn.style.cursor = "not-allowed";
-          statusDiv.textContent =
-            "As notificações estão bloqueadas no seu navegador.";
-          statusDiv.style.color = "hsl(var(--destructive))";
-        } else {
-          requestBtn.addEventListener("click", async () => {
-            await this.requestNotificationPermission();
-            if (this.notificationPermission === "granted") {
-              statusDiv.textContent = "Permissão concedida com sucesso! 🎉";
-              statusDiv.style.color = "hsl(var(--success))";
-              requestBtn.style.display = "none";
-            } else {
-              statusDiv.textContent =
-                "Você não concedeu a permissão. Você pode ativá-la mais tarde nas configurações.";
-              statusDiv.style.color = "hsl(var(--warning))";
-            }
+        break;
+
+      case 5:
+        const customGoalCheck = document.getElementById("custom-goal-check");
+        if (customGoalCheck) {
+          customGoalCheck.addEventListener("change", (e) => {
+            document.getElementById("custom-goal-input").style.display = e
+              .target.checked
+              ? "block"
+              : "none";
           });
         }
-      }
+        break;
+
+      case 6:
+        const volumeSlider = document.getElementById(
+          "onboarding-notification-volume"
+        );
+        const volumePercentage = document.getElementById(
+          "onboarding-volume-percentage"
+        );
+        const soundSelector = document.getElementById(
+          "onboarding-notification-sound"
+        );
+        const testVolumeBtn = document.getElementById(
+          "onboarding-test-volume-btn"
+        );
+
+        if (volumeSlider && volumePercentage) {
+          volumeSlider.addEventListener("input", (e) => {
+            const volume = parseFloat(e.target.value);
+            this.notificationSound.volume = volume;
+            volumePercentage.textContent = `${Math.round(volume * 100)}%`;
+          });
+        }
+
+        if (soundSelector) {
+          soundSelector.addEventListener("change", (e) => {
+            this.playSound(false, parseInt(e.target.value));
+          });
+        }
+
+        if (testVolumeBtn) {
+          testVolumeBtn.addEventListener("click", () => {
+            const selectedSoundId = parseInt(soundSelector.value);
+            this.playSound(false, selectedSoundId);
+          });
+        }
+        break;
+
+      case 7:
+        const requestBtn = document.getElementById("request-permission-btn");
+        const statusDiv = document.getElementById("permission-status");
+        if (requestBtn) {
+          if (this.notificationPermission === "denied") {
+            requestBtn.disabled = true;
+            requestBtn.style.opacity = "0.5";
+            requestBtn.style.cursor = "not-allowed";
+            statusDiv.textContent =
+              "As notificações estão bloqueadas no seu navegador.";
+            statusDiv.style.color = "hsl(var(--destructive))";
+          } else {
+            requestBtn.addEventListener("click", async () => {
+              await this.requestNotificationPermission();
+              if (this.notificationPermission === "granted") {
+                statusDiv.textContent = "Permissão concedida com sucesso! 🎉";
+                statusDiv.style.color = "hsl(var(--success))";
+                requestBtn.style.display = "none";
+              } else {
+                statusDiv.textContent =
+                  "Você não concedeu a permissão. Você pode ativá-la mais tarde nas configurações.";
+                statusDiv.style.color = "hsl(var(--warning))";
+              }
+            });
+          }
+        }
+        break;
     }
   }
 
@@ -1039,6 +1291,16 @@ class HydraTrack {
         this.playSound(false, parseInt(e.target.value));
       });
     }
+    document
+      .querySelectorAll("#settings-character-choice .character-option")
+      .forEach((option) => {
+        option.addEventListener("click", () => {
+          document
+            .querySelectorAll("#settings-character-choice .character-option")
+            .forEach((opt) => opt.classList.remove("selected"));
+          option.classList.add("selected");
+        });
+      });
     this.updatePermissionStatusText();
   }
 
@@ -1373,14 +1635,24 @@ class HydraTrack {
     const now = new Date();
     const lastLogTime = new Date(lastLog.timestamp);
     const hoursSinceLastDrink = (now - lastLogTime) / (1000 * 60 * 60);
+    const basePath = this.getCharacterAssetPath();
+
     if (hoursSinceLastDrink > (this.notificationIntervalMinutes / 60) * 2) {
       setTimeout(() => {
         this.showToast({
           title: `Bem-vindo de volta, ${this.user.name}!`,
           body: "Parece que faz um tempo que você não registra. Vamos voltar a se hidratar! 💧",
+          imageSrc: `${basePath}OLA.PNG`,
         });
       }, 1500);
     }
+  }
+
+  getCharacterAssetPath() {
+    if (this.settings.character === "frog") {
+      return "assets/images/frog/";
+    }
+    return "assets/images/axolotl/";
   }
 
   initializeParticles() {
@@ -1432,6 +1704,7 @@ class HydraTrack {
   }
 
   showAchievements() {
+    this.unlockAchievement("B21");
     this.renderAchievements();
     document.getElementById("achievements-modal").style.display = "flex";
   }
@@ -1475,10 +1748,15 @@ class HydraTrack {
       this.unlockedAchievements.push(id);
       const achievement = this.allAchievements.find((a) => a.id === id);
       if (achievement) {
+        const basePath = this.getCharacterAssetPath();
+        const achievementImage =
+          Math.random() < 0.5
+            ? `${basePath}CONQUISTA.PNG`
+            : `${basePath}CONQUISTA2.PNG`;
         this.showToast({
           title: "Conquista Desbloqueada!",
           body: `Você ganhou a conquista "${achievement.name}"!`,
-          icon: "🏆",
+          imageSrc: achievementImage,
           type: "success",
         });
       }
@@ -1588,6 +1866,10 @@ class HydraTrack {
         case "B20":
           conditionMet = daysSinceFirstLog >= 7;
           break;
+        case "B21":
+          break;
+        case "B22":
+          break;
         case "S01":
           conditionMet = this.streak >= 15;
           break;
@@ -1666,6 +1948,8 @@ class HydraTrack {
           conditionMet = this.checkPerfectWeekend();
           break;
         case "S20":
+          break;
+        case "S21":
           break;
         case "G01":
           conditionMet = this.streak >= 30;
@@ -1746,7 +2030,15 @@ class HydraTrack {
           conditionMet = this.settings.notificationsEnabled && this.streak >= 7;
           break;
         case "G20":
-          conditionMet = this.unlockedAchievements.length >= 59;
+          conditionMet = this.unlockedAchievements.length >= 63;
+          break;
+        case "G21":
+          conditionMet = this.streak >= 60;
+          break;
+        case "G22":
+          conditionMet = Object.keys(consumptionByDay).some(
+            (date) => this.waterLogs.filter((l) => l.date === date).length >= 20
+          );
           break;
         case "E01":
           conditionMet = Object.keys(this.friendConnections).length > 0;
@@ -1770,6 +2062,16 @@ class HydraTrack {
           conditionMet = Object.values(this.friendsData).some(
             (friend) => friend.logs && friend.logs.length > 0
           );
+          break;
+        case "E06":
+          const friendsWithGoalMet = Object.values(this.friendsData).filter(
+            (f) => f.percentage >= 100
+          ).length;
+          conditionMet =
+            todayProgress.percentage >= 100 && friendsWithGoalMet >= 2;
+          break;
+        case "E07":
+          conditionMet = Object.keys(this.friendConnections).length >= 5;
           break;
       }
       if (conditionMet) {
@@ -1888,7 +2190,7 @@ class HydraTrack {
       },
       {
         id: "B04",
-        name: "Semana Quase Perfeita",
+        name: "Semana Hidratada",
         description: "Mantenha uma sequência de 7 dias atingindo a meta.",
         tier: "Bronze",
         icon: "📅",
@@ -2004,6 +2306,20 @@ class HydraTrack {
         description: "Complete 7 dias de uso do aplicativo.",
         tier: "Bronze",
         icon: "1️⃣",
+      },
+      {
+        id: "B21",
+        name: "Explorador",
+        description: "Visite a tela de conquistas pela primeira vez.",
+        tier: "Bronze",
+        icon: "🗺️",
+      },
+      {
+        id: "B22",
+        name: "Cientista",
+        description: "Atualize seu peso nas configurações.",
+        tier: "Bronze",
+        icon: "🔬",
       },
       {
         id: "S01",
@@ -2147,6 +2463,13 @@ class HydraTrack {
         icon: "🎵",
       },
       {
+        id: "S21",
+        name: "Filantropo",
+        description: "Clique no link para apoiar o projeto.",
+        tier: "Silver",
+        icon: "❤️",
+      },
+      {
         id: "G01",
         name: "Mês Dourado",
         description: "Mantenha uma sequência de 30 dias atingindo a meta.",
@@ -2288,9 +2611,23 @@ class HydraTrack {
       {
         id: "G20",
         name: "Platina Pura",
-        description: "Desbloqueie todas as outras 59 conquistas.",
+        description: "Desbloqueie todas as outras conquistas não-esmeralda.",
         tier: "Gold",
         icon: "💎",
+      },
+      {
+        id: "G21",
+        name: "Lenda Viva",
+        description: "Mantenha uma sequência de 60 dias.",
+        tier: "Gold",
+        icon: "🌟",
+      },
+      {
+        id: "G22",
+        name: "Fanático por Hidratação",
+        description: "Faça 20 registros em um único dia.",
+        tier: "Gold",
+        icon: "🌪️",
       },
       {
         id: "E01",
@@ -2327,6 +2664,20 @@ class HydraTrack {
           "Veja o primeiro registro de um amigo na timeline compartilhada.",
         tier: "Esmeralda",
         icon: "👀",
+      },
+      {
+        id: "E06",
+        name: "Poder da Amizade",
+        description: "Você e 2 amigos atingem a meta no mesmo dia.",
+        tier: "Esmeralda",
+        icon: "🎖️",
+      },
+      {
+        id: "E07",
+        name: "Comunidade Ativa",
+        description: "Esteja conectado com 5 amigos ao mesmo tempo.",
+        tier: "Esmeralda",
+        icon: "🌐",
       },
     ];
   }
@@ -2402,6 +2753,7 @@ class HydraTrack {
           consumed: consumed,
           dailyGoal: goal,
           percentage: percentage,
+          character: this.settings.character,
         },
       });
       this.unlockAchievement("E01");
@@ -2412,13 +2764,17 @@ class HydraTrack {
     conn.on("data", (data) => {
       this.handleReceivedData(conn.peer, data);
     });
+
     conn.on("close", () => {
       const friendName = this.friendsData[conn.peer]?.name || "um amigo";
+
       delete this.friendConnections[conn.peer];
       delete this.friendsData[conn.peer];
+
       this.updateFriendsList();
       this.updateTimeline();
       this.renderFriendsDashboard();
+
       this.showToast({
         title: "Conexão Perdida",
         body: `A conexão com ${friendName} foi perdida.`,
@@ -2434,6 +2790,7 @@ class HydraTrack {
         logs: [],
         goalReached: false,
         color: this.generateRandomColor(),
+        character: "copo",
       };
     }
     switch (data.type) {
@@ -2450,11 +2807,12 @@ class HydraTrack {
           const connectedFriendName =
             this.friendsData[peerId].name || "um amigo";
           const conn = this.friendConnections[peerId];
-          if (!conn.metadata.name) {
+          const basePath = this.getCharacterAssetPath();
+          if (conn && !conn.metadata.name) {
             this.showToast({
               title: "Conectado!",
               body: `Você agora está conectado com ${connectedFriendName}.`,
-              icon: "🤝",
+              imageSrc: `${basePath}NOTIFICACAO.PNG`,
               type: "success",
             });
           }
@@ -2463,18 +2821,32 @@ class HydraTrack {
         this.renderFriendsDashboard();
         break;
       case "hydration_log":
+        if (!this.friendsData[peerId].logs) {
+          this.friendsData[peerId].logs = [];
+        }
         this.friendsData[peerId].logs.push(data.payload);
+        if (this.friendsData[peerId]) {
+          const { consumed, dailyGoal } = this.friendsData[peerId];
+          this.friendsData[peerId].consumed =
+            (consumed || 0) + data.payload.amount;
+          this.friendsData[peerId].percentage = this.getProgressPercentage(
+            this.friendsData[peerId].consumed,
+            dailyGoal
+          );
+        }
         this.showFriendNotification(
           `${friendName} acabou de beber ${data.payload.amount}ml!`
         );
         this.unlockAchievement("E05");
         this.updateTimeline();
+        this.renderFriendsDashboard();
         break;
       case "goal_reached":
         this.friendsData[peerId].goalReached = true;
         this.showFriendNotification(`${friendName} atingiu a meta diária! 🎉`);
         this.unlockAchievement("E02");
         this.checkAllAchievements();
+        this.renderFriendsDashboard();
         break;
     }
   }
@@ -2619,9 +2991,11 @@ class HydraTrack {
       this.notificationPermission !== "granted"
     )
       return;
+
+    const basePath = this.getCharacterAssetPath();
     const options = {
       body: message,
-      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2350C878'><path d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V18h6v-1.5c0-2.33-4.67-3.5-7-3.5z'/></svg>",
+      icon: `${basePath}NOTIFICACAO.PNG`,
       tag: "hydratrack-friend-" + Date.now(),
       silent: true,
     };
@@ -2642,44 +3016,69 @@ class HydraTrack {
       const consumed = data.consumed || 0;
       const goal = data.dailyGoal || 2000;
       const color = data.color || "hsl(var(--primary))";
-      const fillHeight = Math.max(0, Math.min(116, (percentage / 100) * 116));
-      const fillY = 138 - fillHeight;
+      const character = data.character || "copo";
+      let characterHTML = "";
+      if (character === "axolotl") {
+        let imageSrc = "assets/images/axolotl/TRISTE.PNG";
+        if (percentage >= 100)
+          imageSrc = "assets/images/axolotl/META-DIARIA.PNG";
+        else if (percentage >= 80)
+          imageSrc = "assets/images/axolotl/FELIZ6.PNG";
+        else if (percentage >= 70)
+          imageSrc = "assets/images/axolotl/FELIZ4.PNG";
+        else if (percentage >= 60)
+          imageSrc = "assets/images/axolotl/FELIZ3.PNG";
+        else if (percentage >= 50)
+          imageSrc = "assets/images/axolotl/FELIZ2.PNG";
+        else if (percentage >= 40)
+          imageSrc = "assets/images/axolotl/FELIZ1.PNG";
+        else if (percentage >= 30)
+          imageSrc = "assets/images/axolotl/CANSADO1.PNG";
+        else if (percentage >= 20)
+          imageSrc = "assets/images/axolotl/TRISTE1.PNG";
+        characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Axolote do amigo" class="axolotl-image"></div>`;
+      } else if (character === "frog") {
+        let imageSrc = "assets/images/frog/TRISTE.PNG";
+        if (percentage >= 100) imageSrc = "assets/images/frog/META-DIARIA.PNG";
+        else if (percentage >= 80) imageSrc = "assets/images/frog/FELIZ6.PNG";
+        else if (percentage >= 70) imageSrc = "assets/images/frog/FELIZ4.PNG";
+        else if (percentage >= 60) imageSrc = "assets/images/frog/FELIZ3.PNG";
+        else if (percentage >= 50) imageSrc = "assets/images/frog/FELIZ2.PNG";
+        else if (percentage >= 40) imageSrc = "assets/images/frog/FELIZ1.PNG";
+        else if (percentage >= 30) imageSrc = "assets/images/frog/CANSADO1.PNG";
+        else if (percentage >= 20) imageSrc = "assets/images/frog/TRISTE1.PNG";
+        characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Sapo do amigo" class="axolotl-image"></div>`;
+      } else {
+        const fillHeight = Math.max(0, Math.min(116, (percentage / 100) * 116));
+        const fillY = 138 - fillHeight;
+        characterHTML = `
+                    <div class="water-glass-container">
+                        <div class="water-glass">
+                               <svg viewBox="0 0 120 160" class="glass-svg">
+                                 <defs><clipPath id="glass-clip-friend-${peerId}"><path d="M22 22 L98 22 L93 138 L27 138 Z" /></clipPath></defs>
+                                 <path d="M20 20 L100 20 L95 140 L25 140 Z" fill="none" stroke="currentColor" stroke-width="3" class="glass-outline" />
+                                 <rect id="water-fill-friend-${peerId}" x="22" y="${fillY}" width="76" height="${fillHeight}" clip-path="url(#glass-clip-friend-${peerId})" style="fill: ${color}; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);" />
+                                 <path d="M25 25 L35 25 L33 130 L27 130 Z" fill="white" opacity="0.3" />
+                               </svg>
+                        </div>
+                    </div>`;
+      }
       const friendCardHTML = `
-            <div class="friend-glass-card ${
-              percentage >= 100 ? "goal-met" : ""
-            }">
-                <h3 class="friend-name" style="color: ${color}">${
+                <div class="friend-glass-card ${
+                  percentage >= 100 ? "goal-met" : ""
+                }">
+                    <h3 class="friend-name" style="color: ${color}">${
         data.name || "Amigo"
       }</h3>
-                <div class="water-glass-container">
-                    <div class="water-glass">
-                         <svg viewBox="0 0 120 160" class="glass-svg">
-                            <defs>
-                              <clipPath id="glass-clip-${peerId}">
-                                <path d="M22 22 L98 22 L93 138 L27 138 Z" />
-                              </clipPath>
-                            </defs>
-                            <path d="M20 20 L100 20 L95 140 L25 140 Z" fill="none" stroke="currentColor" stroke-width="3" class="glass-outline" />
-                            <rect 
-                                id="water-fill-${peerId}" 
-                                x="22" y="${fillY}" 
-                                width="76" 
-                                height="${fillHeight}" 
-                                clip-path="url(#glass-clip-${peerId})" 
-                                style="fill: ${color}; transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);"
-                            />
-                            <path d="M25 25 L35 25 L33 130 L27 130 Z" fill="white" opacity="0.3" />
-                         </svg>
-                    </div>
-                </div>
-                <div class="friend-progress-details">
-                    <div class="percentage-friend" style="color: ${color}">${percentage.toFixed(
+                    ${characterHTML}
+                    <div class="friend-progress-details">
+                        <div class="percentage-friend" style="color: ${color}">${percentage.toFixed(
         0
       )}%</div>
-                    <div class="amount-text-friend">${consumed}ml de ${goal}ml</div>
+                        <div class="amount-text-friend">${consumed}ml de ${goal}ml</div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
       container.innerHTML += friendCardHTML;
     });
   }

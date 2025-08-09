@@ -81,94 +81,123 @@
 
       <main class="main-content">
         <section class="glass-section">
-          <div class="all-glasses-container">
-            <div class="water-glass-container">
-              <div id="water-glass" class="water-glass">
-                <svg viewBox="0 0 120 160" class="glass-svg">
-                  <defs>
-                    <clipPath id="glass-clip">
-                      <path d="M22 22 L98 22 L93 138 L27 138 Z" />
-                    </clipPath>
-                    <linearGradient
-                      id="water-gradient"
-                      x1="0%"
-                      y1="0%"
-                      x2="0%"
-                      y2="100%"
-                    >
-                      <stop
-                        offset="0%"
-                        stop-color="hsl(var(--primary-glow))"
-                        stop-opacity="0.9"
-                      />
-                      <stop
-                        offset="50%"
-                        stop-color="hsl(var(--primary))"
-                        stop-opacity="0.8"
-                      />
-                      <stop
-                        offset="100%"
-                        stop-color="hsl(var(--primary))"
-                        stop-opacity="1"
-                      />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M20 20 L100 20 L95 140 L25 140 Z"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                    class="glass-outline"
-                  />
-                  <rect
-                    id="water-fill"
-                    x="22"
-                    y="138"
-                    width="76"
-                    height="0"
-                    fill="url(#water-gradient)"
-                    clip-path="url(#glass-clip)"
-                  />
-                  <path
-                    id="wave-1"
-                    d="M22 138 Q40 136 60 138 T98 138"
-                    stroke="hsl(var(--primary-glow))"
-                    stroke-width="1.5"
-                    fill="none"
-                    class="wave"
-                    style="opacity: 0"
-                  />
-                  <path
-                    id="wave-2"
-                    d="M22 138 Q50 139 80 138 T98 138"
-                    stroke="hsl(var(--primary))"
-                    stroke-width="1"
-                    fill="none"
-                    class="wave-delay"
-                    style="opacity: 0"
-                  />
-                  <path
-                    d="M25 25 L35 25 L33 130 L27 130 Z"
-                    fill="white"
-                    opacity="0.3"
-                  />
-                </svg>
-                <div class="bubbles-container">
-                  <div class="bubble bubble-1"></div>
-                  <div class="bubble bubble-2"></div>
-                  <div class="bubble bubble-3"></div>
-                </div>
-              </div>
-              <div class="progress-text">
-                <div id="percentage-text" class="percentage">0%</div>
-                <div id="amount-text" class="amount-text">0ml de 2000ml</div>
-              </div>
-            </div>
+          <div class="main-display-area">
             <div
               id="friends-glasses-container"
               class="friends-glasses-container"
             ></div>
+            <div class="pet-container">
+              <div id="glass-container" class="water-glass-container">
+                <div id="water-glass" class="water-glass">
+                  <svg viewBox="0 0 120 160" class="glass-svg">
+                    <defs>
+                      <clipPath id="glass-clip">
+                        <path d="M22 22 L98 22 L93 138 L27 138 Z" />
+                      </clipPath>
+                      <linearGradient
+                        id="water-gradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="0%"
+                        y2="100%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="hsl(var(--primary-glow))"
+                          stop-opacity="0.9"
+                        />
+                        <stop
+                          offset="50%"
+                          stop-color="hsl(var(--primary))"
+                          stop-opacity="0.8"
+                        />
+                        <stop
+                          offset="100%"
+                          stop-color="hsl(var(--primary))"
+                          stop-opacity="1"
+                        />
+                      </linearGradient>
+                    </defs>
+                    <g clip-path="url(#glass-clip)">
+                      <rect
+                        id="water-fill"
+                        x="22"
+                        y="138"
+                        width="76"
+                        height="0"
+                        fill="url(#water-gradient)"
+                      />
+                    </g>
+                    <path
+                      d="M20 20 L100 20 L95 140 L25 140 Z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      class="glass-outline"
+                    />
+                    <path
+                      id="wave-1"
+                      d="M22 138 Q40 136 60 138 T98 138"
+                      stroke="hsl(var(--primary-glow))"
+                      stroke-width="1.5"
+                      fill="none"
+                      class="wave"
+                      style="opacity: 0"
+                    />
+                    <path
+                      id="wave-2"
+                      d="M22 138 Q50 139 80 138 T98 138"
+                      stroke="hsl(var(--primary))"
+                      stroke-width="1"
+                      fill="none"
+                      class="wave-delay"
+                      style="opacity: 0"
+                    />
+                    <path
+                      d="M25 25 L35 25 L33 130 L27 130 Z"
+                      fill="white"
+                      opacity="0.3"
+                    />
+                    <g class="bubbles-container">
+                      <circle class="bubble bubble-1" cx="30" cy="130" r="3" />
+                      <circle class="bubble bubble-2" cx="50" cy="130" r="4" />
+                      <circle
+                        class="bubble bubble-3"
+                        cx="80"
+                        cy="130"
+                        r="2.5"
+                      />
+                    </g>
+                  </svg>
+                </div>
+              </div>
+
+              <div id="axolotl-container" class="water-glass-container">
+                <img
+                  id="axolotl-image"
+                  src="assets/images/axolotl/TRISTE1.png"
+                  alt="Axolotl"
+                  class="axolotl-image"
+                />
+              </div>
+              <div
+                id="frog-container"
+                class="water-glass-container hidden-character"
+              >
+                <img
+                  id="frog-image"
+                  src="assets/images/frog/TRISTE1.png"
+                  alt="Sapo"
+                  class="axolotl-image"
+                />
+              </div>
+              <div class="progress-text">
+                <span id="percentage-text" class="percentage">0%</span>
+                <p id="amount-text" class="amount-text">0ml de 2000ml</p>
+              </div>
+            </div>
           </div>
+
           <div class="stats-grid">
             <div class="stat-card">
               <div id="consumed-stat" class="stat-value">0</div>
@@ -252,6 +281,7 @@
           target="_blank"
           rel="noopener noreferrer"
           class="btn btn-donate"
+          id="donate-link"
         >
           <svg
             viewBox="0 0 24 24"
