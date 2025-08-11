@@ -70,6 +70,7 @@ class HydraTrack {
       localStorage.removeItem("hydratrack-onboarded");
       localStorage.removeItem("hydratrack-unlocked-achievements");
       localStorage.removeItem("hydratrack-amount-frequencies");
+      localStorage.removeItem("hydratrack-notificationIntervalMinutes");
 
       localStorage.setItem("hydratrack-version", this.appVersion);
       window.location.reload();
@@ -119,6 +120,10 @@ class HydraTrack {
         JSON.parse(localStorage.getItem("hydratrack-unlocked-achievements")) ||
         [];
       this.notificationSound.volume = this.settings.notificationVolume;
+      this.notificationIntervalMinutes =
+        parseInt(
+          localStorage.getItem("hydratrack-notificationIntervalMinutes")
+        ) || this.notificationIntervalMinutes;
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -141,6 +146,10 @@ class HydraTrack {
       localStorage.setItem(
         "hydratrack-unlocked-achievements",
         JSON.stringify(this.unlockedAchievements)
+      );
+      localStorage.setItem(
+        "hydratrack-notificationIntervalMinutes",
+        this.notificationIntervalMinutes.toString()
       );
     } catch (error) {
       console.error("Error saving data:", error);
@@ -1046,6 +1055,7 @@ class HydraTrack {
     localStorage.removeItem("hydratrack-onboarded");
     localStorage.removeItem("hydratrack-unlocked-achievements");
     localStorage.removeItem("hydratrack-amount-frequencies");
+    localStorage.removeItem("hydratrack-notificationIntervalMinutes");
     window.location.reload();
   }
 
