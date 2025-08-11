@@ -357,6 +357,33 @@
           <button id="close-friends-btn" class="btn-icon">&times;</button>
         </div>
         <div id="friends-modal-content" class="settings-modal-content">
+          <div class="settings-group">
+            <h3>Encontrar Amigos</h3>
+            <p
+              class="custom-help"
+              style="text-align: left; margin-bottom: 1rem"
+            >
+              Encontre amigos online ou conecte-se diretamente usando o código
+              de convite.
+            </p>
+            <button
+              id="find-friends-btn"
+              class="btn btn-secondary"
+              style="width: 100%; margin-bottom: 1.5rem"
+              disabled
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem"
+              >
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                />
+              </svg>
+              Companheiros de Jornada
+            </button>
+          </div>
           <div class="connection-status">
             <div class="form-group">
               <label for="my-peer-id" class="form-label"
@@ -455,7 +482,60 @@
       </div>
     </div>
 
+    <div
+      id="user-list-modal"
+      class="settings-modal-overlay"
+      style="display: none"
+    >
+      <div class="settings-modal-card">
+        <div class="settings-modal-header">
+          <h2>Companheiros de Jornada</h2>
+          <div class="modal-header-actions">
+            <button
+              id="refresh-user-list-btn"
+              class="btn-icon"
+              title="Atualizar lista"
+            >
+            <div class="icon-refresh"></div>
+            </button>
+            <button id="close-user-list-btn" class="btn-icon">&times;</button>
+          </div>
+        </div>
+        <div class="settings-modal-content">
+          <div
+            id="user-list-loading"
+            class="loading-overlay"
+            style="display: none"
+          >
+            <div class="loading-spinner"></div>
+            <p>Procurando por Companheiros...</p>
+          </div>
+          <ul id="user-list" class="user-list-group"></ul>
+        </div>
+      </div>
+    </div>
+
     <div id="toast-container"></div>
+
+    <div
+      id="connection-request-modal"
+      class="modal-overlay"
+      style="display: none"
+    >
+      <div class="modal-card">
+        <div class="modal-icon">🤝</div>
+        <h3 class="modal-title">Solicitação de Conexão</h3>
+        <p class="modal-text" id="connection-request-text"></p>
+        <div class="modal-actions">
+          <button id="reject-connection-btn" class="btn btn-destructive">
+            Rejeitar
+          </button>
+          <button id="accept-connection-btn" class="btn btn-primary">
+            Aceitar
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>

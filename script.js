@@ -1,6 +1,8 @@
 class HydraTrack {
   constructor() {
     this.appVersion = "1.1.1";
+    this.apiUrl = "https://apijs-0ypv.onrender.com";
+    this.pendingConnections = {};
     this.currentStep = 1;
     this.totalSteps = 7;
     this.onboardingData = {
@@ -1197,6 +1199,45 @@ class HydraTrack {
     document
       .getElementById("donate-link")
       ?.addEventListener("click", () => this.unlockAchievement("S21"));
+
+    document
+      .getElementById("find-friends-btn")
+      ?.addEventListener("click", () => {
+        this.showUserListModal();
+      });
+
+    document
+      .getElementById("close-user-list-btn")
+      ?.addEventListener("click", () => {
+        this.hideUserListModal();
+      });
+
+    document
+      .getElementById("refresh-user-list-btn")
+      ?.addEventListener("click", async (event) => {
+        const refreshIcon = event.currentTarget.querySelector(".icon-refresh");
+        const loadingEl = document.getElementById("user-list-loading");
+        const listEl = document.getElementById("user-list");
+
+        refreshIcon.classList.add("loading");
+        loadingEl.style.display = "flex";
+        listEl.innerHTML = "";
+
+        await this.updateLobbyList();
+
+        loadingEl.style.display = "none";
+        refreshIcon.classList.remove("loading");
+      });
+
+    document.getElementById("user-list")?.addEventListener("click", (event) => {
+      const listItem = event.target.closest(".user-list-item");
+      if (listItem) {
+        const peerId = listItem.dataset.id;
+        this.connectToFriend(peerId);
+        this.hideUserListModal();
+        this.hideFriendsModal();
+      }
+    });
   }
 
   attachStepEventListeners() {
@@ -2741,6 +2782,164 @@ class HydraTrack {
     ];
   }
 
+  async registerInLobby() {
+    if (!this.myPeerId || !this.user) return;
+    try {
+      await fetch(
+        `${this.apiUrl}/cadastro?nickname=${encodeURIComponent(
+          this.user.name
+        )}&id=${encodeURIComponent(this.myPeerId)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Erro ao registrar no lobby:", error);
+    }
+  }
+
+  async fetchLobbyUsers() {
+    if (!this.myPeerId) return [];
+    try {
+      const response = await fetch(`${this.apiUrl}/buscar`);
+      if (!response.ok) return [];
+      const users = await response.json();
+      return users.filter((user) => user.id !== this.myPeerId);
+    } catch (error) {
+      console.error("Erro ao buscar usuários do lobby:", error);
+      return [];
+    }
+  }
+
+  async removeFromLobby() {
+    if (!this.myPeerId) return;
+    try {
+      await fetch(`${this.apiUrl}/delete?id=${this.myPeerId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Erro ao sair do lobby:", error);
+    }
+  }
+
+  async showUserListModal() {
+    document.getElementById("user-list-modal").style.display = "flex";
+    const loadingEl = document.getElementById("user-list-loading");
+    const listEl = document.getElementById("user-list");
+
+    listEl.innerHTML = "";
+    loadingEl.style.display = "flex";
+
+    await this.registerInLobby();
+    await this.updateLobbyList();
+    loadingEl.style.display = "none";
+  }
+
+  hideUserListModal() {
+    document.getElementById("user-list-modal").style.display = "none";
+    this.removeFromLobby();
+  }
+
+  async updateLobbyList() {
+    const users = await this.fetchLobbyUsers();
+    console.log(users);
+    const listEl = document.getElementById("user-list");
+
+    if (users.length === 0) {
+      listEl.innerHTML = `<p class="empty-list-info">Nenhum outro amigo na taverna no momento. Tente atualizar ou convide alguém!</p>`;
+      return;
+    }
+
+    listEl.innerHTML = users
+      .map(
+        (user) => `
+      <li class="user-list-item" data-id="${user.id}">
+        <div>
+          <span class="user-list-item-info">${user.nickname}</span>
+        </div>
+        <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Conectar</button>
+      </li>
+    `
+      )
+      .join("");
+  }
+
+  showConnectionRequest(peerId, message) {
+    const modal = document.getElementById("connection-request-modal");
+    document.getElementById("connection-request-text").textContent = message;
+    modal.style.display = "flex";
+
+    document.getElementById("accept-connection-btn").onclick = () =>
+      this.handleConnectionAcceptance(peerId);
+    document.getElementById("reject-connection-btn").onclick = () =>
+      this.handleConnectionRejection(peerId);
+  }
+
+  hideConnectionRequest() {
+    document.getElementById("connection-request-modal").style.display = "none";
+  }
+
+  handleConnectionAcceptance(peerId) {
+    const conn = this.pendingConnections[peerId];
+    if (conn) {
+      this.friendConnections[peerId] = conn;
+      this.friendsData[peerId] = {
+        name: conn.metadata.name || "Amigo",
+        character: conn.metadata.character || "copo",
+        consumed: 0,
+        dailyGoal: 2000,
+        percentage: 0,
+        logs: [],
+        goalReached: false,
+        color: this.generateRandomColor(),
+      };
+
+      this.showToast({
+        title: "Conexão Estabelecida!",
+        body: `Você agora está conectado com ${this.friendsData[peerId].name}.`,
+        type: "success",
+      });
+
+      const { consumed, goal, percentage } = this.getTodayProgress();
+      this.sendDataToFriend(peerId, {
+        type: "connection_accepted",
+        payload: {
+          name: this.user.name,
+          consumed: consumed,
+          dailyGoal: goal,
+          percentage: percentage,
+          character: this.settings.character,
+        },
+      });
+
+      this.unlockAchievement("E01");
+      this.updateFriendsList();
+      this.renderFriendsDashboard();
+
+      delete this.pendingConnections[peerId];
+    }
+    this.hideAllModals();
+  }
+
+  handleConnectionRejection(peerId) {
+    const conn = this.pendingConnections[peerId];
+    if (conn) {
+      conn.send({ type: "connection_rejected" });
+      setTimeout(() => conn.close(), 250);
+      delete this.pendingConnections[peerId];
+    }
+    this.hideConnectionRequest();
+  }
+
+  hideAllModals() {
+    document
+      .querySelectorAll(".settings-modal-overlay, .modal-overlay")
+      .forEach((modal) => {
+        modal.style.display = "none";
+      });
+  }
   // --- Início da Seção Refatorada de PeerJS ---
 
   initializePeer() {
@@ -2748,7 +2947,6 @@ class HydraTrack {
     if (this.peer) {
       this.peer.destroy();
     }
-    // Adotando uma configuração de peer mais explícita e robusta.
     this.peer = new Peer(undefined, {
       host: "0.peerjs.com",
       port: 443,
@@ -2767,11 +2965,19 @@ class HydraTrack {
       if (connectionState) {
         connectionState.textContent = "Status: Online e pronto para conectar.";
       }
+      const findFriendsBtn = document.getElementById("find-friends-btn");
+      if (findFriendsBtn) {
+        findFriendsBtn.disabled = false;
+      }
     });
 
-    // Manipula solicitações de conexão de entrada de outros peers.
     this.peer.on("connection", (conn) => {
-      console.log("Conexão recebida de:", conn.peer);
+      const friendName = conn.metadata?.name || "Um amigo";
+      this.showConnectionRequest(
+        conn.peer,
+        `${friendName} quer se conectar com você.`
+      );
+      this.pendingConnections[conn.peer] = conn;
       this.setupConnectionEventListeners(conn);
     });
 
@@ -2802,10 +3008,13 @@ class HydraTrack {
       });
       return;
     }
-    if (this.friendConnections[friendPeerId]) {
+    if (
+      this.friendConnections[friendPeerId] ||
+      this.pendingConnections[friendPeerId]
+    ) {
       this.showToast({
         title: "Aviso",
-        body: "Você já está conectado a este amigo.",
+        body: "Você já está conectado ou aguardando resposta deste amigo.",
       });
       return;
     }
@@ -2817,93 +3026,45 @@ class HydraTrack {
       return;
     }
 
-    console.log(`Tentando conectar a: ${friendPeerId}`);
-    // Inicia a conexão, enviando metadados (seu nome e personagem).
     const conn = this.peer.connect(friendPeerId, {
       reliable: true,
       metadata: { name: this.user.name, character: this.settings.character },
     });
 
+    this.showToast({
+      title: "Solicitação Enviada",
+      body: `Aguardando resposta de ${conn.metadata.name}...`,
+      type: "info",
+    });
+
+    this.pendingConnections[conn.peer] = conn;
     this.setupConnectionEventListeners(conn);
   }
 
-  // Função unificada para manipular eventos de conexões de entrada e saída.
   setupConnectionEventListeners(conn) {
-    conn.on("open", () => {
-      console.log(
-        `Conexão estabelecida com ${conn.peer}. Metadados:`,
-        conn.metadata
-      );
-
-      this.friendConnections[conn.peer] = conn;
-
-      // Inicializa os dados do amigo usando os metadados recebidos.
-      this.friendsData[conn.peer] = {
-        name: conn.metadata.name || "Amigo",
-        character: conn.metadata.character || "copo",
-        consumed: 0,
-        dailyGoal: 2000, // Meta padrão, será atualizada.
-        percentage: 0,
-        logs: [],
-        goalReached: false,
-        color: this.generateRandomColor(),
-      };
-
-      this.showToast({
-        title: "Novo Amigo Conectado!",
-        body: `${conn.metadata.name || "Um amigo"} se conectou com você.`,
-        icon: "🤝",
-        type: "success",
-      });
-
-      // Envia seus dados de perfil atuais para o novo amigo.
-      const { consumed, goal, percentage } = this.getTodayProgress();
-      this.sendDataToFriend(conn.peer, {
-        type: "profile_update",
-        payload: {
-          name: this.user.name,
-          consumed: consumed,
-          dailyGoal: goal,
-          percentage: percentage,
-          character: this.settings.character,
-        },
-      });
-
-      this.unlockAchievement("E01");
-      this.updateFriendsList();
-      this.updateTimeline();
-      this.renderFriendsDashboard();
-    });
-
     conn.on("data", (data) => {
-      console.log(`Dados recebidos de ${conn.peer}:`, data);
       this.handleReceivedData(conn.peer, data);
     });
 
     conn.on("close", () => {
       const friendName = this.friendsData[conn.peer]?.name || "um amigo";
-      console.log(`Conexão fechada com ${friendName} (${conn.peer})`);
+
+      this.showToast({
+        title: "Conexão Encerrada",
+        body: `A conexão com ${friendName} foi encerrada.`,
+      });
 
       delete this.friendConnections[conn.peer];
       delete this.friendsData[conn.peer];
+      delete this.pendingConnections[conn.peer];
 
       this.updateFriendsList();
       this.updateTimeline();
       this.renderFriendsDashboard();
-
-      this.showToast({
-        title: "Conexão Perdida",
-        body: `A conexão com ${friendName} foi encerrada.`,
-      });
     });
 
     conn.on("error", (err) => {
       console.error(`Erro de conexão com ${conn.peer}:`, err);
-      this.showToast({
-        title: "Erro de Conexão",
-        body: `Ocorreu um erro na conexão com um amigo. (${err.type})`,
-        type: "warning",
-      });
     });
   }
 
@@ -2969,6 +3130,56 @@ class HydraTrack {
         this.unlockAchievement("E02");
         this.checkAllAchievements();
         this.renderFriendsDashboard();
+        break;
+
+      case "connection_accepted":
+        const conn = this.pendingConnections[peerId];
+        if (conn) {
+          this.friendConnections[peerId] = conn;
+          this.friendsData[peerId] = {
+            ...data.payload,
+            logs: [],
+            goalReached: data.payload.percentage >= 100,
+            color: this.generateRandomColor(),
+          };
+
+          this.showToast({
+            title: "Conexão Aceita!",
+            body: `${this.friendsData[peerId].name} aceitou sua solicitação.`,
+            type: "success",
+          });
+
+          const { consumed, goal, percentage } = this.getTodayProgress();
+          this.sendDataToFriend(peerId, {
+            type: "profile_update",
+            payload: {
+              name: this.user.name,
+              consumed: consumed,
+              dailyGoal: goal,
+              percentage: percentage,
+              character: this.settings.character,
+            },
+          });
+
+          this.unlockAchievement("E01");
+          this.updateFriendsList();
+          this.renderFriendsDashboard();
+          delete this.pendingConnections[peerId];
+        }
+        break;
+
+      case "connection_rejected":
+        const rejectedFriendName =
+          this.pendingConnections[peerId]?.metadata.name || "O amigo";
+        this.showToast({
+          title: "Conexão Rejeitada",
+          body: `${rejectedFriendName} recusou sua solicitação.`,
+          type: "warning",
+        });
+        if (this.pendingConnections[peerId]) {
+          this.pendingConnections[peerId].close();
+          delete this.pendingConnections[peerId];
+        }
         break;
     }
   }
