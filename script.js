@@ -2741,35 +2741,67 @@ class HydraTrack {
     ];
   }
 
+  // --- Início da Seção Refatorada de PeerJS ---
+
   initializePeer() {
     if (!this.user) return;
-    if (this.peer) this.peer.destroy();
-    this.peer = new Peer();
+    if (this.peer) {
+      this.peer.destroy();
+    }
+    // Adotando uma configuração de peer mais explícita e robusta.
+    this.peer = new Peer(undefined, {
+      host: "0.peerjs.com",
+      port: 443,
+      path: "/",
+      secure: true,
+      debug: 2,
+    });
+
     this.peer.on("open", (id) => {
       this.myPeerId = id;
-      document.getElementById("my-peer-id").value = id;
-      document.getElementById("connection-state").textContent =
-        "Status: Online e pronto para conectar.";
+      const myPeerIdInput = document.getElementById("my-peer-id");
+      if (myPeerIdInput) {
+        myPeerIdInput.value = id;
+      }
+      const connectionState = document.getElementById("connection-state");
+      if (connectionState) {
+        connectionState.textContent = "Status: Online e pronto para conectar.";
+      }
     });
+
+    // Manipula solicitações de conexão de entrada de outros peers.
     this.peer.on("connection", (conn) => {
+      console.log("Conexão recebida de:", conn.peer);
       this.setupConnectionEventListeners(conn);
     });
+
     this.peer.on("error", (err) => {
-      document.getElementById(
-        "connection-state"
-      ).textContent = `Erro: ${err.type}`;
-      if (err.type === "network") {
-        this.showToast({
-          title: "Erro de Conexão",
-          body: "Não foi possível conectar. Verifique sua conexão.",
-          type: "warning",
-        });
+      console.error("PeerJS Error:", err);
+      const connectionState = document.getElementById("connection-state");
+      if (connectionState) {
+        connectionState.textContent = `Erro: ${err.type}`;
       }
+      this.showToast({
+        title: "Erro de Conexão",
+        body: `Não foi possível conectar ao servidor. (${err.type})`,
+        type: "warning",
+      });
+    });
+
+    this.peer.on("disconnected", () => {
+      console.log("Desconectado do servidor PeerJS. Tentando reconectar...");
+      this.peer.reconnect();
     });
   }
 
   connectToFriend(friendPeerId) {
-    if (!friendPeerId || !this.peer) return;
+    if (!friendPeerId || !this.peer) {
+      this.showToast({
+        title: "Erro",
+        body: "ID do amigo inválido ou conexão não iniciada.",
+      });
+      return;
+    }
     if (this.friendConnections[friendPeerId]) {
       this.showToast({
         title: "Aviso",
@@ -2777,33 +2809,54 @@ class HydraTrack {
       });
       return;
     }
+    if (friendPeerId === this.myPeerId) {
+      this.showToast({
+        title: "Aviso",
+        body: "Você não pode se conectar a si mesmo.",
+      });
+      return;
+    }
+
+    console.log(`Tentando conectar a: ${friendPeerId}`);
+    // Inicia a conexão, enviando metadados (seu nome e personagem).
     const conn = this.peer.connect(friendPeerId, {
       reliable: true,
-      metadata: { name: this.user.name },
+      metadata: { name: this.user.name, character: this.settings.character },
     });
+
     this.setupConnectionEventListeners(conn);
   }
 
+  // Função unificada para manipular eventos de conexões de entrada e saída.
   setupConnectionEventListeners(conn) {
     conn.on("open", () => {
-      this.friendConnections[conn.peer] = conn;
-      if (!this.friendsData[conn.peer]) {
-        this.friendsData[conn.peer] = {
-          logs: [],
-          goalReached: false,
-          color: this.generateRandomColor(),
-        };
-      }
-      const friendName = conn.metadata.name;
-      if (friendName) {
-        this.showToast({
-          title: "Novo Amigo Conectado!",
-          body: `se conectou com você.`,
-          icon: "🤝",
-          type: "success",
-        });
-      }
+      console.log(
+        `Conexão estabelecida com ${conn.peer}. Metadados:`,
+        conn.metadata
+      );
 
+      this.friendConnections[conn.peer] = conn;
+
+      // Inicializa os dados do amigo usando os metadados recebidos.
+      this.friendsData[conn.peer] = {
+        name: conn.metadata.name || "Amigo",
+        character: conn.metadata.character || "copo",
+        consumed: 0,
+        dailyGoal: 2000, // Meta padrão, será atualizada.
+        percentage: 0,
+        logs: [],
+        goalReached: false,
+        color: this.generateRandomColor(),
+      };
+
+      this.showToast({
+        title: "Novo Amigo Conectado!",
+        body: `${conn.metadata.name || "Um amigo"} se conectou com você.`,
+        icon: "🤝",
+        type: "success",
+      });
+
+      // Envia seus dados de perfil atuais para o novo amigo.
       const { consumed, goal, percentage } = this.getTodayProgress();
       this.sendDataToFriend(conn.peer, {
         type: "profile_update",
@@ -2815,17 +2868,21 @@ class HydraTrack {
           character: this.settings.character,
         },
       });
+
       this.unlockAchievement("E01");
       this.updateFriendsList();
       this.updateTimeline();
       this.renderFriendsDashboard();
     });
+
     conn.on("data", (data) => {
+      console.log(`Dados recebidos de ${conn.peer}:`, data);
       this.handleReceivedData(conn.peer, data);
     });
 
     conn.on("close", () => {
       const friendName = this.friendsData[conn.peer]?.name || "um amigo";
+      console.log(`Conexão fechada com ${friendName} (${conn.peer})`);
 
       delete this.friendConnections[conn.peer];
       delete this.friendsData[conn.peer];
@@ -2836,14 +2893,22 @@ class HydraTrack {
 
       this.showToast({
         title: "Conexão Perdida",
-        body: `A conexão com ${friendName} foi perdida.`,
+        body: `A conexão com ${friendName} foi encerrada.`,
+      });
+    });
+
+    conn.on("error", (err) => {
+      console.error(`Erro de conexão com ${conn.peer}:`, err);
+      this.showToast({
+        title: "Erro de Conexão",
+        body: `Ocorreu um erro na conexão com um amigo. (${err.type})`,
+        type: "warning",
       });
     });
   }
 
   handleReceivedData(peerId, data) {
-    const friendName =
-      data.payload?.name || this.friendsData[peerId]?.name || "um amigo";
+    // Garante que existe um placeholder para os dados do amigo.
     if (!this.friendsData[peerId]) {
       this.friendsData[peerId] = {
         logs: [],
@@ -2852,56 +2917,54 @@ class HydraTrack {
         character: "copo",
       };
     }
+    const friendName =
+      data.payload?.name || this.friendsData[peerId]?.name || "um amigo";
+
     switch (data.type) {
       case "profile_update":
-        const isNewConnection = !this.friendsData[peerId]?.connectionNotified;
-
+        // Mescla os novos dados de perfil com os existentes.
         this.friendsData[peerId] = {
           ...this.friendsData[peerId],
           ...data.payload,
-          connectionNotified: true,
         };
-
-        if (isNewConnection) {
-          const connectedFriendName =
-            this.friendsData[peerId].name || "um amigo";
-          const conn = this.friendConnections[peerId];
-          const basePath = this.getCharacterAssetPath();
-          if (conn && !conn.metadata.name) {
-            this.showToast({
-              title: "Conectado!",
-              body: `Você agora está conectado com ${connectedFriendName}.`,
-              imageSrc: `${basePath}NOTIFICACAO.png`,
-              type: "success",
-            });
-          }
-        }
         this.updateFriendsList();
         this.renderFriendsDashboard();
         break;
+
       case "hydration_log":
         if (!this.friendsData[peerId].logs) {
           this.friendsData[peerId].logs = [];
         }
-        this.friendsData[peerId].logs.push(data.payload);
-        if (this.friendsData[peerId]) {
-          const { consumed, dailyGoal } = this.friendsData[peerId];
-          this.friendsData[peerId].consumed =
-            (consumed || 0) + data.payload.amount;
-          this.friendsData[peerId].percentage = this.getProgressPercentage(
-            this.friendsData[peerId].consumed,
-            dailyGoal
-          );
-        }
-        this.showFriendNotification(
-          `${friendName} acabou de beber ${data.payload.amount}ml!`
+        // Evita logs duplicados.
+        const logExists = this.friendsData[peerId].logs.some(
+          (log) => log.id === data.payload.id
         );
-        this.unlockAchievement("E05");
-        this.updateTimeline();
-        this.renderFriendsDashboard();
+        if (!logExists) {
+          this.friendsData[peerId].logs.push(data.payload);
+          // Recalcula o progresso do amigo.
+          const friendConsumed = this.friendsData[peerId].logs.reduce(
+            (sum, log) => sum + log.amount,
+            0
+          );
+          const friendGoal = this.friendsData[peerId].dailyGoal || 2000;
+          this.friendsData[peerId].consumed = friendConsumed;
+          this.friendsData[peerId].percentage = this.getProgressPercentage(
+            friendConsumed,
+            friendGoal
+          );
+
+          this.showFriendNotification(
+            `${friendName} acabou de beber ${data.payload.amount}ml!`
+          );
+          this.unlockAchievement("E05");
+          this.updateTimeline();
+          this.renderFriendsDashboard();
+        }
         break;
+
       case "goal_reached":
         this.friendsData[peerId].goalReached = true;
+        this.friendsData[peerId].percentage = 100; // Garante que a porcentagem é 100.
         this.showFriendNotification(`${friendName} atingiu a meta diária! 🎉`);
         this.unlockAchievement("E02");
         this.checkAllAchievements();
@@ -2909,6 +2972,8 @@ class HydraTrack {
         break;
     }
   }
+
+  // --- Fim da Seção Refatorada de PeerJS ---
 
   sendDataToAllFriends(data) {
     Object.values(this.friendConnections).forEach((conn) => {
