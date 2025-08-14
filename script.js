@@ -1684,7 +1684,6 @@ class HydraTrack {
       body: body,
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bcd4'><path d='M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z'/></svg>",
       tag: "hydratrack-reminder-" + Date.now(),
-      silent: true,
     };
     new Notification(title, options);
     if (this.settings.soundEnabled) {
@@ -3346,7 +3345,6 @@ class HydraTrack {
       body: message,
       icon: `${basePath}NOTIFICACAO.png`,
       tag: "hydratrack-friend-" + Date.now(),
-      silent: true,
     };
     new Notification("Atividade de Amigo", options);
     this.playFriendSound();
