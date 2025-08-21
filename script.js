@@ -89,6 +89,9 @@ class HydraTrack {
       this.showDashboard();
       this.checkOfflineHydrationStatus();
       this.checkAllAchievements();
+      setTimeout(() => {
+        this.playSound(false, null, 0.1);
+      }, 500);
     }
     this.attachEventListeners();
   }
@@ -120,6 +123,13 @@ class HydraTrack {
         JSON.parse(localStorage.getItem("hydratrack-unlocked-achievements")) ||
         [];
       this.notificationSound.volume = this.settings.notificationVolume;
+
+      const soundToPlay = this.sounds.find((s) => s.id === this.settings.sound);
+      if (soundToPlay) {
+        this.notificationSound.src = `assets/sounds/${soundToPlay.file}`;
+        this.notificationSound.load();
+      }
+
       this.notificationIntervalMinutes =
         parseInt(
           localStorage.getItem("hydratrack-notificationIntervalMinutes")
@@ -1684,6 +1694,7 @@ class HydraTrack {
       body: body,
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bcd4'><path d='M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z'/></svg>",
       tag: "hydratrack-reminder-" + Date.now(),
+      silent: true,
     };
     new Notification(title, options);
     if (this.settings.soundEnabled) {
@@ -1692,14 +1703,15 @@ class HydraTrack {
     }
   }
 
-  playSound(isSilent = false, soundId = null) {
+  playSound(isSilent = false, soundId = null, tempVolume = null) {
     if (this.soundTimeout) clearTimeout(this.soundTimeout);
     const soundToPlayId = soundId || this.settings.sound;
     const soundObj = this.sounds.find((s) => s.id === soundToPlayId);
     if (!soundObj) return;
     this.notificationSound.src = `assets/sounds/${soundObj.file}`;
     this.notificationSound.load();
-    this.notificationSound.volume = this.settings.notificationVolume;
+    this.notificationSound.volume =
+      tempVolume !== null ? tempVolume : this.settings.notificationVolume;
     this.notificationSound.currentTime = 0;
     if (isSilent) {
       this.notificationSound
@@ -1708,7 +1720,12 @@ class HydraTrack {
         .catch(() => {});
       return;
     }
-    this.notificationSound.play().catch((e) => {});
+    this.notificationSound.play().catch((e) => {
+      console.warn(
+        "A reprodução de áudio falhou. Isso pode ser devido à política de autoplay do navegador.",
+        e
+      );
+    });
     this.soundTimeout = setTimeout(() => {
       this.notificationSound.pause();
       this.notificationSound.currentTime = 0;
@@ -3345,6 +3362,7 @@ class HydraTrack {
       body: message,
       icon: `${basePath}NOTIFICACAO.png`,
       tag: "hydratrack-friend-" + Date.now(),
+      silent: true,
     };
     new Notification("Atividade de Amigo", options);
     this.playFriendSound();
