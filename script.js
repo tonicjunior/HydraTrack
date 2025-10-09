@@ -57,6 +57,9 @@ class HydraTrack {
     this.myPeerId = null;
     this.friendConnections = {};
     this.friendsData = {};
+    this.progressView = "week"; // 'week', 'month', 'year'
+    this.calendarDate = new Date(); // Para controlar o mês/ano exibido
+
     this.initializeApp();
   }
 
@@ -83,15 +86,20 @@ class HydraTrack {
     this.applyTheme();
     this.initializeNotifications();
     this.initializeParticles();
+
+    const audioUnlocked =
+      localStorage.getItem("hydratrack-audio-unlocked") === "true";
+
     if (!this.isOnboarded || !this.user) {
       this.showOnboarding();
     } else {
+      if (!audioUnlocked) {
+        document.getElementById("audio-permission-modal").style.display =
+          "flex";
+      }
       this.showDashboard();
       this.checkOfflineHydrationStatus();
       this.checkAllAchievements();
-      setTimeout(() => {
-        this.playSound(false, null, 0.1);
-      }, 500);
     }
     this.attachEventListeners();
   }
@@ -221,6 +229,12 @@ class HydraTrack {
                     }" data-character="frog">
                         <img src="assets/images/frog/FELIZ1.png" alt="Sapo">
                         <span>Sapo</span>
+                    </div>
+                    <div class="character-option ${
+                      selectedCharacter === "octopus" ? "selected" : ""
+                    }" data-character="octopus">
+                        <img src="assets/images/octopus/FELIZ1.png" alt="Octopus">
+                        <span>Octopus</span>
                     </div>
                 </div>`;
       case 3:
@@ -451,10 +465,12 @@ class HydraTrack {
     const glassContainer = document.getElementById("glass-container");
     const axolotlContainer = document.getElementById("axolotl-container");
     const frogContainer = document.getElementById("frog-container");
+    const octopusContainer = document.getElementById("octopus-container");
 
     glassContainer.classList.add("hidden-character");
     axolotlContainer.classList.add("hidden-character");
     frogContainer.classList.add("hidden-character");
+    octopusContainer.classList.add("hidden-character");
 
     if (this.settings.character === "axolotl") {
       axolotlContainer.classList.remove("hidden-character");
@@ -462,6 +478,9 @@ class HydraTrack {
     } else if (this.settings.character === "frog") {
       frogContainer.classList.remove("hidden-character");
       this.updateFrogImage(percentage);
+    } else if (this.settings.character === "octopus") {
+      octopusContainer.classList.remove("hidden-character");
+      this.updateOctopusImage(percentage);
     } else {
       glassContainer.classList.remove("hidden-character");
       this.updateWaterGlass();
@@ -570,6 +589,55 @@ class HydraTrack {
       setTimeout(() => {
         frogImage.src = newImageSrc;
         frogImage.classList.remove("fade-out");
+      }, 250);
+    }
+  }
+
+  updateOctopusImage(percentage) {
+    const octopusImage = document.getElementById("octopus-image");
+    let newImageSrc = "assets/images/octopus/";
+
+    const allAnims = [
+      "celebrate-anim",
+      "anim-happy",
+      "anim-neutral",
+      "anim-tired",
+      "anim-sad",
+    ];
+    octopusImage.classList.remove(...allAnims);
+
+    if (percentage >= 100) {
+      newImageSrc +=
+        Math.random() < 0.5 ? "META-DIARIA.png" : "META-DIARIA2.png";
+      octopusImage.classList.add("celebrate-anim");
+    } else if (percentage >= 80) {
+      octopusImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ6.png";
+    } else if (percentage >= 70) {
+      octopusImage.classList.add("anim-happy");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ4.png" : "FELIZ5.png";
+    } else if (percentage >= 60) {
+      octopusImage.classList.add("anim-happy");
+      newImageSrc += "FELIZ3.png";
+    } else if (percentage >= 40) {
+      octopusImage.classList.add("anim-neutral");
+      newImageSrc += Math.random() < 0.5 ? "FELIZ1.png" : "FELIZ2.png";
+    } else if (percentage >= 20) {
+      octopusImage.classList.add("anim-tired");
+      newImageSrc += "CANSADO1.png";
+    } else if (percentage > 0) {
+      octopusImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE1.png";
+    } else {
+      octopusImage.classList.add("anim-sad");
+      newImageSrc += "TRISTE.png";
+    }
+
+    if (octopusImage.src.split("/").pop() !== newImageSrc.split("/").pop()) {
+      octopusImage.classList.add("fade-out");
+      setTimeout(() => {
+        octopusImage.src = newImageSrc;
+        octopusImage.classList.remove("fade-out");
       }, 250);
     }
   }
@@ -698,21 +766,50 @@ class HydraTrack {
   }
 
   updateProgressSection() {
-    const { percentage } = this.getTodayProgress();
-    document.getElementById(
-      "daily-percentage"
-    ).textContent = `${percentage.toFixed(0)}%`;
-    document.getElementById(
-      "daily-progress-fill"
-    ).style.width = `${percentage}%`;
-    this.renderWeekGrid();
+    const titleMap = {
+      week: "Progresso da Semana",
+      month: "Progresso do Mês",
+      year: "Progresso do Ano",
+    };
+    document.getElementById("progress-view-title").textContent =
+      titleMap[this.progressView];
+
+    document.querySelectorAll(".btn-view").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.view === this.progressView);
+    });
+
+    this.renderProgressView();
   }
 
-  renderWeekGrid() {
-    const container = document.getElementById("week-grid-container");
+  renderProgressView() {
+    const displayArea = document.getElementById("progress-display-area");
+    const nav = document.getElementById("calendar-nav");
+
+    displayArea.innerHTML = "";
+    nav.style.display = "none";
+
+    switch (this.progressView) {
+      case "week":
+        this.renderWeekGrid(displayArea);
+        break;
+      case "month":
+        nav.style.display = "flex";
+        this.renderMonthCalendar(displayArea);
+        break;
+      case "year":
+        nav.style.display = "flex";
+        this.renderYearView(displayArea);
+        break;
+    }
+  }
+
+  renderWeekGrid(container) {
     const today = new Date();
     const dayOfWeek = today.getDay();
     const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    let weekGridContainer = document.createElement("div");
+    weekGridContainer.className = "week-grid";
+
     let html = "";
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
@@ -735,7 +832,106 @@ class HydraTrack {
                     <div class="week-percentage">${percentage.toFixed(0)}%</div>
                 </div>`;
     }
-    container.innerHTML = html;
+    weekGridContainer.innerHTML = html;
+    container.appendChild(weekGridContainer);
+  }
+
+  renderMonthCalendar(container) {
+    const year = this.calendarDate.getFullYear();
+    const month = this.calendarDate.getMonth();
+
+    document.getElementById("calendar-title").textContent =
+      this.calendarDate.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric",
+      });
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay(); // 0-6 (Sun-Sat)
+
+    const calendarGrid = document.createElement("div");
+    calendarGrid.className = "calendar-grid";
+
+    const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    calendarGrid.innerHTML = dayNames
+      .map((name) => `<div class="day-name">${name}</div>`)
+      .join("");
+
+    for (let i = 0; i < startDayOfWeek; i++) {
+      calendarGrid.innerHTML += `<div class="calendar-day other-month"></div>`;
+    }
+
+    const todayString = new Date().toISOString().split("T")[0];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const currentDate = new Date(year, month, day);
+      const dateString = currentDate.toISOString().split("T")[0];
+
+      const dayLogs = this.waterLogs.filter((log) => log.date === dateString);
+      const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
+
+      let statusClass = "no-log";
+      if (dayLogs.length > 0) {
+        statusClass =
+          consumed >= this.user.dailyGoal ? "goal-met" : "goal-partial";
+      }
+
+      const isTodayClass = dateString === todayString ? "is-today" : "";
+
+      calendarGrid.innerHTML += `<div class="calendar-day ${statusClass} ${isTodayClass}">${day}</div>`;
+    }
+
+    container.appendChild(calendarGrid);
+  }
+
+  renderYearView(container) {
+    const year = this.calendarDate.getFullYear();
+    document.getElementById("calendar-title").textContent = year;
+
+    const yearGrid = document.createElement("div");
+    yearGrid.className = "year-grid";
+
+    for (let month = 0; month < 12; month++) {
+      const monthCard = document.createElement("div");
+      monthCard.className = "month-card";
+
+      const monthName = document.createElement("div");
+      monthName.className = "month-name";
+      monthName.textContent = new Date(year, month).toLocaleDateString(
+        "pt-BR",
+        { month: "long" }
+      );
+      monthCard.appendChild(monthName);
+
+      const monthDaysGrid = document.createElement("div");
+      monthDaysGrid.className = "month-days-grid";
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateString = new Date(year, month, day + 1)
+          .toISOString()
+          .split("T")[0];
+
+        const dayLogs = this.waterLogs.filter((log) => log.date === dateString);
+        const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
+
+        let statusClass = "";
+        if (dayLogs.length > 0) {
+          statusClass =
+            consumed >= this.user.dailyGoal ? "goal-met" : "goal-partial";
+        }
+
+        const dayCell = document.createElement("div");
+        dayCell.className = `month-day-cell ${statusClass}`;
+        dayCell.title = `${day}/${month + 1}/${year}`;
+        monthDaysGrid.appendChild(dayCell);
+      }
+      monthCard.appendChild(monthDaysGrid);
+      yearGrid.appendChild(monthCard);
+    }
+    container.appendChild(yearGrid);
   }
 
   updateQuickAmounts() {
@@ -934,6 +1130,12 @@ class HydraTrack {
                     }" data-character="frog">
                         <img src="assets/images/frog/FELIZ1.png" alt="Sapo">
                         <span>Sapo</span>
+                    </div>
+                    <div class="character-option ${
+                      this.settings.character === "octopus" ? "selected" : ""
+                    }" data-character="octopus">
+                        <img src="assets/images/octopus/FELIZ1.png" alt="Octopus">
+                        <span>Octopus</span>
                     </div>
                 </div>
             </div>
@@ -1258,6 +1460,52 @@ class HydraTrack {
         this.hideFriendsModal();
       }
     });
+
+    document
+      .getElementById("confirm-audio-permission-btn")
+      ?.addEventListener("click", () => {
+        this.playSound();
+        document.getElementById("audio-permission-modal").style.display =
+          "none";
+        setTimeout(() => this.notificationSound.pause(), 3000);
+        this.showToast({
+          title: "Sons Ativados!",
+          body: "Ótimo! Agora você ouvirá todos os lembretes de hidratação.",
+          type: "success",
+        });
+        if (this.notificationPermission === "granted") {
+          const options = {
+            body: "Seus lembretes de hidratação estão prontos para começar!",
+            icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bcd4'><path d='M12 2c1 3 4 6 4 9a4 4 0 0 1-8 0c0-3 3-6 4-9z'/></svg>",
+          };
+          new Notification("Bem-vindo ao HydraTrack!", options);
+        }
+      });
+    document.querySelectorAll(".btn-view").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this.progressView = btn.dataset.view;
+        this.calendarDate = new Date(); // Reset to current date on view change
+        this.updateProgressSection();
+      });
+    });
+
+    document.getElementById("prev-month-btn").addEventListener("click", () => {
+      if (this.progressView === "month") {
+        this.calendarDate.setMonth(this.calendarDate.getMonth() - 1);
+      } else if (this.progressView === "year") {
+        this.calendarDate.setFullYear(this.calendarDate.getFullYear() - 1);
+      }
+      this.renderProgressView();
+    });
+
+    document.getElementById("next-month-btn").addEventListener("click", () => {
+      if (this.progressView === "month") {
+        this.calendarDate.setMonth(this.calendarDate.getMonth() + 1);
+      } else if (this.progressView === "year") {
+        this.calendarDate.setFullYear(this.calendarDate.getFullYear() + 1);
+      }
+      this.renderProgressView();
+    });
   }
 
   attachStepEventListeners() {
@@ -1353,6 +1601,7 @@ class HydraTrack {
                 statusDiv.textContent = "Permissão concedida com sucesso! 🎉";
                 statusDiv.style.color = "hsl(var(--success))";
                 requestBtn.style.display = "none";
+                this.playSound();
               } else {
                 statusDiv.textContent =
                   "Você não concedeu a permissão. Você pode ativá-la mais tarde nas configurações.";
@@ -1781,6 +2030,9 @@ class HydraTrack {
   getCharacterAssetPath() {
     if (this.settings.character === "frog") {
       return "assets/images/frog/";
+    }
+    if (this.settings.character === "octopus") {
+      return "assets/images/octopus/";
     }
     return "assets/images/axolotl/";
   }
@@ -3413,6 +3665,25 @@ class HydraTrack {
         else if (percentage >= 30) imageSrc = "assets/images/frog/CANSADO1.png";
         else if (percentage >= 20) imageSrc = "assets/images/frog/TRISTE1.png";
         characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Sapo do amigo" class="axolotl-image"></div>`;
+      } else if (character === "octopus") {
+        let imageSrc = "assets/images/octopus/TRISTE.png";
+        if (percentage >= 100)
+          imageSrc = "assets/images/octopus/META-DIARIA.png";
+        else if (percentage >= 80)
+          imageSrc = "assets/images/octopus/FELIZ6.png";
+        else if (percentage >= 70)
+          imageSrc = "assets/images/octopus/FELIZ4.png";
+        else if (percentage >= 60)
+          imageSrc = "assets/images/octopus/FELIZ3.png";
+        else if (percentage >= 50)
+          imageSrc = "assets/images/octopus/FELIZ2.png";
+        else if (percentage >= 40)
+          imageSrc = "assets/images/octopus/FELIZ1.png";
+        else if (percentage >= 30)
+          imageSrc = "assets/images/octopus/CANSADO1.png";
+        else if (percentage >= 20)
+          imageSrc = "assets/images/octopus/TRISTE1.png";
+        characterHTML = `<div class="water-glass-container"><img src="${imageSrc}" alt="Octopus do amigo" class="axolotl-image"></div>`;
       } else {
         const fillHeight = Math.max(0, Math.min(116, (percentage / 100) * 116));
         const fillY = 138 - fillHeight;

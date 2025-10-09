@@ -1791,3 +1791,147 @@ input:checked + .slider:before {
 
   opacity: 0.4;
 }
+
+
+/* Progress View Styles */
+.progress-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-view-controls {
+  display: flex;
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}
+
+.btn-view {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: transparent;
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-fluid);
+}
+
+.btn-view.active {
+  background-color: hsl(var(--card));
+  color: hsl(var(--primary));
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+}
+
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.calendar-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+#progress-display-area {
+  min-height: 200px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-header {
+  display: contents; 
+}
+
+.day-name {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  padding-bottom: 0.5rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.calendar-day.other-month {
+  opacity: 0.4;
+}
+
+.calendar-day.goal-met {
+  background-color: hsl(var(--success) / 0.2);
+  color: hsl(var(--success));
+}
+
+.calendar-day.goal-partial {
+  background: var(--gradient-primary);
+  color: hsl(var(--primary-foreground));
+  opacity: 0.7;
+}
+.calendar-day.no-log {
+   background-color: hsl(var(--muted));
+   color: hsl(var(--muted-foreground));
+}
+
+.calendar-day.is-today {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary));
+}
+
+.year-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.month-card {
+    background-color: hsl(var(--muted));
+    padding: 0.75rem;
+    border-radius: var(--radius);
+}
+
+.month-name {
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.month-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+.month-day-cell {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background-color: hsl(var(--border));
+    border-radius: 2px;
+}
+
+.month-day-cell.goal-met {
+    background-color: hsl(var(--success));
+}
+.month-day-cell.goal-partial {
+    background: hsl(var(--primary));
+    opacity: 0.7;
+}
