@@ -1837,10 +1837,6 @@ input:checked + .slider:before {
   font-size: 1.125rem;
 }
 
-#progress-display-area {
-  min-height: 200px;
-}
-
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -1934,4 +1930,5 @@ input:checked + .slider:before {
 .month-day-cell.goal-partial {
     background: hsl(var(--primary));
     opacity: 0.7;
+
 }
