@@ -880,10 +880,137 @@ class HydraTrack {
 
       const isTodayClass = dateString === todayString ? "is-today" : "";
 
-      calendarGrid.innerHTML += `<div class="calendar-day ${statusClass} ${isTodayClass}">${day}</div>`;
+      calendarGrid.innerHTML += `<button class="calendar-day ${statusClass} ${isTodayClass}" data-date="${dateString}">${day}</button>`;
     }
 
     container.appendChild(calendarGrid);
+  }
+
+  showEditDayModal(dateString) {
+    this.unlockAchievement("H01");
+    const modal = document.getElementById("edit-day-modal");
+    const date = new Date(dateString + "T12:00:00");
+    document.getElementById("edit-day-date").textContent =
+      date.toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+      });
+    modal.dataset.editingDate = dateString;
+    this.renderEditDayLogs(dateString);
+    modal.style.display = "flex";
+  }
+
+  hideEditDayModal() {
+    document.getElementById("edit-day-modal").style.display = "none";
+    this.updateDashboard();
+  }
+
+  renderEditDayLogs(dateString) {
+    const logsForDay = this.waterLogs.filter((log) => log.date === dateString);
+    logsForDay.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const listContainer = document.getElementById("edit-day-logs-list");
+    const totalConsumedEl = document.getElementById("edit-day-total");
+
+    const totalConsumed = logsForDay.reduce((sum, log) => sum + log.amount, 0);
+    totalConsumedEl.textContent = `${totalConsumed}ml`;
+
+    if (logsForDay.length === 0) {
+      listContainer.innerHTML = `<p class="empty-list-info">Nenhum registro para este dia.</p>`;
+      return;
+    }
+
+    listContainer.innerHTML = logsForDay
+      .map(
+        (log) => `
+        <div class="timeline-item" id="log-item-${log.id}">
+            <div class="timeline-content">
+                <div class="timeline-dot"></div>
+                <div>
+                    <div class="timeline-amount">${log.amount}ml</div>
+                    <div class="timeline-time">${this.formatTime(
+                      log.timestamp
+                    )}</div>
+                </div>
+            </div>
+            <div class="timeline-actions">
+                <button class="btn-icon" onclick="window.hydraTrack.startEditingLog('${
+                  log.id
+                }')" title="Editar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg></button>
+                <button class="timeline-delete" data-log-id="${
+                  log.id
+                }">×</button>
+            </div>
+        </div>
+    `
+      )
+      .join("");
+  }
+
+  startEditingLog(logId) {
+    const log = this.waterLogs.find((l) => l.id === logId);
+    if (!log) return;
+
+    const logItem = document.getElementById(`log-item-${log.id}`);
+    logItem.innerHTML = `
+        <div class="timeline-content">
+            <input type="number" class="form-input form-input-inline" value="${log.amount}" id="edit-log-input-${log.id}" min="1" max="5000">
+        </div>
+        <div class="timeline-actions">
+             <button class="btn btn-primary btn-sm" onclick="window.hydraTrack.saveEditedLog('${logId}')">Salvar</button>
+             <button class="btn btn-outline btn-sm" onclick="window.hydraTrack.cancelEditingLog('${log.date}')">Cancelar</button>
+        </div>
+    `;
+    document.getElementById(`edit-log-input-${log.id}`).focus();
+  }
+
+  saveEditedLog(logId) {
+    const input = document.getElementById(`edit-log-input-${logId}`);
+    const newAmount = parseInt(input.value);
+    if (isNaN(newAmount) || newAmount <= 0) {
+      this.showToast({
+        title: "Valor Inválido",
+        body: "Por favor, insira um número válido.",
+        type: "warning",
+      });
+      return;
+    }
+
+    const logIndex = this.waterLogs.findIndex((l) => l.id === logId);
+    if (logIndex > -1) {
+      const oldAmount = this.waterLogs[logIndex].amount;
+      this.waterLogs[logIndex].amount = newAmount;
+      if (oldAmount !== newAmount) {
+        this.unlockAchievement("H02");
+      }
+      this.saveData();
+      this.renderEditDayLogs(this.waterLogs[logIndex].date);
+    }
+  }
+
+  cancelEditingLog(dateString) {
+    this.renderEditDayLogs(dateString);
+  }
+
+  addWaterLogForDate(amount, dateString) {
+    const parsedAmount = parseInt(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) return;
+    const timestamp = new Date(`${dateString}T12:00:00`).toISOString();
+
+    const newLog = {
+      id: this.generateId(),
+      amount: parsedAmount,
+      timestamp: timestamp,
+      date: dateString,
+      isCustom: true,
+      userName: this.user.name,
+    };
+    this.waterLogs.push(newLog);
+    this.saveData();
+    this.renderEditDayLogs(dateString);
+
+    const customInput = document.getElementById("edit-day-custom-amount");
+    if (customInput) customInput.value = "";
   }
 
   renderYearView(container) {
@@ -1027,9 +1154,22 @@ class HydraTrack {
   }
 
   deleteWaterLog(logId) {
+    const logIndex = this.waterLogs.findIndex((log) => log.id === logId);
+    if (logIndex === -1) return;
+
+    const dateStringToUpdate = this.waterLogs[logIndex].date;
     this.waterLogs = this.waterLogs.filter((log) => log.id !== logId);
     this.saveData();
-    this.updateDashboard();
+
+    const editModal = document.getElementById("edit-day-modal");
+    if (
+      editModal.style.display === "flex" &&
+      editModal.dataset.editingDate === dateStringToUpdate
+    ) {
+      this.renderEditDayLogs(dateStringToUpdate);
+    } else {
+      this.updateDashboard();
+    }
   }
 
   updateStreak() {
@@ -1198,6 +1338,7 @@ class HydraTrack {
     const oldIsManual = this.user.isManualGoal;
     const oldWeight = this.user.weight;
     const newWeight = parseInt(document.getElementById("setting-weight").value);
+    const oldCharacter = this.settings.character;
 
     this.user.name = document.getElementById("setting-name").value;
     this.user.weight = newWeight;
@@ -1211,6 +1352,9 @@ class HydraTrack {
     if (selectedCharacter) {
       this.settings.character = selectedCharacter.dataset.character;
       this.user.character = selectedCharacter.dataset.character;
+      if (oldCharacter !== this.settings.character) {
+        this.unlockAchievement("B24");
+      }
     }
 
     if (this.user.isManualGoal) {
@@ -1484,6 +1628,9 @@ class HydraTrack {
     document.querySelectorAll(".btn-view").forEach((btn) => {
       btn.addEventListener("click", () => {
         this.progressView = btn.dataset.view;
+        if (this.progressView === "month") {
+          this.unlockAchievement("B27");
+        }
         this.calendarDate = new Date(); // Reset to current date on view change
         this.updateProgressSection();
       });
@@ -1506,6 +1653,37 @@ class HydraTrack {
       }
       this.renderProgressView();
     });
+
+    document
+      .getElementById("progress-display-area")
+      .addEventListener("click", (event) => {
+        const dayButton = event.target.closest(".calendar-day");
+        if (dayButton && dayButton.dataset.date) {
+          this.showEditDayModal(dayButton.dataset.date);
+        }
+      });
+
+    document
+      .getElementById("close-edit-day-btn")
+      .addEventListener("click", () => this.hideEditDayModal());
+
+    document
+      .getElementById("edit-day-add-btn")
+      .addEventListener("click", () => {
+        const modal = document.getElementById("edit-day-modal");
+        const date = modal.dataset.editingDate;
+        const amount = document.getElementById("edit-day-custom-amount").value;
+        if (date && amount) {
+          this.addWaterLogForDate(amount, date);
+        }
+      });
+
+    document
+      .getElementById("edit-day-logs-list")
+      .addEventListener("click", (event) => {
+        const deleteBtn = event.target.closest(".timeline-delete");
+        if (deleteBtn) this.deleteWaterLog(deleteBtn.dataset.logId);
+      });
   }
 
   attachStepEventListeners() {
@@ -2171,6 +2349,21 @@ class HydraTrack {
       if (this.unlockedAchievements.includes(ach.id)) return;
       let conditionMet = false;
       switch (ach.id) {
+        case "H01": // Viajante do Tempo (desbloqueado ao abrir o modal de edição)
+          break;
+        case "H02": // Historiador (desbloqueado ao salvar uma edição)
+          break;
+        case "H03": // Mês Perfeito
+          conditionMet = this.checkPerfectCalendarMonth();
+          break;
+        case "H04": // Arquivista de Hidratação
+          conditionMet = uniqueDaysWithLogs.length >= 60;
+          break;
+        case "H05": // Personagem Consistente
+          conditionMet =
+            this.streak >= 30 &&
+            this.settings.character === this.user.character;
+          break;
         case "B01":
           conditionMet = totalLogs > 0;
           break;
@@ -2252,6 +2445,40 @@ class HydraTrack {
           break;
         case "B22":
           break;
+        case "B23":
+          conditionMet = this.waterLogs.some(
+            (log) => new Date(log.timestamp).getDay() === 5
+          );
+          break;
+        case "B24": // Desbloqueado em saveSettings
+          break;
+        case "B25":
+          conditionMet = todayProgress.percentage >= 25;
+          break;
+        case "B26":
+          const todayLogs = this.getTodayProgress().logs;
+          const hours = [
+            ...new Set(
+              todayLogs.map((log) => new Date(log.timestamp).getHours())
+            ),
+          ];
+          const hasMorning = hours.some((h) => h < 12);
+          const hasAfternoon = hours.some((h) => h >= 12 && h < 18);
+          const hasNight = hours.some((h) => h >= 18);
+          conditionMet = hasMorning && hasAfternoon && hasNight;
+          break;
+        case "B27": // Desbloqueado no event listener do botão de visualização
+          break;
+        case "B28":
+          conditionMet = this.waterLogs.some((log) => log.amount === 777);
+          break;
+        case "B29":
+          conditionMet = this.waterLogs.some((log) => log.amount === 1);
+          break;
+        case "B30":
+          conditionMet = this.getTodayProgress().logs.length >= 7;
+          break;
+
         case "S01":
           conditionMet = this.streak >= 15;
           break;
@@ -2455,11 +2682,232 @@ class HydraTrack {
         case "E07":
           conditionMet = Object.keys(this.friendConnections).length >= 5;
           break;
+        case "V01":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.streak >= 90;
+          break;
+        case "V02":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.streak >= 180;
+          break;
+        case "V03":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet =
+            this.streak >= 90 &&
+            this.settings.character === this.user.character;
+          break;
+        case "V04":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = uniqueDaysWithLogs.length >= 365;
+          break;
+        case "V05":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = totalConsumed >= 250000;
+          break;
+        case "V06":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = totalConsumed >= 500000;
+          break;
+        case "V07":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = totalLogs >= 1000;
+          break;
+        case "V08":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = totalLogs >= 2000;
+          break;
+        case "V09":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = Object.keys(consumptionByDay).some((date) => {
+            const dayLogs = this.waterLogs.filter((l) => l.date === date);
+            const uniqueHours = new Set(
+              dayLogs.map((l) => new Date(l.timestamp).getHours())
+            );
+            return uniqueHours.size >= 12;
+          });
+          break;
+        case "V10":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.checkMonkWeek();
+          break;
+        case "V11":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.checkAverageMonth();
+          break;
+        case "V12":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.checkMondaysInMonth();
+          break;
+        case "V13":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = uniqueDaysWithLogs.some((date) => {
+            const current = new Date(date + "T12:00:00");
+            const yearAgo = new Date(
+              current.setFullYear(current.getFullYear() - 1)
+            );
+            const yearAgoStr = yearAgo.toISOString().split("T")[0];
+            return (
+              uniqueDaysWithLogs.includes(yearAgoStr) &&
+              consumptionByDay[date] >= this.user.dailyGoal &&
+              consumptionByDay[yearAgoStr] >= this.user.dailyGoal
+            );
+          });
+          break;
+        case "V14":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = Object.values(consumptionByDay).some((total) => {
+            if (total < 1000) return false;
+            const s = total.toString();
+            return s === s.split("").reverse().join("");
+          });
+          break;
+        case "V15":
+          if (uniqueDaysWithLogs.length < 30) break;
+          conditionMet = this.checkTitaniumConsistency();
+          break;
       }
       if (conditionMet) {
         this.unlockAchievement(ach.id);
       }
     });
+  }
+
+  checkMonkWeek() {
+    const today = new Date();
+    for (let i = 0; i < 52; i++) {
+      // Verifica os últimos 52 domingos
+      let sunday = new Date(today);
+      sunday.setDate(today.getDate() - today.getDay() - i * 7);
+      let isMonkWeek = true;
+      for (let j = 0; j < 7; j++) {
+        const dayToCheck = new Date(sunday);
+        dayToCheck.setDate(sunday.getDate() + j);
+        const dateString = dayToCheck.toISOString().split("T")[0];
+
+        const logsOfDay = this.waterLogs.filter(
+          (log) => log.date === dateString
+        );
+        const totalOfDay = logsOfDay.reduce((sum, log) => sum + log.amount, 0);
+
+        if (
+          totalOfDay < this.user.dailyGoal ||
+          logsOfDay.some((log) => !log.isCustom)
+        ) {
+          isMonkWeek = false;
+          break;
+        }
+      }
+      if (isMonkWeek) return true;
+    }
+    return false;
+  }
+
+  checkAverageMonth() {
+    const logsByMonth = this.waterLogs.reduce((acc, log) => {
+      const monthKey = log.date.substring(0, 7); // "YYYY-MM"
+      if (!acc[monthKey]) acc[monthKey] = [];
+      acc[monthKey].push(log);
+      return acc;
+    }, {});
+
+    for (const monthKey in logsByMonth) {
+      const year = parseInt(monthKey.split("-")[0]);
+      const month = parseInt(monthKey.split("-")[1]) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const totalConsumedInMonth = logsByMonth[monthKey].reduce(
+        (sum, log) => sum + log.amount,
+        0
+      );
+      const average = totalConsumedInMonth / daysInMonth;
+
+      if (average >= this.user.dailyGoal) return true;
+    }
+    return false;
+  }
+
+  checkMondaysInMonth() {
+    const mondaysWithGoal = new Set();
+    for (const date in this.consumptionByDay) {
+      const dayDate = new Date(date + "T12:00:00");
+      if (
+        dayDate.getDay() === 1 &&
+        this.consumptionByDay[date] >= this.user.dailyGoal
+      ) {
+        mondaysWithGoal.add(date.substring(0, 7)); // Add YYYY-MM
+      }
+    }
+    for (const monthKey of mondaysWithGoal) {
+      let mondaysInThisMonth = 0;
+      const year = parseInt(monthKey.split("-")[0]);
+      const month = parseInt(monthKey.split("-")[1]) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let i = 1; i <= daysInMonth; i++) {
+        if (new Date(year, month, i).getDay() === 1) {
+          mondaysInThisMonth++;
+        }
+      }
+      const mondaysHit = Object.keys(this.consumptionByDay).filter(
+        (d) =>
+          d.startsWith(monthKey) &&
+          new Date(d + "T12:00:00").getDay() === 1 &&
+          this.consumptionByDay[d] >= this.user.dailyGoal
+      ).length;
+      if (mondaysHit === mondaysInThisMonth) return true;
+    }
+    return false;
+  }
+
+  checkTitaniumConsistency() {
+    const sortedDays = [
+      ...new Set(this.waterLogs.map((log) => log.date)),
+    ].sort();
+    let consecutiveWeeks = 0;
+    for (let i = 0; i <= sortedDays.length - 28; i++) {
+      const weekSlice = sortedDays.slice(i, i + 28);
+      let startDate = new Date(weekSlice[0] + "T12:00:00");
+      let endDate = new Date(weekSlice[weekSlice.length - 1] + "T12:00:00");
+      if ((endDate - startDate) / (1000 * 3600 * 24) === 27) {
+        // 28 dias
+        let perfectWeeks = 0;
+        for (let w = 0; w < 4; w++) {
+          const weekStart = w * 7;
+          const weekDays = weekSlice.slice(weekStart, weekStart + 7);
+          const daysHit = weekDays.filter(
+            (d) => (this.consumptionByDay[d] || 0) >= this.user.dailyGoal
+          ).length;
+          if (daysHit === 7) perfectWeeks++;
+        }
+        if (perfectWeeks === 4) return true;
+      }
+    }
+    return false;
+  }
+
+  checkPerfectCalendarMonth() {
+    const logsByMonth = this.waterLogs.reduce((acc, log) => {
+      const monthKey = log.date.substring(0, 7); // "YYYY-MM"
+      if (!acc[monthKey]) {
+        acc[monthKey] = new Set();
+      }
+      const dayConsumption = this.waterLogs
+        .filter((l) => l.date === log.date)
+        .reduce((sum, l) => sum + l.amount, 0);
+      if (dayConsumption >= this.user.dailyGoal) {
+        acc[monthKey].add(log.date);
+      }
+      return acc;
+    }, {});
+
+    for (const monthKey in logsByMonth) {
+      const year = parseInt(monthKey.split("-")[0]);
+      const month = parseInt(monthKey.split("-")[1]) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      if (logsByMonth[monthKey].size === daysInMonth) {
+        return true;
+      }
+    }
+    return false;
   }
 
   checkPerfectStreak(numDays) {
@@ -2549,6 +2997,43 @@ class HydraTrack {
 
   getAchievementsList() {
     return [
+      {
+        id: "H01",
+        name: "Viajante do Tempo",
+        description: "Abra o registro de um dia anterior para editá-lo.",
+        tier: "Bronze",
+        icon: "🕰️",
+      },
+      {
+        id: "H02",
+        name: "Historiador",
+        description: "Edite um registro de consumo de um dia passado.",
+        tier: "Silver",
+        icon: "📜",
+      },
+      {
+        id: "H03",
+        name: "Mês Calendário Perfeito",
+        description:
+          "Atinja sua meta de hidratação todos os dias de um mês inteiro (ex: todo o mês de Maio).",
+        tier: "Gold",
+        icon: "🗓️",
+      },
+      {
+        id: "H04",
+        name: "Arquivista de Hidratação",
+        description: "Tenha registros de consumo em 60 dias diferentes.",
+        tier: "Gold",
+        icon: "📚",
+      },
+      {
+        id: "H05",
+        name: "Personagem Consistente",
+        description:
+          "Mantenha uma sequência de 30 dias sem trocar seu personagem.",
+        tier: "Silver",
+        icon: "👤",
+      },
       {
         id: "B01",
         name: "Primeira Gota",
@@ -2687,7 +3172,7 @@ class HydraTrack {
         name: "Primeira Semana",
         description: "Complete 7 dias de uso do aplicativo.",
         tier: "Bronze",
-        icon: "1️⃣",
+        icon: "📅",
       },
       {
         id: "B21",
@@ -2702,6 +3187,175 @@ class HydraTrack {
         description: "Atualize seu peso nas configurações.",
         tier: "Bronze",
         icon: "🔬",
+      },
+      {
+        id: "B23",
+        name: "Sextou!",
+        description: "Faça um registro de hidratação em uma sexta-feira.",
+        tier: "Bronze",
+        icon: "🍻",
+      },
+      {
+        id: "B24",
+        name: "Metamorfose",
+        description: "Troque seu personagem ou avatar nas configurações.",
+        tier: "Bronze",
+        icon: "🦋",
+      },
+      {
+        id: "B25",
+        name: "Um Quarto do Caminho",
+        description: "Atinja 25% da sua meta diária de hidratação.",
+        tier: "Bronze",
+        icon: "🌱",
+      },
+      {
+        id: "B26",
+        name: "Dia Equilibrado",
+        description:
+          "Registre água de manhã, de tarde e de noite no mesmo dia.",
+        tier: "Bronze",
+        icon: "⚖️",
+      },
+      {
+        id: "B27",
+        name: "Planejador Mensal",
+        description: "Visualize seu progresso na aba 'Mês'.",
+        tier: "Bronze",
+        icon: "🧐",
+      },
+      {
+        id: "B28",
+        name: "Gole da Sorte",
+        description: "Faça um registro de exatamente 777ml.",
+        tier: "Bronze",
+        icon: "🎰",
+      },
+      {
+        id: "B29",
+        name: "Hidratação Mínima",
+        description: "Faça um registro de apenas 1ml. Por que não?",
+        tier: "Bronze",
+        icon: "🔬",
+      },
+      {
+        id: "B30",
+        name: "Ritual Diário",
+        description: "Faça 7 ou mais registros de água em um único dia.",
+        tier: "Bronze",
+        icon: "🙏",
+      },
+      {
+        id: "V01",
+        name: "Lenda Viva",
+        description:
+          "Mantenha uma sequência de 90 dias atingindo a meta. Lendário!",
+        tier: "Silver",
+        icon: "🛡️",
+      },
+      {
+        id: "V02",
+        name: "Imortal",
+        description: "Mantenha uma sequência de 180 dias. Você é imparável!",
+        tier: "Gold",
+        icon: "👑",
+      },
+      {
+        id: "V03",
+        name: "Fiel Companheiro",
+        description:
+          "Mantenha uma sequência de 90 dias sem trocar de personagem.",
+        tier: "Silver",
+        icon: "💖",
+      },
+      {
+        id: "V04",
+        name: "Guardião do Tempo",
+        description: "Utilize o aplicativo por mais de 365 dias diferentes.",
+        tier: "Gold",
+        icon: "⏳",
+      },
+      {
+        id: "V05",
+        name: "Fonte da Juventude",
+        description: "Consuma um total de 250 litros de água.",
+        tier: "Silver",
+        icon: "⛲",
+      },
+      {
+        id: "V06",
+        name: "Dilúvio Pessoal",
+        description: "Consuma um total de 500 litros de água. Incrível!",
+        tier: "Gold",
+        icon: "🌊",
+      },
+      {
+        id: "V07",
+        name: "Mestre Colecionador",
+        description: "Faça um total de 1.000 registros de hidratação.",
+        tier: "Silver",
+        icon: "📚",
+      },
+      {
+        id: "V08",
+        name: "Arquivista Lendário",
+        description: "Faça um total de 2.000 registros de hidratação.",
+        tier: "Gold",
+        icon: "🏛️",
+      },
+      {
+        id: "V09",
+        name: "Relógio Humano",
+        description: "Registre água em 12 horas diferentes de um mesmo dia.",
+        tier: "Silver",
+        icon: "🕰️",
+      },
+      {
+        id: "V10",
+        name: "O Monge",
+        description:
+          "Passe uma semana inteira batendo a meta usando apenas registros personalizados.",
+        tier: "Gold",
+        icon: "🧘‍♂️",
+      },
+      {
+        id: "V11",
+        name: "Mestre da Média",
+        description:
+          "Mantenha uma média de consumo acima da sua meta por um mês inteiro.",
+        tier: "Gold",
+        icon: "📊",
+      },
+      {
+        id: "V12",
+        name: "Segunda-Feira Monstra",
+        description: "Bata a meta em todas as segundas-feiras de um mês.",
+        tier: "Silver",
+        icon: "💼",
+      },
+      {
+        id: "V13",
+        name: "O Ciclo Anual",
+        description:
+          "Bata sua meta no mesmo dia, com um ano de diferença (ex: 14/10/24 e 14/10/25).",
+        tier: "Gold",
+        icon: "🔄",
+      },
+      {
+        id: "V14",
+        name: "Capicua Hídrica",
+        description:
+          "Termine um dia com um total de consumo que seja um palíndromo (ex: 2552ml).",
+        tier: "Silver",
+        icon: "↔️",
+      },
+      {
+        id: "V15",
+        name: "Consistência de Titânio",
+        description:
+          "Bata a meta em todos os 7 dias da semana, por 4 semanas seguidas.",
+        tier: "Gold",
+        icon: "⛓️",
       },
       {
         id: "S01",

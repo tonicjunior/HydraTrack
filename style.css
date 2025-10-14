@@ -1792,7 +1792,6 @@ input:checked + .slider:before {
   opacity: 0.4;
 }
 
-
 /* Progress View Styles */
 .progress-view-header {
   display: flex;
@@ -1844,7 +1843,7 @@ input:checked + .slider:before {
 }
 
 .calendar-header {
-  display: contents; 
+  display: contents;
 }
 
 .day-name {
@@ -1883,8 +1882,8 @@ input:checked + .slider:before {
   opacity: 0.7;
 }
 .calendar-day.no-log {
-   background-color: hsl(var(--muted));
-   color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
 }
 
 .calendar-day.is-today {
@@ -1893,42 +1892,87 @@ input:checked + .slider:before {
 }
 
 .year-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
 }
 
 .month-card {
-    background-color: hsl(var(--muted));
-    padding: 0.75rem;
-    border-radius: var(--radius);
+  background-color: hsl(var(--muted));
+  padding: 0.75rem;
+  border-radius: var(--radius);
 }
 
 .month-name {
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .month-days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
 }
 
 .month-day-cell {
-    width: 100%;
-    aspect-ratio: 1/1;
-    background-color: hsl(var(--border));
-    border-radius: 2px;
+  width: 100%;
+  aspect-ratio: 1/1;
+  background-color: hsl(var(--border));
+  border-radius: 2px;
 }
 
 .month-day-cell.goal-met {
-    background-color: hsl(var(--success));
+  background-color: hsl(var(--success));
 }
 .month-day-cell.goal-partial {
-    background: hsl(var(--primary));
-    opacity: 0.7;
+  background: hsl(var(--primary));
+  opacity: 0.7;
+}
 
+.calendar-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer; /* Adicionado para indicar que é clicável */
+  font-family: inherit; /* Garante a mesma fonte */
+  font-size: inherit; /* Garante o mesmo tamanho de fonte */
+}
+
+.calendar-day:hover:not(.other-month) {
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.form-input-inline {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  height: 2.5rem;
+}
+
+.timeline-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-actions .btn-icon {
+  width: 2rem;
+  height: 2rem;
+}
+.timeline-actions .btn-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
 }
