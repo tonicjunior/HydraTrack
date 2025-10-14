@@ -1854,19 +1854,6 @@ input:checked + .slider:before {
   padding-bottom: 0.5rem;
 }
 
-.calendar-day {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-weight: 600;
-  background-color: hsl(var(--muted));
-  color: hsl(var(--muted-foreground));
-  border: 2px solid transparent;
-  transition: all 0.2s ease-in-out;
-}
-
 .calendar-day.other-month {
   opacity: 0.4;
 }
@@ -1884,6 +1871,7 @@ input:checked + .slider:before {
 .calendar-day.no-log {
   background-color: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
+  
 }
 
 .calendar-day.is-today {
@@ -1942,13 +1930,47 @@ input:checked + .slider:before {
   color: hsl(var(--muted-foreground));
   border: 2px solid transparent;
   transition: all 0.2s ease-in-out;
-  cursor: pointer; /* Adicionado para indicar que é clicável */
-  font-family: inherit; /* Garante a mesma fonte */
-  font-size: inherit; /* Garante o mesmo tamanho de fonte */
+  cursor: pointer; 
+  font-family: inherit; 
+  position: relative; 
+  overflow: hidden; 
+  font-size: 20px;
+}
+
+.calendar-day:not(.other-month)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5rem; /* Tamanho do ícone */
+  height: 1.5rem; /* Tamanho do ícone */
+  transform: translate(-50%, -50%);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-fluid);
+  z-index: 2; /* Garante que o ícone fique na frente */
+}
+
+.calendar-day:not(.other-month)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #b46bf480;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-fluid);
+  z-index: 1;
 }
 
 .calendar-day:hover:not(.other-month) {
-  border-color: hsl(var(--primary) / 0.5);
+  border-color: hsl(var(--primary)); /* Mantém a borda para destaque */
+  color: transparent; /* Esconde o número do dia */
+}
+
+.calendar-day:hover:not(.other-month)::before,
+.calendar-day:hover:not(.other-month)::after {
+  opacity: 1;
 }
 
 .form-input-inline {
