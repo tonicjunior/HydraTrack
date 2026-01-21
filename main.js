@@ -44,6 +44,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     fullscreen: true,
     frame: false,
+    icon: path.join(__dirname, "favicon.ico"),
     autoHideMenuBar: true,
     show: false,
     webPreferences: {
