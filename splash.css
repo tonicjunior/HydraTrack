@@ -1,0 +1,363 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.loading-screen {
+  min-height: 100vh;
+  background-color: #030712;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background */
+.bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0a0f1a 0%, #020617 100%);
+}
+
+/* Glow effects */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+}
+
+.glow-top {
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: rgba(14, 165, 233, 0.08);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.glow-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: rgba(6, 182, 212, 0.06);
+}
+
+/* Ripple effects */
+.ripple-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ripple {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 2s ease-out infinite;
+}
+
+.ripple-2 {
+  animation-delay: 0.5s;
+  border-color: rgba(14, 165, 233, 0.15);
+}
+
+.ripple-3 {
+  animation-delay: 1s;
+  border-color: rgba(14, 165, 233, 0.1);
+}
+
+/* Main content */
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* Logo */
+.logo-container {
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+
+.logo-glow {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 165, 233, 0.3);
+  filter: blur(30px);
+  transform: scale(1.5);
+}
+
+.water-drop {
+  width: 96px;
+  height: 112px;
+  position: relative;
+  z-index: 10;
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.5));
+}
+
+/* Brand */
+.brand {
+  text-align: center;
+  animation: fade-in-up 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.brand-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand-hydra {
+  color: #f1f5f9;
+}
+
+.brand-track {
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-subtitle {
+  margin-top: 0.75rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Progress bar */
+.progress-container {
+  width: 256px;
+  animation: fade-in-up 0.8s ease-out forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.progress-track {
+  height: 4px;
+  background: #1e293b;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  transition: width 0.1s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.progress-percent {
+  font-size: 0.75rem;
+  color: #0ea5e9;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading dots */
+.loading-dots {
+  display: flex;
+  gap: 0.5rem;
+  animation: fade-in-up 0.8s ease-out forwards;
+  animation-delay: 0.6s;
+  opacity: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(14, 165, 233, 0.6);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.dot-1 { animation-delay: 0s; }
+.dot-2 { animation-delay: 0.2s; }
+.dot-3 { animation-delay: 0.4s; }
+
+/* Wave decoration */
+.wave-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 128px;
+  overflow: hidden;
+  opacity: 0.2;
+}
+
+.wave {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 128px;
+}
+
+.wave-1 {
+  animation: water-wave 3s ease-in-out infinite;
+}
+
+.wave-2 {
+  opacity: 0.5;
+  animation: water-wave 3s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+/* Version */
+.version {
+  position: absolute;
+  bottom: 1.5rem;
+  font-size: 10px;
+  color: rgba(100, 116, 139, 0.5);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+/* Animations */
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(-1deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes water-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .brand-title {
+    font-size: 2.25rem;
+  }
+  
+  .water-drop {
+    width: 72px;
+    height: 84px;
+  }
+  
+  .progress-container {
+    width: 200px;
+  }
+}

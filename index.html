@@ -26,7 +26,17 @@
     <script src="https://unpkg.com/peerjs@1.5.0/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body class="app-hidden">
+    <div class="window-bar">
+      <div class="window-title">HydraTrack</div>
+
+      <div class="window-controls">
+        <button id="btn-minimize">—</button>
+        <button id="btn-maximize">⬜</button>
+        <button id="btn-close">✕</button>
+      </div>
+    </div>
+
     <canvas id="particle-canvas"></canvas>
     <div id="celebration-overlay"></div>
 

@@ -2,9 +2,12 @@
 
 ## ✨ Visão Geral
 
-**HydraTrack** é uma aplicação web moderna e interativa criada para ajudar você a monitorar sua ingestão diária de água de forma inteligente, social e motivadora. Desenvolvido com HTML, CSS e JavaScript puros, o projeto agora conta com a tecnologia **PeerJS** para criar uma experiência de hidratação compartilhada, permitindo que você e seus amigos se mantenham hidratados juntos.
+**HydraTrack** é uma aplicação moderna de hidratação que funciona tanto como **aplicação web** quanto como **aplicativo desktop (Windows)**.  
+O objetivo do projeto é ajudar você a monitorar sua ingestão diária de água de forma inteligente, social e motivadora.
 
-A aplicação continua extremamente leve e responsiva, funcionando em qualquer navegador moderno sem a necessidade de dependências complexas. Desde um onboarding personalizado até um dashboard completo com gamificação, o HydraTrack transforma a tarefa de se manter hidratado em uma experiência social e divertida.
+Desenvolvido com **HTML, CSS e JavaScript puros**, o HydraTrack também pode ser empacotado como um aplicativo desktop utilizando **Electron**, oferecendo uma experiência mais fluida, com notificações nativas, execução em segundo plano e interface adaptada ao ambiente desktop.
+
+A aplicação é leve, responsiva e não depende de frameworks pesados, funcionando perfeitamente em navegadores modernos e em formato `.exe`.
 
 ---
 
@@ -13,8 +16,10 @@ A aplicação continua extremamente leve e responsiva, funcionando em qualquer n
 - [🚀 Funcionalidades Principais](#🚀-funcionalidades-principais)
 - [🤝 Recursos Sociais com PeerJS](#🤝-recursos-sociais-com-peerjs)
 - [🧠 Tecnologias Utilizadas](#🧠-tecnologias-utilizadas)
+- [🖥️ Versão Desktop (Electron)](#️-versão-desktop-electron)
 - [📂 Estrutura do Projeto](#📂-estrutura-do-projeto)
-- [🎯 Começando](#🎯-começando)
+- [🎯 Começando - Versão Web](#🎯-começando---versão-web)
+- [🎯 Começando - Versão Desktop](#🎯-começando---versão-desktop)
 - [⚙️ Personalização](#⚙️-personalização)
 - [📢 Permissões e Notificações](#📢-permissões-e-notificações)
 - [📜 Licença](#📜-licença)
@@ -23,111 +28,136 @@ A aplicação continua extremamente leve e responsiva, funcionando em qualquer n
 
 ## 🚀 Funcionalidades Principais
 
-- 📱 **Interface Moderna e Responsiva**: Design limpo e adaptável para desktops e dispositivos móveis.
-- 🧠 **Onboarding Inteligente**: Cálculo personalizado da meta de hidratação com base em peso e nível de atividade.
-- 📊 **Dashboard Completo**: Copo animado, estatísticas de consumo, meta restante e registros do dia.
-- 🏆 **Gamificação Extensiva**: Mais de 60 conquistas (Bronze, Prata, Ouro, Esmeralda).
-- 🔔 **Notificações Inteligentes**:
-  - Lembretes nativos configuráveis.
-  - Alertas sonoros personalizáveis.
-- 🌗 **Tema Claro e Escuro**: Detecção automática ou troca manual.
-- 📈 **Progresso Semanal**: Gráfico de consistência de hidratação.
-- 🎉 **Animações e Feedbacks**: Efeitos visuais ao registrar consumo e atingir metas.
-- 🔧 **Configurações Flexíveis**: Perfil, meta, sons e lembretes totalmente personalizáveis.
+- 📱 **Interface Moderna e Responsiva**
+- 🧠 **Onboarding Inteligente**
+- 📊 **Dashboard Completo**
+- 🏆 **Gamificação Avançada**
+- 🔔 **Notificações Inteligentes**
+- 🌗 **Tema Claro e Escuro**
+- 📈 **Progresso Semanal**
+- 🎉 **Animações e Feedback Visual**
+- 🔧 **Configurações Flexíveis**
 
 ---
 
 ## 🤝 Recursos Sociais com PeerJS
 
-- 🔗 **Conexão P2P com Amigos**: Use um código de convite único para conectar-se diretamente.
-- 🔄 **Timeline Compartilhada em Tempo Real**: Veja registros de consumo seus e dos seus amigos ao vivo.
-- 🔔 **Notificações Sociais Nativas**: Receba alertas quando seus amigos beberem água ou alcançarem metas.
-- 💎 **Conquistas Esmeralda**: Baseadas em interações sociais.
-- ⚙️ **Notificações Sociais Independentes**: Controle separado de som, volume e preferências sociais.
+- 🔗 Conexão P2P direta por código de convite
+- 🔄 Timeline compartilhada em tempo real
+- 🔔 Notificações sociais nativas
+- 💎 Conquistas sociais exclusivas
+- ⚙️ Controles independentes de notificações sociais
 
 ---
 
 ## 🧠 Tecnologias Utilizadas
 
-- **HTML5**: Estrutura semântica e acessível.
-- **CSS3**: Estilização responsiva e moderna com variáveis, Flexbox e Grid.
-- **JavaScript (ES6+)**: Lógica da aplicação.
-- **Programação Orientada a Objetos (POO)**: Classe `HydraTrack` modular.
-- **localStorage**: Persistência de dados e configurações.
-- **DOM API**: Manipulação dinâmica da interface.
-- **Web Notifications API**: Notificações nativas do navegador.
-- **PeerJS**: Conexões WebRTC peer-to-peer.
+- **HTML5**
+- **CSS3**
+- **JavaScript (ES6+)**
+- **Programação Orientada a Objetos (POO)**
+- **localStorage**
+- **Web Notifications API**
+- **PeerJS (WebRTC)**
+- **Electron (versão desktop)**
+
+---
+
+## 🖥️ Versão Desktop (Electron)
+
+O HydraTrack pode ser executado como um **aplicativo desktop para Windows**, utilizando Electron.
+
+### ✨ Benefícios da versão desktop
+
+- Executável `.exe`
+- Interface otimizada para desktop
+- Notificações nativas do sistema
+- Funcionamento offline
+- Transições visuais suaves
+- Controles de janela personalizados
+
+A versão desktop utiliza o **mesmo código-base da versão web**, garantindo fácil manutenção e evolução contínua.
 
 ---
 
 ## 📂 Estrutura do Projeto
-O projeto está organizado para separar claramente a estrutura (HTML), o estilo (CSS), a lógica (JS) e os recursos (assets).
 
-
-## 📂 Estrutura do Projeto
- ```
-├── 📄 index.html         # Estrutura principal do app
-├── 🎨 style.css          # Estilo visual e animações 
-├── ⚙️ script.js          # Lógica da aplicação (Classe HydraTrack) 
-├── 📁 assets/
-│   ├── 📁 sounds/ 
-│   │   ├── 🔊 agua.mp3 
-│   │   ├── 🔊 bell.mp3 
-│   │   └── ... (e outros arquivos de som) 
-│   └── 📁 images/ 
-│       ├── 🖼️ 250.png 
-│       ├── 🖼️ 500.png 
-│       └── ... (e outras imagens) 
-└── 📄 README.md 
-
- ```
+```
+├── index.html        # Estrutura principal do app
+├── style.css         # Estilo visual e animações
+├── script.js         # Lógica da aplicação (Classe HydraTrack)
+├── main.js           # Processo principal do Electron
+├── preload.js        # Ponte segura Electron ↔ Frontend
+├── assets/
+│   ├── sounds/
+│   └── images/
+└── README.md
+```
 
 ---
 
-## 🎯 Começando
+## 🎯 Começando - Versão Web
 
-Para executar este projeto localmente, siga os passos abaixo.
+1. Clone o repositório:
 
-1.  **Clone o repositório:**
-   ```bash
-   git clone https://github.com/tonicjunior/HydraTrack.git
-   ```
+```bash
+git clone https://github.com/tonicjunior/HydraTrack.git
+```
 
-2.  **Navegue até a pasta do projeto:**
-   ```bash
-   cd HydraTrack
-   ```
+2. Acesse a pasta:
 
-3.  **Abra o arquivo `index.html`:**
-   Basta abrir o arquivo `index.html` diretamente no seu navegador de preferência (Chrome, Firefox, Edge, etc.).
+```bash
+cd HydraTrack
+```
 
-4.  **Siga o Onboarding:**
-   Preencha as informações iniciais para que o aplicativo calcule sua meta e configure seu perfil.
+3. Abra o arquivo `index.html` em qualquer navegador moderno.
 
-Pronto! Agora é só começar a registrar seu consumo e se manter hidratado 💦
+---
+
+## 🎯 Começando - Versão Desktop
+
+> Requisitos: Node.js instalado
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+2. Execute o app em modo desenvolvimento:
+
+```bash
+npm start
+```
+
+3. Gerar o executável (.exe):
+
+```bash
+npm run dist
+```
 
 ---
 
 ## ⚙️ Personalização
 
-O código foi escrito de forma clara para facilitar customizações diretamente no arquivo `script.js`, dentro do `constructor` da classe `HydraTrack`:
+O código foi estruturado de forma **modular e extensível**, permitindo personalizações rápidas diretamente na classe `HydraTrack`, sem necessidade de refatorações profundas.
 
--   **Valores dos Botões Rápidos**: Altere o array `quickAmounts` na definição do objeto `this.user` ao final do onboarding.
--   **Sons de Notificação**: Adicione ou altere os objetos no array `this.sounds`.
--   **Intervalo das Notificações**: Modifique o valor da variável `this.notificationIntervalMinutes`.
--   **Aparência e Cores**: Todos os estilos, incluindo as cores dos temas claro e escuro, estão centralizados no arquivo `style.css` através de variáveis CSS.
+- Valores dos botões rápidos
+- Sons de notificação
+- Intervalo dos lembretes
+- Cores e temas via variáveis CSS
 
 ---
 
 ## 📢 Permissões e Notificações
 
-Para que os lembretes funcionem, o aplicativo precisa da sua permissão.
-
--   **Permissão do Navegador**: Na primeira vez, o navegador solicitará permissão para exibir notificações. É crucial que você **aceite**.
--   **Problemas com Notificações?**: Se os alertas de áudio funcionam, mas os de texto não aparecem, verifique as configurações do seu sistema operacional (como o "Assistente de Foco" no Windows) e as permissões de notificação do seu navegador.
+- Permissão de notificações do navegador é necessária na versão web
+- Na versão desktop, as notificações utilizam o sistema operacional
+- Caso não receba alertas, verifique permissões do sistema (ex: Assistente de Foco no Windows)
 
 ---
 
 ## 📜 Licença
 
-Este projeto é de código aberto e está licenciado sob a [Licença MIT](https://opensource.org/licenses/MIT). Sinta-se à vontade para usar, modificar e distribuir.
+Este projeto é licenciado sob a **Licença MIT**.  
+Sinta-se à vontade para usar, modificar e distribuir.

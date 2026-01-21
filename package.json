@@ -1,0 +1,38 @@
+{
+  "name": "hydratrack",
+  "version": "1.0.0",
+  "description": "HydraTrack é uma aplicação desktop para monitoramento de ingestão diária de água, desenvolvida com HTML, CSS e JavaScript, empacotada com Electron.",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.tonicjunior.hydratrack",
+    "productName": "HydraTrack",
+    "files": [
+      "**/*",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md}",
+      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules/.bin"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/images/icon.ico"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonicjunior/HydraTrack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tonicjunior/HydraTrack/issues"
+  },
+  "homepage": "https://github.com/tonicjunior/HydraTrack#readme",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0"
+  }
+}

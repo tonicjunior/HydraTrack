@@ -4401,5 +4401,29 @@ class Particle {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  requestAnimationFrame(() => {
+    document.body.classList.remove("app-hidden");
+    document.body.classList.add("app-ready");
+  });
   window.hydraTrack = new HydraTrack();
 });
+
+document
+  .getElementById("btn-minimize")
+  .addEventListener("click", () => window.windowAPI.minimize());
+
+document
+  .getElementById("btn-maximize")
+  .addEventListener("click", () => window.windowAPI.maximize());
+
+document
+  .getElementById("btn-close")
+  .addEventListener("click", () => window.windowAPI.close());
+
+const isElectron =
+  typeof window.APP_ENV !== "undefined" && window.APP_ENV.isElectron === true;
+
+if (!isElectron) {
+  const bar = document.querySelector(".window-bar");
+  if (bar) bar.remove();
+}
