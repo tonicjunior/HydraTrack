@@ -1,107 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HydraTrack - Loading</title>
-  <link rel="stylesheet" href="splash.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div class="loading-screen">
-    <!-- Background gradient -->
-    <div class="bg-gradient"></div>
-    
-    <!-- Ambient glow effects -->
-    <div class="glow glow-top"></div>
-    <div class="glow glow-bottom"></div>
-    
-    <!-- Ripple effects -->
-    <div class="ripple-container">
-      <div class="ripple ripple-1"></div>
-      <div class="ripple ripple-2"></div>
-      <div class="ripple ripple-3"></div>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HydraTrack - Loading</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="splash.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="loading-screen">
+      <!-- Background gradient -->
+      <div class="bg-gradient"></div>
 
-    <!-- Main content -->
-    <div class="content">
-      <!-- Logo with water drop -->
-      <div class="logo-container">
-        <div class="logo-glow"></div>
-        <svg class="water-drop" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="waterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#7dd3fc" />
-              <stop offset="50%" stop-color="#0ea5e9" />
-              <stop offset="100%" stop-color="#0369a1" />
-            </linearGradient>
-            <linearGradient id="highlightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.8" />
-              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
-            </linearGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path d="M50 10 C50 10 15 55 15 75 C15 95 30 110 50 110 C70 110 85 95 85 75 C85 55 50 10 50 10 Z" fill="url(#waterGradient)" filter="url(#glow)" />
-          <ellipse cx="35" cy="55" rx="12" ry="18" fill="url(#highlightGradient)" opacity="0.6" />
-          <circle cx="32" cy="45" r="5" fill="#e0f2fe" opacity="0.8" />
-        </svg>
+      <!-- Ambient glow effects -->
+      <div class="glow glow-top"></div>
+      <div class="glow glow-bottom"></div>
+
+      <!-- Ripple effects -->
+      <div class="ripple-container">
+        <div class="ripple ripple-1"></div>
+        <div class="ripple ripple-2"></div>
+        <div class="ripple ripple-3"></div>
       </div>
 
-      <!-- Brand name -->
-      <div class="brand">
-        <h1 class="brand-title">
-          <span class="brand-hydra">Hydra</span><span class="brand-track">Track</span>
-        </h1>
-        <p class="brand-subtitle">Smart Water Control</p>
-      </div>
+      <!-- Main content -->
+      <div class="content">
+        <!-- Logo with water drop -->
+        <div class="logo-container">
+          <div class="logo-glow"></div>
+          <svg
+            class="water-drop"
+            viewBox="0 0 100 120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient
+                id="waterGradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#7dd3fc" />
+                <stop offset="50%" stop-color="#0ea5e9" />
+                <stop offset="100%" stop-color="#0369a1" />
+              </linearGradient>
+              <linearGradient
+                id="highlightGradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.8" />
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+              </linearGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path
+              d="M50 10 C50 10 15 55 15 75 C15 95 30 110 50 110 C70 110 85 95 85 75 C85 55 50 10 50 10 Z"
+              fill="url(#waterGradient)"
+              filter="url(#glow)"
+            />
+            <ellipse
+              cx="35"
+              cy="55"
+              rx="12"
+              ry="18"
+              fill="url(#highlightGradient)"
+              opacity="0.6"
+            />
+            <circle cx="32" cy="45" r="5" fill="#e0f2fe" opacity="0.8" />
+          </svg>
+        </div>
 
-      <!-- Progress bar -->
-      <div class="progress-container">
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill">
-            <div class="progress-shimmer"></div>
+        <!-- Brand name -->
+        <div class="brand">
+          <h1 class="brand-title">
+            <span class="brand-hydra">Hydra</span
+            ><span class="brand-track">Track</span>
+          </h1>
+          <p class="brand-subtitle">Smart Water Control</p>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-container">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill">
+              <div class="progress-shimmer"></div>
+            </div>
+          </div>
+          <div class="progress-info">
+            <span class="progress-label">Loading</span>
+            <span class="progress-percent" id="progressPercent">0%</span>
           </div>
         </div>
-        <div class="progress-info">
-          <span class="progress-label">Loading</span>
-          <span class="progress-percent" id="progressPercent">0%</span>
+
+        <!-- Loading dots -->
+        <div class="loading-dots">
+          <div class="dot dot-1"></div>
+          <div class="dot dot-2"></div>
+          <div class="dot dot-3"></div>
         </div>
       </div>
 
-      <!-- Loading dots -->
-      <div class="loading-dots">
-        <div class="dot dot-1"></div>
-        <div class="dot dot-2"></div>
-        <div class="dot dot-3"></div>
-      </div>
+      <!-- Version -->
+      <p class="version">v1.0.0</p>
     </div>
 
- 
+    <script>
+      let progress = 0;
+      const progressFill = document.getElementById("progressFill");
+      const progressPercent = document.getElementById("progressPercent");
 
-    <!-- Version -->
-    <p class="version">v1.0.0</p>
-  </div>
-
-  <script>
-    let progress = 0;
-    const progressFill = document.getElementById('progressFill');
-    const progressPercent = document.getElementById('progressPercent');
-
-    const interval = setInterval(() => {
-      progress += 1;
-      if (progress > 100) {
-        progress = 100;
-        clearInterval(interval);
-      }
-      progressFill.style.width = progress + '%';
-      progressPercent.textContent = progress + '%';
-    }, 30);
-  </script>
-</body>
+      const interval = setInterval(() => {
+        progress += 1;
+        if (progress > 100) {
+          progress = 100;
+          clearInterval(interval);
+        }
+        progressFill.style.width = progress + "%";
+        progressPercent.textContent = progress + "%";
+      }, 30);
+    </script>
+  </body>
 </html>
