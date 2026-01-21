@@ -65,7 +65,7 @@ function createWindow() {
     setTimeout(() => {
       fadeInMainWindow();
       fadeOutSplash();
-    }, 3500);
+    }, 2800);
   });
 
   /* ============================= */
