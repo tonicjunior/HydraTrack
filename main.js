@@ -4,19 +4,32 @@ const path = require("path");
 let splashWindow;
 let mainWindow;
 
-let splashReady = false;
-let mainReady = false;
+/* ============================= */
+/* SINGLE INSTANCE               */
+/* ============================= */
 
-function tryCloseSplash() {
-  if (splashReady && mainReady) {
-    splashWindow.close();
-    mainWindow.show();
-  }
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      if (!mainWindow.isVisible()) mainWindow.show();
+      mainWindow.focus();
+    }
+  });
 }
 
+/* ============================= */
+/* WINDOW CREATION               */
+/* ============================= */
+
 function createWindow() {
+  /* SPLASH */
   splashWindow = new BrowserWindow({
-    fullscreen: true, 
+    fullscreen: true,
     frame: false,
     alwaysOnTop: true,
     resizable: false,
@@ -25,9 +38,9 @@ function createWindow() {
 
   splashWindow.loadFile("splash.html");
 
-
+  /* MAIN WINDOW */
   mainWindow = new BrowserWindow({
-    fullscreen: true, 
+    fullscreen: true,
     frame: false,
     autoHideMenuBar: true,
     show: false,
@@ -38,29 +51,43 @@ function createWindow() {
 
   mainWindow.loadFile("index.html");
 
+  /* ============================= */
+  /* TRANSIÇÃO SPLASH → MAIN       */
+  /* ============================= */
 
-  setTimeout(() => {
-    splashReady = true;
-    tryCloseSplash();
-  }, 3500);
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.setOpacity(0);
+    mainWindow.show();
 
- 
-mainWindow.webContents.on("did-finish-load", () => {
-  mainWindow.setOpacity(0);
-  mainWindow.show();
-  setTimeout(() => {
-    fadeInMainWindow();
-    fadeOutSplash();
-  }, 50);
-});
+    // tempo mínimo do splash (UX)
+    setTimeout(() => {
+      fadeInMainWindow();
+      fadeOutSplash();
+    }, 3500);
+  });
+
+  /* ============================= */
+  /* WINDOW STATE EVENTS           */
+  /* ============================= */
 
   mainWindow.on("enter-full-screen", sendWindowState);
   mainWindow.on("leave-full-screen", sendWindowState);
   mainWindow.on("maximize", sendWindowState);
   mainWindow.on("unmaximize", sendWindowState);
+
+  /* ============================= */
+  /* RENDERER CRASH                */
+  /* ============================= */
+
+  mainWindow.webContents.on("render-process-gone", (event, details) => {
+    console.error("❌ Renderer crashed:", details);
+    app.quit();
+  });
 }
 
-
+/* ============================= */
+/* IPC WINDOW CONTROLS            */
+/* ============================= */
 
 ipcMain.on("window-minimize", () => {
   mainWindow.minimize();
@@ -80,7 +107,9 @@ ipcMain.on("window-close", () => {
   app.quit();
 });
 
-
+/* ============================= */
+/* HELPERS                        */
+/* ============================= */
 
 function sendWindowState() {
   if (!mainWindow) return;
@@ -98,14 +127,16 @@ function fadeInMainWindow() {
   const interval = setInterval(() => {
     opacity += step;
     if (opacity >= 1) {
-      opacity = 1;
       clearInterval(interval);
+      opacity = 1;
     }
     mainWindow.setOpacity(opacity);
-  }, 16); // ~60fps
+  }, 16);
 }
 
 function fadeOutSplash() {
+  if (!splashWindow) return;
+
   let opacity = 1;
   const step = 0.08;
 
@@ -114,11 +145,29 @@ function fadeOutSplash() {
     if (opacity <= 0) {
       clearInterval(interval);
       splashWindow.close();
+      splashWindow = null;
     } else {
       splashWindow.setOpacity(opacity);
     }
   }, 16);
 }
 
+/* ============================= */
+/* FATAL ERRORS (MAIN PROCESS)    */
+/* ============================= */
+
+process.on("uncaughtException", (error) => {
+  console.error("❌ Uncaught Exception (main):", error);
+  app.quit();
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("❌ Unhandled Rejection (main):", reason);
+  app.quit();
+});
+
+/* ============================= */
+/* APP READY                      */
+/* ============================= */
 
 app.whenReady().then(createWindow);
