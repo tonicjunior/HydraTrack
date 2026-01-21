@@ -1,8 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Tray, Menu } = require("electron");
 const path = require("path");
 
 let splashWindow;
 let mainWindow;
+let tray = null;
+let isQuitting = false;
 
 /* ============================= */
 /* SINGLE INSTANCE               */
@@ -59,11 +61,21 @@ function createWindow() {
     mainWindow.setOpacity(0);
     mainWindow.show();
 
-    // tempo mínimo do splash (UX)
     setTimeout(() => {
       fadeInMainWindow();
       fadeOutSplash();
     }, 3500);
+  });
+
+  /* ============================= */
+  /* INTERCEPTA FECHAR (✕)         */
+  /* ============================= */
+
+  mainWindow.on("close", (event) => {
+    if (!isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
   });
 
   /* ============================= */
@@ -79,9 +91,49 @@ function createWindow() {
   /* RENDERER CRASH                */
   /* ============================= */
 
-  mainWindow.webContents.on("render-process-gone", (event, details) => {
+  mainWindow.webContents.on("render-process-gone", (_, details) => {
     console.error("❌ Renderer crashed:", details);
     app.quit();
+  });
+
+  createTray();
+}
+
+/* ============================= */
+/* TRAY (BANDEJA DO SISTEMA)      */
+/* ============================= */
+
+function createTray() {
+  tray = new Tray(path.join(__dirname, "favicon.ico"));
+
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "Abrir HydraTrack",
+      click: () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      },
+    },
+    { type: "separator" },
+    {
+      label: "Fechar HydraTrack",
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setToolTip("HydraTrack - Lembrete de Hidratação");
+  tray.setContextMenu(menu);
+
+  tray.on("double-click", () => {
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
   });
 }
 
@@ -104,7 +156,9 @@ ipcMain.on("window-maximize", () => {
 });
 
 ipcMain.on("window-close", () => {
-  app.quit();
+  if (mainWindow) {
+    mainWindow.hide();
+  }
 });
 
 /* ============================= */
