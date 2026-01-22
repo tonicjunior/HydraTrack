@@ -1419,7 +1419,7 @@ input:checked + .slider:before {
 
 #toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3rem;
   right: 1rem;
   z-index: 200;
   display: flex;
