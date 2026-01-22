@@ -80,12 +80,15 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.6;
   overflow-x: hidden;
-  transition: background 0.3s var(--ease-fluid), color 0.3s var(--ease-fluid);
+  transition:
+    background 0.3s var(--ease-fluid),
+    color 0.3s var(--ease-fluid);
 }
 
 @keyframes wave {
@@ -501,14 +504,20 @@ input:checked + .slider:before {
   z-index: 1;
 }
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
   z-index: 50;
   background: hsl(var(--background) / 0.8);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   padding: 1rem;
+  width: 100%; 
 }
+
+.mt-35{
+   margin-top: 35px;
+}
+
 .header-content {
   max-width: 64rem;
   margin: 0 auto;
@@ -1400,7 +1409,7 @@ input:checked + .slider:before {
 
 #toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3rem;
   right: 1rem;
   z-index: 200;
   display: flex;
@@ -1500,7 +1509,9 @@ input:checked + .slider:before {
   width: 250px;
   height: 250px;
   object-fit: contain;
-  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  transition:
+    opacity 0.4s ease-in-out,
+    transform 0.4s ease-in-out;
   transform: scale(1);
 }
 
@@ -1707,7 +1718,9 @@ input:checked + .slider:before {
   border-radius: var(--radius);
   margin-bottom: 0.75rem;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .user-list-item:hover {
@@ -1871,7 +1884,6 @@ input:checked + .slider:before {
 .calendar-day.no-log {
   background-color: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
-  
 }
 
 .calendar-day.is-today {
@@ -1930,10 +1942,10 @@ input:checked + .slider:before {
   color: hsl(var(--muted-foreground));
   border: 2px solid transparent;
   transition: all 0.2s ease-in-out;
-  cursor: pointer; 
-  font-family: inherit; 
-  position: relative; 
-  overflow: hidden; 
+  cursor: pointer;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
   font-size: 20px;
 }
 
@@ -1999,7 +2011,6 @@ input:checked + .slider:before {
   font-size: 0.8rem;
 }
 
-
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -2029,8 +2040,15 @@ input:checked + .slider:before {
   justify-content: space-between;
   padding: 0 12px;
   user-select: none;
-  -webkit-app-region: drag; 
+  -webkit-app-region: drag;
+
   border-bottom: 1px solid hsl(var(--border));
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .window-controls button {
@@ -2041,13 +2059,12 @@ input:checked + .slider:before {
   width: 40px;
   height: 28px;
   cursor: pointer;
-  -webkit-app-region: no-drag; 
+  -webkit-app-region: no-drag;
 }
 
 .window-controls button:hover {
   background: hsl(var(--muted));
 }
-
 
 .main-content,
 .header,
@@ -2064,4 +2081,3 @@ input:checked + .slider:before {
     transform: translateY(0);
   }
 }
-

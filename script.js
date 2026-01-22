@@ -140,7 +140,7 @@ class HydraTrack {
 
       this.notificationIntervalMinutes =
         parseInt(
-          localStorage.getItem("hydratrack-notificationIntervalMinutes")
+          localStorage.getItem("hydratrack-notificationIntervalMinutes"),
         ) || this.notificationIntervalMinutes;
     } catch (error) {
       console.error("Error loading data:", error);
@@ -153,21 +153,21 @@ class HydraTrack {
       localStorage.setItem("hydratrack-logs", JSON.stringify(this.waterLogs));
       localStorage.setItem(
         "hydratrack-amount-frequencies",
-        JSON.stringify(this.amountFrequencies)
+        JSON.stringify(this.amountFrequencies),
       );
       localStorage.setItem(
         "hydratrack-settings",
-        JSON.stringify(this.settings)
+        JSON.stringify(this.settings),
       );
       localStorage.setItem("hydratrack-streak", this.streak.toString());
       localStorage.setItem("hydratrack-onboarded", this.isOnboarded.toString());
       localStorage.setItem(
         "hydratrack-unlocked-achievements",
-        JSON.stringify(this.unlockedAchievements)
+        JSON.stringify(this.unlockedAchievements),
       );
       localStorage.setItem(
         "hydratrack-notificationIntervalMinutes",
-        this.notificationIntervalMinutes.toString()
+        this.notificationIntervalMinutes.toString(),
       );
     } catch (error) {
       console.error("Error saving data:", error);
@@ -288,7 +288,7 @@ class HydraTrack {
             (sound) =>
               `<option value="${sound.id}" ${
                 currentSound === sound.id ? "selected" : ""
-              }>${sound.name}</option>`
+              }>${sound.name}</option>`,
           )
           .join("");
         return `<div class="step-icon" style="background: var(--gradient-accent);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></div>
@@ -302,7 +302,7 @@ class HydraTrack {
                     <div class="volume-control-container">
                         <input type="range" id="onboarding-notification-volume" class="volume-slider" min="0" max="1" step="0.01" value="${currentVolume}">
                         <span id="onboarding-volume-percentage">${Math.round(
-                          currentVolume * 100
+                          currentVolume * 100,
                         )}%</span>
                         <button type="button" id="onboarding-test-volume-btn" class="btn-icon" title="Testar som">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
@@ -334,7 +334,7 @@ class HydraTrack {
         break;
       case 2:
         const selectedCharacter = document.querySelector(
-          ".character-option.selected"
+          ".character-option.selected",
         );
         if (selectedCharacter) {
           this.onboardingData.character = selectedCharacter.dataset.character;
@@ -342,12 +342,12 @@ class HydraTrack {
         break;
       case 3:
         this.onboardingData.weight = parseInt(
-          document.getElementById("user-weight")?.value
+          document.getElementById("user-weight")?.value,
         );
         break;
       case 4:
         this.onboardingData.activityLevel = document.querySelector(
-          ".activity-option.active"
+          ".activity-option.active",
         )?.dataset.value;
         break;
       case 5:
@@ -358,10 +358,10 @@ class HydraTrack {
         break;
       case 6:
         this.onboardingData.notificationVolume = parseFloat(
-          document.getElementById("onboarding-notification-volume")?.value
+          document.getElementById("onboarding-notification-volume")?.value,
         );
         this.onboardingData.sound = parseInt(
-          document.getElementById("onboarding-notification-sound")?.value
+          document.getElementById("onboarding-notification-sound")?.value,
         );
         break;
       case 7:
@@ -487,12 +487,10 @@ class HydraTrack {
     }
 
     const { consumed, goal } = this.getTodayProgress();
-    document.getElementById(
-      "percentage-text"
-    ).textContent = `${percentage.toFixed(0)}%`;
-    document.getElementById(
-      "amount-text"
-    ).textContent = `${consumed}ml de ${goal}ml`;
+    document.getElementById("percentage-text").textContent =
+      `${percentage.toFixed(0)}%`;
+    document.getElementById("amount-text").textContent =
+      `${consumed}ml de ${goal}ml`;
   }
 
   updateAxolotlImage(percentage) {
@@ -643,9 +641,8 @@ class HydraTrack {
   }
 
   updateHeader() {
-    document.getElementById(
-      "greeting-text"
-    ).textContent = `${this.getTimeOfDay()}, ${this.user.name}!`;
+    document.getElementById("greeting-text").textContent =
+      `${this.getTimeOfDay()}, ${this.user.name}!`;
     document.getElementById("motivational-message").textContent =
       this.getMotivationalMessage();
     document.getElementById("streak-count").textContent = this.streak;
@@ -676,7 +673,7 @@ class HydraTrack {
     document.getElementById("consumed-stat").textContent = consumed;
     document.getElementById("remaining-stat").textContent = Math.max(
       0,
-      goal - consumed
+      goal - consumed,
     );
     document.getElementById("logs-stat").textContent = logs.length;
   }
@@ -700,7 +697,7 @@ class HydraTrack {
                   icons[index % icons.length]
                 }.png"> </div>
                 <span class="quick-amount">${amount}ml</span>
-            </button>`
+            </button>`,
       )
       .join("");
   }
@@ -754,7 +751,7 @@ class HydraTrack {
                               log.amount
                             }ml ${userNameDisplay}</div>
                             <div class="timeline-time">${this.formatTime(
-                              log.timestamp
+                              log.timestamp,
                             )}</div>
                         </div>
                     </div>
@@ -819,15 +816,17 @@ class HydraTrack {
       const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
       const percentage = this.getProgressPercentage(
         consumed,
-        this.user.dailyGoal
+        this.user.dailyGoal,
       );
       const isToday = i === dayOfWeek;
       html += `<div class="week-day ${isToday ? "today" : ""}">
                     <div class="week-label">${weekDays[i]}</div>
                     <div class="week-bar">
                         <div class="week-bar-fill" style="height: ${percentage}%; background: ${
-        percentage >= 100 ? "hsl(var(--success))" : "var(--gradient-primary)"
-      };"></div>
+                          percentage >= 100
+                            ? "hsl(var(--success))"
+                            : "var(--gradient-primary)"
+                        };"></div>
                     </div>
                     <div class="week-percentage">${percentage.toFixed(0)}%</div>
                 </div>`;
@@ -929,7 +928,7 @@ class HydraTrack {
                 <div>
                     <div class="timeline-amount">${log.amount}ml</div>
                     <div class="timeline-time">${this.formatTime(
-                      log.timestamp
+                      log.timestamp,
                     )}</div>
                 </div>
             </div>
@@ -942,7 +941,7 @@ class HydraTrack {
                 }">×</button>
             </div>
         </div>
-    `
+    `,
       )
       .join("");
   }
@@ -1028,7 +1027,7 @@ class HydraTrack {
       monthName.className = "month-name";
       monthName.textContent = new Date(year, month).toLocaleDateString(
         "pt-BR",
-        { month: "long" }
+        { month: "long" },
       );
       monthCard.appendChild(monthName);
 
@@ -1084,7 +1083,7 @@ class HydraTrack {
 
     const bubbleCount = Math.min(
       50,
-      Math.floor(amount * FATOR_MULTIPLICADOR_BOLHAS_PERSONAGEM)
+      Math.floor(amount * FATOR_MULTIPLICADOR_BOLHAS_PERSONAGEM),
     );
 
     for (let i = 0; i < bubbleCount; i++) {
@@ -1104,11 +1103,14 @@ class HydraTrack {
 
       overlay.appendChild(bubble);
 
-      setTimeout(() => {
-        if (bubble) {
-          bubble.remove();
-        }
-      }, (duration + delay) * 1000);
+      setTimeout(
+        () => {
+          if (bubble) {
+            bubble.remove();
+          }
+        },
+        (duration + delay) * 1000,
+      );
     }
   }
 
@@ -1246,7 +1248,7 @@ class HydraTrack {
         (sound) =>
           `<option value="${sound.id}" ${
             this.settings.sound === sound.id ? "selected" : ""
-          }>${sound.name}</option>`
+          }>${sound.name}</option>`,
       )
       .join("");
     content.innerHTML = `<div class="settings-group">
@@ -1296,8 +1298,8 @@ class HydraTrack {
                 <div id="setting-goal-input-container" style="display: ${
                   this.user.isManualGoal ? "block" : "none"
                 };"><div class="form-group"><label for="setting-goal">Meta Diária (ml)</label><input type="number" id="setting-goal" class="form-input" value="${
-      this.user.dailyGoal
-    }"></div></div>
+                  this.user.dailyGoal
+                }"></div></div>
             </div>
             <div class="settings-group">
                 <h3>Notificações Pessoais</h3>
@@ -1316,7 +1318,7 @@ class HydraTrack {
                           this.settings.notificationVolume
                         }">
                         <span id="volume-percentage">${Math.round(
-                          this.settings.notificationVolume * 100
+                          this.settings.notificationVolume * 100,
                         )}%</span>
                         <button id="test-volume-btn" class="btn-icon" title="Testar som"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg></button>
                     </div>
@@ -1343,11 +1345,11 @@ class HydraTrack {
     this.user.name = document.getElementById("setting-name").value;
     this.user.weight = newWeight;
     this.user.isManualGoal = document.getElementById(
-      "setting-manual-goal"
+      "setting-manual-goal",
     ).checked;
 
     const selectedCharacter = document.querySelector(
-      "#settings-character-choice .character-option.selected"
+      "#settings-character-choice .character-option.selected",
     );
     if (selectedCharacter) {
       this.settings.character = selectedCharacter.dataset.character;
@@ -1359,26 +1361,26 @@ class HydraTrack {
 
     if (this.user.isManualGoal) {
       this.user.dailyGoal = parseInt(
-        document.getElementById("setting-goal").value
+        document.getElementById("setting-goal").value,
       );
     } else {
       this.user.dailyGoal = this.calculateDailyGoal(
         this.user.weight,
-        this.user.activityLevel
+        this.user.activityLevel,
       );
     }
 
     this.settings.notificationsEnabled = document.getElementById(
-      "setting-notifications"
+      "setting-notifications",
     ).checked;
     this.notificationIntervalMinutes = parseInt(
-      document.getElementById("setting-notification-interval").value
+      document.getElementById("setting-notification-interval").value,
     );
     this.settings.notificationVolume = parseFloat(
-      document.getElementById("setting-notification-volume").value
+      document.getElementById("setting-notification-volume").value,
     );
     this.settings.sound = parseInt(
-      document.getElementById("setting-notification-sound").value
+      document.getElementById("setting-notification-sound").value,
     );
 
     this.notificationSound.volume = this.settings.notificationVolume;
@@ -1727,16 +1729,16 @@ class HydraTrack {
 
       case 6:
         const volumeSlider = document.getElementById(
-          "onboarding-notification-volume"
+          "onboarding-notification-volume",
         );
         const volumePercentage = document.getElementById(
-          "onboarding-volume-percentage"
+          "onboarding-volume-percentage",
         );
         const soundSelector = document.getElementById(
-          "onboarding-notification-sound"
+          "onboarding-notification-sound",
         );
         const testVolumeBtn = document.getElementById(
-          "onboarding-test-volume-btn"
+          "onboarding-test-volume-btn",
         );
 
         if (volumeSlider && volumePercentage) {
@@ -1830,7 +1832,7 @@ class HydraTrack {
     const soundSelector = document.getElementById("setting-notification-sound");
     if (testVolumeBtn) {
       testVolumeBtn.addEventListener("click", () =>
-        this.playSound(false, parseInt(soundSelector.value))
+        this.playSound(false, parseInt(soundSelector.value)),
       );
     }
     if (soundSelector) {
@@ -1870,9 +1872,8 @@ class HydraTrack {
       .addEventListener("input", (e) => {
         const volume = parseFloat(e.target.value);
         this.settings.friendNotifications.volume = volume;
-        document.getElementById(
-          "friend-volume-percentage"
-        ).textContent = `${Math.round(volume * 100)}%`;
+        document.getElementById("friend-volume-percentage").textContent =
+          `${Math.round(volume * 100)}%`;
         this.friendNotificationSound.volume = volume;
         this.saveData();
       });
@@ -1922,7 +1923,7 @@ class HydraTrack {
 
   getTodayProgress() {
     const todayLogs = this.waterLogs.filter(
-      (log) => log.date === this.getTodayDateString()
+      (log) => log.date === this.getTodayDateString(),
     );
     const consumed = todayLogs.reduce((sum, log) => sum + log.amount, 0);
     const goal = this.user?.dailyGoal || 2000;
@@ -2028,7 +2029,7 @@ class HydraTrack {
         this.startNotificationTimer();
         this.sendNotification(
           "HydraTrack Ativado!",
-          "Você será lembrado de beber água. Mantenha-se hidratado!"
+          "Você será lembrado de beber água. Mantenha-se hidratado!",
         );
       } else {
         this.settings.notificationsEnabled = false;
@@ -2082,7 +2083,7 @@ class HydraTrack {
       if (!lastLog) {
         this.sendNotification(
           "Hora de se hidratar!",
-          "Que tal começar o dia com um copo d'água?"
+          "Que tal começar o dia com um copo d'água?",
         );
         return;
       }
@@ -2097,7 +2098,7 @@ class HydraTrack {
         const timeString = this.formatElapsedTime(minutesSinceLastDrink);
         const finalMessage = randomMessageTemplate.replace(
           "{time}",
-          timeString
+          timeString,
         );
         this.sendNotification("Lembrete de Hidratação 💧", finalMessage);
       }
@@ -2150,7 +2151,7 @@ class HydraTrack {
     this.notificationSound.play().catch((e) => {
       console.warn(
         "A reprodução de áudio falhou. Isso pode ser devido à política de autoplay do navegador.",
-        e
+        e,
       );
     });
     this.soundTimeout = setTimeout(() => {
@@ -2242,7 +2243,7 @@ class HydraTrack {
       0,
       0,
       this.particleCanvas.width,
-      this.particleCanvas.height
+      this.particleCanvas.height,
     );
     for (let i = this.particles.length - 1; i >= 0; i--) {
       this.particles[i].update();
@@ -2258,7 +2259,7 @@ class HydraTrack {
         0,
         0,
         this.particleCanvas.width,
-        this.particleCanvas.height
+        this.particleCanvas.height,
       );
     }
   }
@@ -2276,7 +2277,7 @@ class HydraTrack {
   renderAchievements() {
     const container = document.getElementById("achievements-list");
     const unlocked = this.allAchievements.filter((ach) =>
-      this.unlockedAchievements.includes(ach.id)
+      this.unlockedAchievements.includes(ach.id),
     );
     if (unlocked.length === 0) {
       container.innerHTML = `
@@ -2329,7 +2330,7 @@ class HydraTrack {
     const totalLogs = this.waterLogs.length;
     const totalConsumed = this.waterLogs.reduce(
       (sum, log) => sum + log.amount,
-      0
+      0,
     );
     const todayProgress = this.getTodayProgress();
     const uniqueDaysWithLogs = [
@@ -2343,7 +2344,7 @@ class HydraTrack {
     }, {});
     const firstLogDate = new Date(this.waterLogs[0].timestamp);
     const daysSinceFirstLog = Math.ceil(
-      Math.abs(new Date() - firstLogDate) / (1000 * 60 * 60 * 24)
+      Math.abs(new Date() - firstLogDate) / (1000 * 60 * 60 * 24),
     );
     this.allAchievements.forEach((ach) => {
       if (this.unlockedAchievements.includes(ach.id)) return;
@@ -2369,7 +2370,7 @@ class HydraTrack {
           break;
         case "B02":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total >= this.user.dailyGoal
+            (total) => total >= this.user.dailyGoal,
           );
           break;
         case "B03":
@@ -2389,7 +2390,7 @@ class HydraTrack {
           break;
         case "B08":
           conditionMet = this.waterLogs.some(
-            (log) => new Date(log.timestamp).getHours() < 9
+            (log) => new Date(log.timestamp).getHours() < 9,
           );
           break;
         case "B09":
@@ -2400,7 +2401,7 @@ class HydraTrack {
           break;
         case "B10":
           conditionMet = this.waterLogs.some(
-            (log) => new Date(log.timestamp).getHours() >= 20
+            (log) => new Date(log.timestamp).getHours() >= 20,
           );
           break;
         case "B11":
@@ -2425,14 +2426,14 @@ class HydraTrack {
           break;
         case "B17":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total >= this.user.dailyGoal + 500
+            (total) => total >= this.user.dailyGoal + 500,
           );
           break;
         case "B18":
           conditionMet = uniqueDaysWithLogs.some(
             (date) =>
               new Date(date).getDay() === 1 &&
-              consumptionByDay[date] >= this.user.dailyGoal
+              consumptionByDay[date] >= this.user.dailyGoal,
           );
           break;
         case "B19":
@@ -2447,7 +2448,7 @@ class HydraTrack {
           break;
         case "B23":
           conditionMet = this.waterLogs.some(
-            (log) => new Date(log.timestamp).getDay() === 5
+            (log) => new Date(log.timestamp).getDay() === 5,
           );
           break;
         case "B24": // Desbloqueado em saveSettings
@@ -2459,7 +2460,7 @@ class HydraTrack {
           const todayLogs = this.getTodayProgress().logs;
           const hours = [
             ...new Set(
-              todayLogs.map((log) => new Date(log.timestamp).getHours())
+              todayLogs.map((log) => new Date(log.timestamp).getHours()),
             ),
           ];
           const hasMorning = hours.some((h) => h < 12);
@@ -2499,39 +2500,40 @@ class HydraTrack {
           break;
         case "S07":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total >= this.user.dailyGoal * 2
+            (total) => total >= this.user.dailyGoal * 2,
           );
           break;
         case "S08":
           conditionMet = this.checkConsecutiveLogDays(
             5,
-            (log) => new Date(log.timestamp).getHours() < 9
+            (log) => new Date(log.timestamp).getHours() < 9,
           );
           break;
         case "S09":
           conditionMet = this.checkConsecutiveLogDays(
             5,
-            (log) => new Date(log.timestamp).getHours() >= 20
+            (log) => new Date(log.timestamp).getHours() >= 20,
           );
           break;
         case "S10":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => Math.abs(total - this.user.dailyGoal) <= 10
+            (total) => Math.abs(total - this.user.dailyGoal) <= 10,
           );
           break;
         case "S11":
           conditionMet = Object.keys(consumptionByDay).some(
-            (date) => this.waterLogs.filter((l) => l.date === date).length >= 5
+            (date) => this.waterLogs.filter((l) => l.date === date).length >= 5,
           );
           break;
         case "S12":
           conditionMet = Object.keys(consumptionByDay).some(
-            (date) => this.waterLogs.filter((l) => l.date === date).length >= 10
+            (date) =>
+              this.waterLogs.filter((l) => l.date === date).length >= 10,
           );
           break;
         case "S13":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total > 4000
+            (total) => total > 4000,
           );
           break;
         case "S14":
@@ -2586,7 +2588,7 @@ class HydraTrack {
           break;
         case "G09":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total > 5000
+            (total) => total > 5000,
           );
           break;
         case "G10":
@@ -2598,7 +2600,7 @@ class HydraTrack {
               ...new Set(
                 this.waterLogs
                   .filter((log) => new Date(log.timestamp).getHours() < 9)
-                  .map((log) => log.date)
+                  .map((log) => log.date),
               ),
             ].length >= 15;
           break;
@@ -2608,7 +2610,7 @@ class HydraTrack {
               ...new Set(
                 this.waterLogs
                   .filter((log) => new Date(log.timestamp).getHours() >= 20)
-                  .map((log) => log.date)
+                  .map((log) => log.date),
               ),
             ].length >= 15;
           break;
@@ -2629,7 +2631,7 @@ class HydraTrack {
           break;
         case "G17":
           conditionMet = Object.values(consumptionByDay).some(
-            (total) => total >= this.user.dailyGoal * 3
+            (total) => total >= this.user.dailyGoal * 3,
           );
           break;
         case "G18":
@@ -2646,7 +2648,8 @@ class HydraTrack {
           break;
         case "G22":
           conditionMet = Object.keys(consumptionByDay).some(
-            (date) => this.waterLogs.filter((l) => l.date === date).length >= 20
+            (date) =>
+              this.waterLogs.filter((l) => l.date === date).length >= 20,
           );
           break;
         case "E01":
@@ -2654,14 +2657,14 @@ class HydraTrack {
           break;
         case "E02":
           conditionMet = Object.keys(this.friendsData).some(
-            (friend) => friend.goalReached
+            (friend) => friend.goalReached,
           );
           break;
         case "E03":
           conditionMet =
             todayProgress.percentage >= 100 &&
             Object.values(this.friendsData).some(
-              (friend) => friend.goalReached
+              (friend) => friend.goalReached,
             );
           break;
         case "E04":
@@ -2669,12 +2672,12 @@ class HydraTrack {
           break;
         case "E05":
           conditionMet = Object.values(this.friendsData).some(
-            (friend) => friend.logs && friend.logs.length > 0
+            (friend) => friend.logs && friend.logs.length > 0,
           );
           break;
         case "E06":
           const friendsWithGoalMet = Object.values(this.friendsData).filter(
-            (f) => f.percentage >= 100
+            (f) => f.percentage >= 100,
           ).length;
           conditionMet =
             todayProgress.percentage >= 100 && friendsWithGoalMet >= 2;
@@ -2721,7 +2724,7 @@ class HydraTrack {
           conditionMet = Object.keys(consumptionByDay).some((date) => {
             const dayLogs = this.waterLogs.filter((l) => l.date === date);
             const uniqueHours = new Set(
-              dayLogs.map((l) => new Date(l.timestamp).getHours())
+              dayLogs.map((l) => new Date(l.timestamp).getHours()),
             );
             return uniqueHours.size >= 12;
           });
@@ -2743,7 +2746,7 @@ class HydraTrack {
           conditionMet = uniqueDaysWithLogs.some((date) => {
             const current = new Date(date + "T12:00:00");
             const yearAgo = new Date(
-              current.setFullYear(current.getFullYear() - 1)
+              current.setFullYear(current.getFullYear() - 1),
             );
             const yearAgoStr = yearAgo.toISOString().split("T")[0];
             return (
@@ -2785,7 +2788,7 @@ class HydraTrack {
         const dateString = dayToCheck.toISOString().split("T")[0];
 
         const logsOfDay = this.waterLogs.filter(
-          (log) => log.date === dateString
+          (log) => log.date === dateString,
         );
         const totalOfDay = logsOfDay.reduce((sum, log) => sum + log.amount, 0);
 
@@ -2817,7 +2820,7 @@ class HydraTrack {
 
       const totalConsumedInMonth = logsByMonth[monthKey].reduce(
         (sum, log) => sum + log.amount,
-        0
+        0,
       );
       const average = totalConsumedInMonth / daysInMonth;
 
@@ -2851,7 +2854,7 @@ class HydraTrack {
         (d) =>
           d.startsWith(monthKey) &&
           new Date(d + "T12:00:00").getDay() === 1 &&
-          this.consumptionByDay[d] >= this.user.dailyGoal
+          this.consumptionByDay[d] >= this.user.dailyGoal,
       ).length;
       if (mondaysHit === mondaysInThisMonth) return true;
     }
@@ -2874,7 +2877,7 @@ class HydraTrack {
           const weekStart = w * 7;
           const weekDays = weekSlice.slice(weekStart, weekStart + 7);
           const daysHit = weekDays.filter(
-            (d) => (this.consumptionByDay[d] || 0) >= this.user.dailyGoal
+            (d) => (this.consumptionByDay[d] || 0) >= this.user.dailyGoal,
           ).length;
           if (daysHit === 7) perfectWeeks++;
         }
@@ -3723,12 +3726,12 @@ class HydraTrack {
     try {
       await fetch(
         `${this.apiUrl}/cadastro?nickname=${encodeURIComponent(
-          this.user.name
+          this.user.name,
         )}&id=${encodeURIComponent(this.myPeerId)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     } catch (error) {
       console.error("Erro ao registrar no lobby:", error);
@@ -3797,7 +3800,7 @@ class HydraTrack {
         </div>
         <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Conectar</button>
       </li>
-    `
+    `,
       )
       .join("");
   }
@@ -3911,7 +3914,7 @@ class HydraTrack {
       const friendName = conn.metadata?.name || "Um amigo";
       this.showConnectionRequest(
         conn.peer,
-        `${friendName} quer se conectar com você.`
+        `${friendName} quer se conectar com você.`,
       );
       this.pendingConnections[conn.peer] = conn;
       this.setupConnectionEventListeners(conn);
@@ -4034,24 +4037,24 @@ class HydraTrack {
         }
         // Evita logs duplicados.
         const logExists = this.friendsData[peerId].logs.some(
-          (log) => log.id === data.payload.id
+          (log) => log.id === data.payload.id,
         );
         if (!logExists) {
           this.friendsData[peerId].logs.push(data.payload);
           // Recalcula o progresso do amigo.
           const friendConsumed = this.friendsData[peerId].logs.reduce(
             (sum, log) => sum + log.amount,
-            0
+            0,
           );
           const friendGoal = this.friendsData[peerId].dailyGoal || 2000;
           this.friendsData[peerId].consumed = friendConsumed;
           this.friendsData[peerId].percentage = this.getProgressPercentage(
             friendConsumed,
-            friendGoal
+            friendGoal,
           );
 
           this.showFriendNotification(
-            `${friendName} acabou de beber ${data.payload.amount}ml!`
+            `${friendName} acabou de beber ${data.payload.amount}ml!`,
           );
           this.unlockAchievement("E05");
           this.updateTimeline();
@@ -4178,7 +4181,7 @@ class HydraTrack {
         (sound) =>
           `<option value="${sound.id}" ${
             settings.sound === sound.id ? "selected" : ""
-          }>${sound.name}</option>`
+          }>${sound.name}</option>`,
       )
       .join("");
     container.innerHTML = `
@@ -4202,7 +4205,7 @@ class HydraTrack {
                   settings.volume
                 }">
                 <span id="friend-volume-percentage">${Math.round(
-                  settings.volume * 100
+                  settings.volume * 100,
                 )}%</span>
                 <button id="test-friend-volume-btn" class="btn-icon" title="Testar som">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
@@ -4358,13 +4361,13 @@ class HydraTrack {
                   percentage >= 100 ? "goal-met" : ""
                 }">
                     <h3 class="friend-name" style="color: ${color}">${
-        data.name || "Amigo"
-      }</h3>
+                      data.name || "Amigo"
+                    }</h3>
                     ${characterHTML}
                     <div class="friend-progress-details">
                         <div class="percentage-friend" style="color: ${color}">${percentage.toFixed(
-        0
-      )}%</div>
+                          0,
+                        )}%</div>
                         <div class="amount-text-friend">${consumed}ml de ${goal}ml</div>
                     </div>
                 </div>
@@ -4425,5 +4428,8 @@ const isElectron =
 
 if (!isElectron) {
   const bar = document.querySelector(".window-bar");
+  const header = document.querySelector("header.header");
+
+  if (header) header.classList.remove("mt-35");
   if (bar) bar.remove();
 }
