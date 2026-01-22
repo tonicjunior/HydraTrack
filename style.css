@@ -511,11 +511,11 @@ input:checked + .slider:before {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   padding: 1rem;
-  width: 100%; 
+  width: 100%;
 }
 
-.mt-35{
-   margin-top: 35px;
+.mt-35 {
+  margin-top: 35px;
 }
 
 .header-content {
@@ -566,6 +566,7 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-top: 40px;
 }
 
 .glass-section {
@@ -1159,6 +1160,15 @@ input:checked + .slider:before {
   .character-selection {
     flex-wrap: wrap;
   }
+
+  .header-content {
+    max-width: 64rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1409,7 +1419,7 @@ input:checked + .slider:before {
 
 #toast-container {
   position: fixed;
-  top: 3rem;
+  top: 1rem;
   right: 1rem;
   z-index: 200;
   display: flex;
