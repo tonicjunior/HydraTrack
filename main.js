@@ -146,14 +146,32 @@ ipcMain.on("window-minimize", () => {
   mainWindow.minimize();
 });
 
+
 ipcMain.on("window-maximize", () => {
-  if (mainWindow.isFullScreen()) {
-    mainWindow.setFullScreen(false);
-  } else if (mainWindow.isMaximized()) {
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+
+  const bounds = mainWindow.getBounds();
+  const isSideMode = bounds.width === 420 && bounds.x === (width - 420);
+
+  if (mainWindow.isMaximized() || mainWindow.isFullScreen()) {
     mainWindow.unmaximize();
+    mainWindow.setFullScreen(false);
+    mainWindow.setBounds({
+      x: width - 420,
+      y: 0,
+      width: 420,
+      height: height
+    });
+  } else if (isSideMode) {
+    mainWindow.setSize(1000, 700);
+    mainWindow.center();
   } else {
     mainWindow.maximize();
   }
+  
+  sendWindowState();
 });
 
 ipcMain.on("window-close", () => {

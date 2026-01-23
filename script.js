@@ -646,6 +646,8 @@ class HydraTrack {
     document.getElementById("motivational-message").textContent =
       this.getMotivationalMessage();
     document.getElementById("streak-count").textContent = this.streak;
+    document.getElementById("streak-badge").title =
+      `Dias consecutivos com meta diária atingida: ${this.streak}`;
   }
 
   updateWaterGlass() {
@@ -886,6 +888,26 @@ class HydraTrack {
   }
 
   showEditDayModal(dateString) {
+    const today = new Date();
+    const editDate = new Date(dateString + "T12:00:00");
+    const diffDays = Math.floor((today - editDate) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      this.showToast({
+        title: "Data Futura",
+        body: "Não é possível editar registros de datas futuras.",
+        type: "warning",
+      });
+      return;
+    } else if (diffDays > 30) {
+      this.showToast({
+        title: "Data Muito Antiga",
+        body: "Você só pode editar registros dos últimos 30 dias.",
+        type: "warning",
+      });
+      return;
+    }
+
     this.unlockAchievement("H01");
     const modal = document.getElementById("edit-day-modal");
     const date = new Date(dateString + "T12:00:00");
@@ -982,8 +1004,10 @@ class HydraTrack {
       if (oldAmount !== newAmount) {
         this.unlockAchievement("H02");
       }
+      this.streak = this.calculateStreak();
       this.saveData();
       this.renderEditDayLogs(this.waterLogs[logIndex].date);
+      this.updateDashboard();
     }
   }
 
@@ -992,6 +1016,15 @@ class HydraTrack {
   }
 
   addWaterLogForDate(amount, dateString) {
+    if (dateString > this.getTodayDateString()) {
+      this.showToast({
+        title: "Data Inválida",
+        body: "Não é possível adicionar registros para datas futuras.",
+        type: "warning",
+      });
+      return;
+    }
+
     const parsedAmount = parseInt(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) return;
     const timestamp = new Date(`${dateString}T12:00:00`).toISOString();
@@ -1005,6 +1038,7 @@ class HydraTrack {
       userName: this.user.name,
     };
     this.waterLogs.push(newLog);
+    this.streak = this.calculateStreak();
     this.saveData();
     this.renderEditDayLogs(dateString);
 
@@ -1142,7 +1176,7 @@ class HydraTrack {
 
     if (prevProgress.percentage < 100 && newProgress.percentage >= 100) {
       this.showCelebration();
-      this.updateStreak();
+      this.streak = this.calculateStreak();
       this.broadcastGoalReached();
     }
 
@@ -1161,6 +1195,7 @@ class HydraTrack {
 
     const dateStringToUpdate = this.waterLogs[logIndex].date;
     this.waterLogs = this.waterLogs.filter((log) => log.id !== logId);
+    this.streak = this.calculateStreak();
     this.saveData();
 
     const editModal = document.getElementById("edit-day-modal");
@@ -1933,6 +1968,38 @@ class HydraTrack {
       percentage: this.getProgressPercentage(consumed, goal),
       logs: todayLogs,
     };
+  }
+
+  getProgressForDate(dateString) {
+    const dayLogs = this.waterLogs.filter((log) => log.date === dateString);
+    const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
+    const goal = this.user?.dailyGoal || 2000;
+    return {
+      consumed,
+      goal,
+      percentage: this.getProgressPercentage(consumed, goal),
+      logs: dayLogs,
+    };
+  }
+
+  calculateStreak() {
+    let streak = 0;
+    let currentDate = new Date();
+    while (true) {
+      const dateStr = this.getDateString(currentDate);
+      const progress = this.getProgressForDate(dateStr);
+      if (progress.percentage >= 100) {
+        streak++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  getDateString(date) {
+    return date.toISOString().split("T")[0];
   }
 
   getTimeOfDay() {
@@ -4432,4 +4499,18 @@ if (!isElectron) {
 
   if (header) header.classList.remove("mt-35");
   if (bar) bar.remove();
+}
+
+if (window.windowAPI && window.windowAPI.onWindowState) {
+  window.windowAPI.onWindowState((state) => {
+    const maxBtn = document.getElementById("btn-maximize");
+    if (!maxBtn) return;
+    if (state.maximized || state.fullscreen) {
+      maxBtn.innerHTML = "❐";
+      maxBtn.title = "Modo Janela Lateral";
+    } else {
+      maxBtn.innerHTML = "⬜";
+      maxBtn.title = "Maximizar";
+    }
+  });
 }
