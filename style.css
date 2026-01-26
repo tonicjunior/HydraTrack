@@ -49,6 +49,31 @@
   --bounce-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --ease-fluid: cubic-bezier(0.4, 0, 0.2, 1);
   --radius: 1rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+}
+
+.card-base {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.modal-overlay-base {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  background: hsl(var(--background) / 0.5);
+  backdrop-filter: blur(8px);
+  animation: modal-fade-in 0.3s var(--ease-fluid);
 }
 
 .dark {
@@ -91,6 +116,7 @@ body {
     color 0.3s var(--ease-fluid);
 }
 
+/* Animations */
 @keyframes wave {
   0%,
   100% {
@@ -265,6 +291,7 @@ body {
   fill: currentColor;
 }
 
+/* Components */
 .onboarding-container {
   min-height: 100vh;
   background: linear-gradient(
@@ -1156,6 +1183,7 @@ input:checked + .slider:before {
   opacity: 0;
 }
 
+/* Media Queries */
 @media (max-width: 468px) {
   .character-selection {
     flex-wrap: wrap;
