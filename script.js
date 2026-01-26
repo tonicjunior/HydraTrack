@@ -821,8 +821,10 @@ class HydraTrack {
         this.user.dailyGoal,
       );
       const isToday = i === dayOfWeek;
-      html += `<div class="week-day ${isToday ? "today" : ""}">
-                    <div class="week-label">${weekDays[i]}</div>
+      const isWeekend = i === 0 || i === 6;
+      const weekendClass = isWeekend ? "weekend-rest" : "";
+      html += `<div class="week-day ${isToday ? "today" : ""} ${weekendClass}">
+            <div class="week-label">${weekDays[i]}</div>
                     <div class="week-bar">
                         <div class="week-bar-fill" style="height: ${percentage}%; background: ${
                           percentage >= 100
@@ -1046,53 +1048,57 @@ class HydraTrack {
     if (customInput) customInput.value = "";
   }
 
-  renderYearView(container) {
-    const year = this.calendarDate.getFullYear();
-    document.getElementById("calendar-title").textContent = year;
+ renderYearView(container) {
+  const year = this.calendarDate.getFullYear();
+  document.getElementById("calendar-title").textContent = year;
 
-    const yearGrid = document.createElement("div");
-    yearGrid.className = "year-grid";
+  const yearGrid = document.createElement("div");
+  yearGrid.className = "year-grid";
 
-    for (let month = 0; month < 12; month++) {
-      const monthCard = document.createElement("div");
-      monthCard.className = "month-card";
+  for (let month = 0; month < 12; month++) {
+    const monthCard = document.createElement("div");
+    monthCard.className = "month-card";
 
-      const monthName = document.createElement("div");
-      monthName.className = "month-name";
-      monthName.textContent = new Date(year, month).toLocaleDateString(
-        "pt-BR",
-        { month: "long" },
-      );
-      monthCard.appendChild(monthName);
+    const monthName = document.createElement("div");
+    monthName.className = "month-name";
+    monthName.textContent = new Date(year, month).toLocaleDateString("pt-BR", { month: "long" });
+    monthCard.appendChild(monthName);
 
-      const monthDaysGrid = document.createElement("div");
-      monthDaysGrid.className = "month-days-grid";
+    const monthDaysGrid = document.createElement("div");
+    monthDaysGrid.className = "month-days-grid";
 
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateString = new Date(year, month, day + 1)
-          .toISOString()
-          .split("T")[0];
+    // --- NOVA LÓGICA DE ALINHAMENTO ---
+    const firstDayOfMonth = new Date(year, month, 1);
+    const startDayOfWeek = firstDayOfMonth.getDay(); // 0 (Dom) a 6 (Sáb)
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        const dayLogs = this.waterLogs.filter((log) => log.date === dateString);
-        const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
-
-        let statusClass = "";
-        if (dayLogs.length > 0) {
-          statusClass =
-            consumed >= this.user.dailyGoal ? "goal-met" : "goal-partial";
-        }
-
-        const dayCell = document.createElement("div");
-        dayCell.className = `month-day-cell ${statusClass}`;
-        dayCell.title = `${day}/${month + 1}/${year}`;
-        monthDaysGrid.appendChild(dayCell);
-      }
-      monthCard.appendChild(monthDaysGrid);
-      yearGrid.appendChild(monthCard);
+    // Adiciona células vazias para alinhar o início da semana
+    for (let i = 0; i < startDayOfWeek; i++) {
+      const emptyCell = document.createElement("div");
+      emptyCell.className = "month-day-cell empty";
+      monthDaysGrid.appendChild(emptyCell);
     }
-    container.appendChild(yearGrid);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateString = new Date(year, month, day).toISOString().split("T")[0];
+      const dayLogs = this.waterLogs.filter((log) => log.date === dateString);
+      const consumed = dayLogs.reduce((sum, log) => sum + log.amount, 0);
+
+      let statusClass = "";
+      if (dayLogs.length > 0) {
+        statusClass = consumed >= this.user.dailyGoal ? "goal-met" : "goal-partial";
+      }
+
+      const dayCell = document.createElement("div");
+      dayCell.className = `month-day-cell ${statusClass}`;
+      dayCell.title = `${day}/${month + 1}/${year}`;
+      monthDaysGrid.appendChild(dayCell);
+    }
+    monthCard.appendChild(monthDaysGrid);
+    yearGrid.appendChild(monthCard);
   }
+  container.appendChild(yearGrid);
+}
 
   updateQuickAmounts() {
     const sortedAmounts = Object.entries(this.amountFrequencies)
@@ -1985,15 +1991,34 @@ class HydraTrack {
   calculateStreak() {
     let streak = 0;
     let currentDate = new Date();
+
+    const todayDay = currentDate.getDay();
+    if (todayDay === 0 || todayDay === 6) {
+      const todayProgress = this.getProgressForDate(
+        this.getDateString(currentDate),
+      );
+      if (todayProgress.percentage < 100) {
+        currentDate.setDate(currentDate.getDate() - (todayDay === 0 ? 2 : 1));
+      }
+    }
+
     while (true) {
+      const dayOfWeek = currentDate.getDay();
       const dateStr = this.getDateString(currentDate);
       const progress = this.getProgressForDate(dateStr);
+
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        currentDate.setDate(currentDate.getDate() - 1);
+        continue;
+      }
+
       if (progress.percentage >= 100) {
         streak++;
         currentDate.setDate(currentDate.getDate() - 1);
       } else {
         break;
       }
+      if (streak > 1000) break;
     }
     return streak;
   }

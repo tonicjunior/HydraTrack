@@ -2095,7 +2095,7 @@ input:checked + .slider:before {
 /* No seu style.css */
 @media (max-width: 450px) {
   .stats-grid {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
@@ -2107,9 +2107,48 @@ input:checked + .slider:before {
   }
 
   .quick-buttons {
-    grid-template-columns: repeat(
-      2,
-      1fr
-    );
+    grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.calendar-day:nth-child(7n),
+.calendar-day:nth-child(7n + 1),
+.week-day:nth-child(1),
+.week-day:nth-child(7) {
+  opacity: 0.6;
+  padding: 0 8px;
+}
+
+.calendar-day:not(.other-month):nth-child(7n),
+.calendar-day:not(.other-month):nth-child(7n + 1) {
+  background-color: hsl(var(--accent) / 0.15);
+  border: 1px dashed hsl(var(--accent) / 0.3);
+  cursor: pointer;
+}
+
+.calendar-day.goal-met:nth-child(7n),
+.calendar-day.goal-met:nth-child(7n + 1) {
+  background-color: hsl(var(--success) / 0.2);
+  color: hsl(var(--success));
+}
+
+.month-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.month-day-cell.empty {
+  background-color: transparent;
+  pointer-events: none;
+}
+
+.month-day-cell.goal-met {
+  background-color: hsl(var(--success));
+  box-shadow: 0 0 5px hsl(var(--success) / 0.4);
+}
+
+.month-day-cell.goal-partial {
+  background-color: hsl(var(--primary));
+  opacity: 0.6;
 }
